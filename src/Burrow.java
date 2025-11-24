@@ -1,5 +1,3 @@
-package world;
-
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.NonBlocking;
