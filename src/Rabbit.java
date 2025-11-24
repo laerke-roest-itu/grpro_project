@@ -14,7 +14,7 @@ public class Rabbit implements Actor {
     private Burrow burrow;
     private boolean isAlive;
     private int AmountOfKids;
-    private Random random;
+    private final Random random;
 
     public Rabbit() {
         age = 0;
@@ -22,27 +22,37 @@ public class Rabbit implements Actor {
         isAlive = true;
         lifeEnergy = 180;
         foodEnergy = 100;
+        random = new Random();
     }
 
     @Override
     public void act(World world) {
+        age++;
+        lifeEnergy = lifeEnergy - 1;
+
+        if (lifeEnergy <= 0 || foodEnergy <= 0) {
+            world.delete(this);
+            return;
+        }
+
         Location rabbitLocation = world.getLocation(this);
         Set<Location> emptyTilesNearRabbit = world.getEmptySurroundingTiles(rabbitLocation);
         List<Location> listOfPlacesToMove = new ArrayList<>(emptyTilesNearRabbit);
-
-        random = new Random();
 
         if (!emptyTilesNearRabbit.isEmpty()) {
             int j = random.nextInt(emptyTilesNearRabbit.size());
             Location RabbitLocationToMoveTo = listOfPlacesToMove.get(j);
             world.move(this,RabbitLocationToMoveTo);
+            foodEnergy = foodEnergy - 5;
             if (world.containsNonBlocking(RabbitLocationToMoveTo)) {
                 Object object = world.getNonBlocking(RabbitLocationToMoveTo);
-                if (object instanceof Grass) {
+                if (object instanceof Grass && foodEnergy < 50) {
                     world.delete(object);
+                    foodEnergy = foodEnergy + 10;
                 }
 
             }
         }
     }
+
 }
