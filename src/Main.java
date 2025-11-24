@@ -1,4 +1,8 @@
 import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Random;
+import java.util.Scanner;
 
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.Program;
@@ -7,16 +11,86 @@ import itumulator.world.World;
 
 public class Main {
 
-    public static void main(String[] args) {
-        int size = 5;
-        Program p = new Program(size, 800, 75);
+    public static void main(String[] args) throws FileNotFoundException {
+        // Åbner inputfilen med navnet "filnavn" eller andet (kan ændres)
+        File file = new File("filnavn");
 
-        World w = p.getWorld();
+        // Opret en Scanner, der kan læse tekst (tokens) fra filen
+        Scanner scanner = new Scanner(file);
+
+        // Random bruges senere til både antal (ved min-max) og tilfældige positioner
+        Random random = new Random();
+
+        // Første tal i filen: verdens størrelse N
+        int size = scanner.nextInt();
+
+        // Konstante parametre til programmet (kan justeres efter behov)
+        int delay = 1000;
+        int display_size = 800;
+
+        // Variabel til "count" = hvor mange objekter af en given type der skal laves
+        int count = 0;
+
+        // Opret ITUmulator-programmet med den læste størrelse
+        Program program = new Program(size, display_size, delay);
+        // Hent verden (World) ud af programmet – det er her vi placerer objekter
+        World world = program.getWorld();
+
+        // Læs resten af filen linje for linje (egentlig token for token)
+        while (scanner.hasNext()) {
+            // type: fx "grass", "person" osv.
+            String type = scanner.next();
+            // amount: enten "10" eller "3-7"
+            String amount = scanner.next();
+
+            // Tjek om amount er et interval (min-max) eller et enkelt tal
+            if (amount.contains("-")) {
+                // Del teksten op ved "-" → "3-7" bliver ["3", "7"]
+                String[] parts = amount.split("-");
+                int min = Integer.parseInt(parts[0]); // konverter "3" til 3
+                int max = Integer.parseInt(parts[1]); // konverter "7" til 7
+
+                // Vælg et tilfældigt antal mellem min og max (begge inkl.)
+                // random.nextInt(max - min + 1) giver et tal i [0, max-min]
+                // + min flytter intervallet op til [min, max]
+                count = min + random.nextInt(max - min + 1);
+            } else {
+                // Hvis der ikke står "-", er det bare et præcist antal
+                count = Integer.parseInt(amount);
+            }
+
+            // Placér 'count' objekter af den pågældende type tilfældigt i verden
+            for (int i = 0; i < count; i++) {
+                // Vælg en tilfældig (x,y)-position i verden
+                int x = random.nextInt(size);
+                int y = random.nextInt(size);
+                Location l = new Location(x, y);
+
+                // Så længe der ALLEREDE står et non-blocking objekt på feltet,
+                // vælg en ny tilfældig position (vi vil undgå at placere Grass
+                // ovenpå andet non-blocking, fx andet græs)
+                while (world.containsNonBlocking(l)) {
+                    x = random.nextInt(size);
+                    y = random.nextInt(size);
+                    l = new Location(x, y);
+                }
+
+                // Hvis typen fra filen var "grass", placerer vi Grass på feltet
+                // (andre typer ignoreres i denne version)
+                if (type.equals("grass")) {
+                    world.setTile(l, new Grass());
+                }
+            }
+        }
+        //int size = 5;
+        //Program p = new Program(size, 800, 75);
+
+        //World w = p.getWorld();
 
         // w.setTile(new Location(0, 0), new <MyClass>());
 
         // p.setDisplayInformation(<MyClass>.class, new DisplayInformation(<Color>, "<ImageName>"));
 
-        p.show();
+        //p.show();
     }
 }
