@@ -9,14 +9,20 @@ import java.util.Set;
 
 public class Rabbit implements Actor {
     private int age;
-    private int energy;
-    private int maxEnergy;
+    private int lifeEnergy;
+    private int foodEnergy;
     private Burrow burrow;
     private boolean isAlive;
-
-
-
+    private int AmountOfKids;
     private Random random;
+
+    public Rabbit() {
+        age = 0;
+        AmountOfKids = 0;
+        isAlive = true;
+        lifeEnergy = 180;
+        foodEnergy = 100;
+    }
 
     @Override
     public void act(World world) {
