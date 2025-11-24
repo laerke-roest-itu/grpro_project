@@ -76,9 +76,11 @@ public class Main {
                 }
 
                 // Hvis typen fra filen var "grass", placerer vi Grass på feltet
-                // (andre typer ignoreres i denne version)
+                // (andre typer kan også placeres)
                 if (type.equals("grass")) {
                     world.setTile(l, new Grass());
+                } else if (type.equals("rabbit")) {
+                    world.setTile(l, new Rabbit());
                 }
             }
         }
