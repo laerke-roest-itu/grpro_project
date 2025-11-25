@@ -90,7 +90,7 @@ public class RabbitTest {
         world.setTile(startLoc, rabbit);
         // Placér et burrow på kaninens lokation og claim det
         Burrow burrow = new Burrow();
-        world.setNonBlocking(startLoc, burrow);
+        world.setTile(startLoc, burrow);
         rabbit.setBurrow(burrow);
 
         // Simuler nat
