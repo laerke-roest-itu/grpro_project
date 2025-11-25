@@ -66,24 +66,40 @@ public class Main {
                 int y = random.nextInt(size);
                 Location l = new Location(x, y);
 
-                // Så længe der ALLEREDE står et non-blocking objekt på feltet,
-                // vælg en ny tilfældig position (vi vil undgå at placere Grass
-                // ovenpå andet non-blocking, fx andet græs)
-                while (world.containsNonBlocking(l)) {
-                    x = random.nextInt(size);
-                    y = random.nextInt(size);
-                    l = new Location(x, y);
-                }
-
                 // Hvis typen fra filen var "grass", placerer vi Grass på feltet
                 // (andre typer kan også placeres)
                 if (type.equals("grass")) {
+                    // Så længe der ALLEREDE står et non-blocking objekt på feltet,
+                    // vælg en ny tilfældig position (vi vil undgå at placere Grass
+                    // ovenpå andet non-blocking, fx andet græs)
+                    while (world.containsNonBlocking(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
                     world.setTile(l, new Grass());
+                } else if (type.equals("burrow")) {
+                    while (world.containsNonBlocking(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
+                    world.setTile(l, new Burrow());
+                } else if (type.equals("rabbit")) {
+                    // Så længe der ALLEREDE står et objekt på feltet,
+                    // vælg en ny tilfældig position (vi vil undgå at placere Rabbit
+                    // ovenpå andet objekt)
+                    while (!world.isTileEmpty(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
                 } else if (type.equals("rabbit")) {
                     world.setTile(l, new Rabbit());
                 }
             }
         }
+        scanner.close();
         //int size = 5;
         //Program p = new Program(size, 800, 75);
 
