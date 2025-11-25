@@ -520,4 +520,7 @@ public class World {
         return 1;
     }
 
+    public void setCurrentTime(int i) { //til test
+        time = i;
+    }
 }

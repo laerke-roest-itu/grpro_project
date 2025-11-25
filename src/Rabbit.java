@@ -97,7 +97,11 @@ public class Rabbit implements Actor {
         }
     }
 
-    private void reproduce(World world) {
+    public void setEnergy(int i) { //til test
+        energy = i;
+    }
+
+    public void reproduce(World world) {
         // 25% chance for at reproducere
         if (random.nextDouble() < 0.25) {
             Rabbit child = new Rabbit();
@@ -108,24 +112,16 @@ public class Rabbit implements Actor {
         }
     }
 
-    private void digBurrow(World world) {
-        Location rabbitLocation = world.getLocation(this);
-
-        Object obj = world.getTile(rabbitLocation);
-        if (!(obj instanceof Burrow)) {
-            Burrow newBurrow = new Burrow();
-            world.setTile(rabbitLocation, newBurrow);
-            burrow = newBurrow;
-            burrow.addRabbit(this);
-        }
-    }
-
     // beregning af afstand til seekBurrow:
+   // private int distance(Location a, Location b) {
+  //      return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+ //   }
+
     private int distance(Location a, Location b) {
-        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+        return Math.abs(a.getY() - b.getY()) + Math.abs(a.getX() - b.getX());
     }
 
-    private void seekBurrow(World world) {
+    public void seekBurrow(World world) {
         Location rabbitLoc = world.getLocation(this);
         Location burrowLoc = world.getLocation(burrow);
 
@@ -150,7 +146,22 @@ public class Rabbit implements Actor {
         }
     }
 
-    private void claimBurrow(World world) {
+    public void digBurrow(World world) {
+        Location rabbitLocation = world.getLocation(this);
+
+        Object obj = world.getNonBlocking(rabbitLocation);
+        if (!(obj instanceof Burrow)) {
+            if (obj instanceof Grass) {
+                world.delete(obj);
+            }
+            Burrow newBurrow = new Burrow();
+            world.setTile(rabbitLocation, newBurrow);
+            burrow = newBurrow;
+            burrow.addRabbit(this);
+        }
+    }
+
+    public void claimBurrow(World world) {
         //kaninens lokation:
         Location rabbitLocation = world.getLocation(this);
 
@@ -163,7 +174,11 @@ public class Rabbit implements Actor {
         }
     }
 
-    private void sleep(World world) {
+    public Burrow getBurrow() { //til test
+        return burrow;
+    }
+
+    public void sleep(World world) {
         if (burrow != null) {
             //fjerner kaninen fra kortet, bare rolig, den kommer tilbage igen
             world.remove(this);
@@ -171,7 +186,7 @@ public class Rabbit implements Actor {
         }
     }
 
-    private void wakeUp(World world) {
+    public void wakeUp(World world) {
         if (burrow != null) {
             Location burrowLoc = world.getLocation(burrow);
             world.setTile(burrowLoc, this);
