@@ -1,6 +1,8 @@
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.NonBlocking;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Burrow represents a rabbit hole in the world.
@@ -8,6 +10,7 @@ import itumulator.world.NonBlocking;
  * Other actors can stand on a burrow without affecting it.
  */
 public class Burrow implements Actor, NonBlocking {
+    private List<Rabbit> rabbits = new ArrayList<>();
 
     @Override
     public void act(World world) {
@@ -15,8 +18,12 @@ public class Burrow implements Actor, NonBlocking {
         // Rabbits may interact with them, but the burrow is passive.
     }
 
-    @Override
-    public String toString() {
-        return "Burrow";
+    public void addRabbit(Rabbit rabbit) {
+        rabbits.add(rabbit);
     }
+
+    public List<Rabbit> getRabbits() {
+        return rabbits;
+    }
+
 }

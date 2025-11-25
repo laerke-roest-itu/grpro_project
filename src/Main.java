@@ -67,6 +67,7 @@ public class Main {
                 Location l = new Location(x, y);
 
                 // Hvis typen fra filen var "grass", placerer vi Grass på feltet
+                // (andre typer kan også placeres)
                 if (type.equals("grass")) {
                     // Så længe der ALLEREDE står et non-blocking objekt på feltet,
                     // vælg en ny tilfældig position (vi vil undgå at placere Grass
@@ -93,6 +94,7 @@ public class Main {
                         y = random.nextInt(size);
                         l = new Location(x, y);
                     }
+                } else if (type.equals("rabbit")) {
                     world.setTile(l, new Rabbit());
                 }
             }
