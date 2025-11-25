@@ -12,15 +12,24 @@ public class Rabbit implements Actor {
     private int energy;
     private Burrow burrow;
     private boolean isAlive;
-    //private int amountOfKids; skal vi bruge denne?
+    private int amountOfKids;
     private final Random random;
 
     public Rabbit() {
         age = 0;
-        //amountOfKids = 0; kan tilføjes men hvad skal vi bruge den til?
+        amountOfKids = 0;
         isAlive = true;
         energy = 100;
-        random = new Random();
+        this(new Random());
+        burrow = null;
+    }
+
+    public Rabbit(Random random) {
+        age = 0;
+        amountOfKids = 0;
+        isAlive = true;
+        energy = 100;
+        this.random = random;
         burrow = null;
     }
 
@@ -36,10 +45,18 @@ public class Rabbit implements Actor {
         if (age >= 180 || energy <= 0) {
             isAlive = false;
             world.delete(this);
+            return;
 
         } else if (isAlive) {
-            //hvis det er dag, så gør kaninen det her:
-            if (world.isDay()) {
+            //hvis det er skumring, så gør kaninen det her:
+            if (currentTime >= dayDuration - 3) {
+                //hvis den har et hul at krybe i:
+                if (burrow != null) {
+                    seekBurrow(world);
+                }
+
+            } //hvis det er dag, så gør kaninen det her:
+            else if (world.isDay()) {
                 Location rabbitLocation = world.getLocation(this);
                 Set<Location> emptyTilesNearRabbit = world.getEmptySurroundingTiles(rabbitLocation);
                 List<Location> listOfPlacesToMove = new ArrayList<>(emptyTilesNearRabbit);
@@ -73,13 +90,7 @@ public class Rabbit implements Actor {
                 }
 
                 //hvis det er nat, så gør kaninen det her:
-            } else if (currentTime >= dayDuration - 3) {
-                //hvis den har et hul at krybe i:
-                if (burrow != null) {
-                    seekBurrow(world);
-                }
-
-            } else if (world.isNight()) {
+            }  else if (world.isNight()) {
                 if (burrow != null) {
                     // hvis der er mindst 2 kaniner i samme hul:
                     List<Rabbit> loveRabbits = burrow.getRabbits();
@@ -107,7 +118,7 @@ public class Rabbit implements Actor {
             Rabbit child = new Rabbit();
             Location burrowLocation = world.getLocation(burrow);
             world.setTile(burrowLocation, child);
-            //amountOfKids++; kan tilføjes men hvad skal vi bruge den til?
+            amountOfKids++;
             energy -= 15; // reproduktion koster ret meget energi
         }
     }
@@ -166,16 +177,27 @@ public class Rabbit implements Actor {
         Location rabbitLocation = world.getLocation(this);
 
         //tjek om der står et burrow på feltet
-        Object obj = world.getTile(rabbitLocation);
-
+        Object obj = world.getNonBlocking(rabbitLocation);
         if (obj instanceof Burrow) { //altså hvis den står på et burrow
             burrow = (Burrow) obj;
             burrow.addRabbit(this);
         }
     }
 
+    public int getAmountOfKids() {
+        return amountOfKids;
+    }
+
     public Burrow getBurrow() { //til test
         return burrow;
+    }
+
+    // ny setter – til test og evt. brug i programmet
+    public void setBurrow(Burrow burrow) {
+        this.burrow = burrow;
+        if (burrow != null) {
+            burrow.addRabbit(this); // så hullet også "kender" kaninen
+        }
     }
 
     public void sleep(World world) {
