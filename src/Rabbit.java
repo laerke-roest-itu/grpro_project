@@ -52,7 +52,7 @@ public class Rabbit implements Actor {
                     int j = random.nextInt(emptyTilesNearRabbit.size());
                     Location RabbitLocationToMoveTo = listOfPlacesToMove.get(j);
                     world.move(this, RabbitLocationToMoveTo);
-                    energy += 5;
+                    energy -= 5;
                     if (world.containsNonBlocking(RabbitLocationToMoveTo)) {
                         Object object = world.getNonBlocking(RabbitLocationToMoveTo);
                         if (object instanceof Grass && energy < 50) {
