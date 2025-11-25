@@ -25,5 +25,4 @@ public class Burrow implements Actor, NonBlocking {
     public List<Rabbit> getRabbits() {
         return rabbits;
     }
-
 }
