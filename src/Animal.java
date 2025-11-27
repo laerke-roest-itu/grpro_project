@@ -3,7 +3,7 @@ import itumulator.world.Location;
 import itumulator.world.World;
 
 public abstract class Animal implements Actor {
-    private int age;
+    protected int age;
     protected int energy;
     protected boolean isAlive;
     protected boolean isSleeping;
