@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -12,11 +13,16 @@ import itumulator.world.World;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-        // Åbner inputfilen med navnet "filnavn" eller andet (kan ændres)
-        File file = new File("filnavn");
+        InputStream is = Main.class
+                .getClassLoader()
+                .getResourceAsStream("input_files/t1-1a.txt");
 
-        // Opret en Scanner, der kan læse tekst (tokens) fra filen
-        Scanner scanner = new Scanner(file);
+        if (is == null) {
+            throw new FileNotFoundException("Inputfil ikke fundet");
+        }
+
+        Scanner scanner = new Scanner(is);
+
 
         // Random bruges senere til både antal (ved min-max) og tilfældige positioner
         Random random = new Random();
@@ -42,7 +48,7 @@ public class Main {
             String type = scanner.next();
             // amount: enten "10" eller "3-7"
             String amount = scanner.next();
-
+            //System.out.println("Læser type = " + type + ", amount = " + amount);
             // Tjek om amount er et interval (min-max) eller et enkelt tal
             if (amount.contains("-")) {
                 // Del teksten op ved "-" → "3-7" bliver ["3", "7"]
@@ -65,7 +71,7 @@ public class Main {
                 int x = random.nextInt(size);
                 int y = random.nextInt(size);
                 Location l = new Location(x, y);
-
+                //System.out.println("Placerer " + type + " på (" + x + "," + y + ")");
                 // Hvis typen fra filen var "grass", placerer vi Grass på feltet
                 // (andre typer kan også placeres)
                 if (type.equals("grass")) {
@@ -77,6 +83,8 @@ public class Main {
                         y = random.nextInt(size);
                         l = new Location(x, y);
                     }
+
+
                     world.setTile(l, new Grass());
                 } else if (type.equals("burrow")) {
                     while (world.containsNonBlocking(l)) {
@@ -94,9 +102,10 @@ public class Main {
                         y = random.nextInt(size);
                         l = new Location(x, y);
                     }
-                } else if (type.equals("rabbit")) {
                     world.setTile(l, new Rabbit());
                 }
+
+
             }
         }
         scanner.close();
