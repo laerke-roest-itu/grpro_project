@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
-                .getResourceAsStream("input_files/t1-1a.txt");
+                .getResourceAsStream("input_files/tf1-1.txt");
 
         if (is == null) {
             throw new FileNotFoundException("Inputfil ikke fundet");
@@ -41,6 +41,7 @@ public class Main {
         Program program = new Program(size, display_size, delay);
         // Hent verden (World) ud af programmet – det er her vi placerer objekter
         World world = program.getWorld();
+
 
         // Læs resten af filen linje for linje (egentlig token for token)
         while (scanner.hasNext()) {
@@ -109,6 +110,27 @@ public class Main {
             }
         }
         scanner.close();
+
+        // ===== VISNING / ANIMATION =====
+
+// Fortæl ITUmulator hvordan objekterne skal tegnes
+        program.setDisplayInformation(Grass.class,
+                new DisplayInformation(Color.GREEN, "grass"));
+
+        program.setDisplayInformation(Rabbit.class,
+                new DisplayInformation(Color.WHITE, "rabbit-small"));
+
+        program.setDisplayInformation(Burrow.class,
+                new DisplayInformation(Color.ORANGE, "hole-small"));
+
+
+// Start simulationen (GUI)
+        program.show();
+        for (int i = 0; i < 200; i++) {
+            program.simulate();
+        }
+
+
         //int size = 5;
         //Program p = new Program(size, 800, 75);
 
