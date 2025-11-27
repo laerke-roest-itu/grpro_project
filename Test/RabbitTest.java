@@ -80,7 +80,7 @@ public class RabbitTest {
     void rabbitShouldReproduceInBurrow() {
         Random alwaysReproduce = new Random() {
             @Override
-            public double nextDouble(double bound) {
+            public double nextDouble() {
                 return 0.0; // tvinger Parring
             }
         };
@@ -99,7 +99,7 @@ public class RabbitTest {
         rabbit.reproduce(world);
 
         Object obj = world.getTile(startLoc);
-        assertTrue(rabbit.getAmountOfKids() == 1,
+        assertEquals(1, rabbit.getAmountOfKids(),
                 "Burrow should contain a new Rabbit child");
     }
 }

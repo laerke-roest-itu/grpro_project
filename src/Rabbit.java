@@ -94,7 +94,8 @@ public class Rabbit implements Actor {
                 if (burrow != null) {
                     // hvis der er mindst 2 kaniner i samme hul:
                     List<Rabbit> loveRabbits = burrow.getRabbits();
-                    if (loveRabbits.size() >= 2) {
+                    if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
+                        sleep(world);
                         reproduce(world);
                     } else {
                         sleep(world);
@@ -115,11 +116,22 @@ public class Rabbit implements Actor {
     public void reproduce(World world) {
         // 25% chance for at reproducere
         if (random.nextDouble() < 0.25) {
-            Rabbit child = new Rabbit();
             Location burrowLocation = world.getLocation(burrow);
-            world.setTile(burrowLocation, child);
-            amountOfKids++;
-            energy -= 15; // reproduktion koster ret meget energi
+            Location childLocation = null;
+            Set<Location> emptyTilesAroundBurrow = world.getEmptySurroundingTiles(burrowLocation);
+
+            if (world.isTileEmpty(burrowLocation)) {
+                childLocation = burrowLocation;
+            } else {
+                childLocation = emptyTilesAroundBurrow.iterator().next();
+            }
+            if (childLocation != null) {
+                Rabbit child = new Rabbit();
+                world.setTile(childLocation, child);
+                amountOfKids++;
+                energy -= 15; // reproduktion koster ret meget energi
+            }
+
         }
     }
 
@@ -214,4 +226,10 @@ public class Rabbit implements Actor {
             world.setTile(burrowLoc, this);
         }
     }
+
+    private boolean isLeaderInBurrow() {
+        return burrow != null && !burrow.getRabbits().isEmpty()
+                && burrow.getRabbits().get(0) == this;
+    }
+
 }
