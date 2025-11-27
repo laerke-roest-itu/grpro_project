@@ -135,11 +135,6 @@ public class Rabbit implements Actor {
         }
     }
 
-    // beregning af afstand til seekBurrow:
-   // private int distance(Location a, Location b) {
-  //      return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
- //   }
-
     private int distance(Location a, Location b) {
         return Math.abs(a.getY() - b.getY()) + Math.abs(a.getX() - b.getX());
     }
