@@ -1,4 +1,3 @@
-import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
 
@@ -7,44 +6,32 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class Rabbit implements Actor {
-    private int age;
-    private int energy;
+public class Rabbit extends Animal {
     private Burrow burrow;
-    private boolean isAlive;
-    private int amountOfKids;
     private final Random random;
 
     public Rabbit() {
-        age = 0;
-        amountOfKids = 0;
-        isAlive = true;
-        energy = 100;
-        this(new Random());
-        burrow = null;
+        super(); // kalder Animal's constructor
+        this.random = new Random();
+        this.burrow = null;
     }
 
     public Rabbit(Random random) {
-        age = 0;
-        amountOfKids = 0;
-        isAlive = true;
-        energy = 100;
+        super();
         this.random = random;
-        burrow = null;
+        this.burrow = null;
     }
 
     @Override
     public void act(World world) {
-        age++;
-        energy -= 1;
+        super.act(world); // fælles aging + energitab fra Animal
 
         //til udregning af hvornår den skal søge mod hul:
         int currentTime = world.getCurrentTime();
         int dayDuration = World.getDayDuration();
 
-        if (age >= 180 || energy <= 0) {
-            isAlive = false;
-            world.delete(this);
+        if (getAge() >= 180 || getEnergy() <= 0) {
+            die(world);
             return;
 
         } else if (isAlive) {
@@ -67,15 +54,11 @@ public class Rabbit implements Actor {
 
                 if (!emptyTilesNearRabbit.isEmpty()) {
                     int j = random.nextInt(emptyTilesNearRabbit.size());
-                    Location RabbitLocationToMoveTo = listOfPlacesToMove.get(j);
-                    world.move(this, RabbitLocationToMoveTo);
+                    Location moveTo = listOfPlacesToMove.get(j);
+                    world.move(this, moveTo);
                     energy -= 5;
-                    if (world.containsNonBlocking(RabbitLocationToMoveTo)) {
-                        Object object = world.getNonBlocking(RabbitLocationToMoveTo);
-                        if (object instanceof Grass && energy < 50) {
-                            world.delete(object);
-                            energy += 10;
-                        }
+                    if (getEnergy() < 50) {
+                        eat(world, moveTo);
                     }
                 }
 
@@ -109,34 +92,57 @@ public class Rabbit implements Actor {
         }
     }
 
+    @Override
+    protected boolean canEat(Object object) {
+        return (object instanceof Grass);
+    }
+
+    @Override
+    protected int getFoodEnergy(Object object) {
+        return 10;
+    }
+
+    @Override
+    protected void handleSleepLocation(World world) {
+        if (burrow != null) {
+            world.remove(this); // Rabbit sover i burrow
+        }
+    }
+
+    @Override
+    protected int getSleepEnergy() { return 25; }
+
+
+    @Override
+    public void wakeUp(World world) {
+        if (burrow != null) {
+            Location burrowLoc = world.getLocation(burrow);
+            world.setTile(burrowLoc, this);
+        }
+    }
+
     public void setEnergy(int i) { //til test
         energy = i;
     }
 
-    public void reproduce(World world) {
-        // 25% chance for at reproducere
-        if (random.nextDouble() < 0.25) {
+    @Override
+    protected Animal createChild() {
+        return new Rabbit();
+    }
+
+    @Override
+    protected Location getReproductionLocation(World world) {
+        if (burrow != null) {
             Location burrowLocation = world.getLocation(burrow);
-            Location childLocation = null;
             Set<Location> emptyTilesAroundBurrow = world.getEmptySurroundingTiles(burrowLocation);
 
             if (world.isTileEmpty(burrowLocation)) {
-                childLocation = burrowLocation;
-            } else {
-                childLocation = emptyTilesAroundBurrow.iterator().next();
+                return burrowLocation;
+            } else if (!emptyTilesAroundBurrow.isEmpty()) {
+                return emptyTilesAroundBurrow.iterator().next();
             }
-            if (childLocation != null) {
-                Rabbit child = new Rabbit();
-                world.setTile(childLocation, child);
-                amountOfKids++;
-                energy -= 15; // reproduktion koster ret meget energi
-            }
-
         }
-    }
-
-    private int distance(Location a, Location b) {
-        return Math.abs(a.getY() - b.getY()) + Math.abs(a.getX() - b.getX());
+        return null;
     }
 
     public void seekBurrow(World world) {
@@ -191,13 +197,9 @@ public class Rabbit implements Actor {
         }
     }
 
-    public int getAmountOfKids() {
-        return amountOfKids;
-    }
+    public Burrow getBurrow() {return burrow;} //til test
+    private int distance(Location a, Location b) {return Math.abs(a.getY() - b.getY()) + Math.abs(a.getX() - b.getX());}
 
-    public Burrow getBurrow() { //til test
-        return burrow;
-    }
 
     // ny setter – til test og evt. brug i programmet
     public void setBurrow(Burrow burrow) {
@@ -207,24 +209,8 @@ public class Rabbit implements Actor {
         }
     }
 
-    public void sleep(World world) {
-        if (burrow != null) {
-            //fjerner kaninen fra kortet, bare rolig, den kommer tilbage igen
-            world.remove(this);
-            energy += 20; //dejlig søvn-energy
-        }
-    }
-
-    public void wakeUp(World world) {
-        if (burrow != null) {
-            Location burrowLoc = world.getLocation(burrow);
-            world.setTile(burrowLoc, this);
-        }
-    }
-
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
-                && burrow.getRabbits().get(0) == this;
+                && burrow.getRabbits().getFirst() == this;
     }
-
 }
