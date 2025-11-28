@@ -37,6 +37,8 @@ public class Main {
         // Variabel til "count" = hvor mange objekter af en given type der skal laves
         int count = 0;
 
+        Location territoryCenter = null;
+
         // Opret ITUmulator-programmet med den læste størrelse
         Program program = new Program(size, display_size, delay);
         // Hent verden (World) ud af programmet – det er her vi placerer objekter
@@ -64,6 +66,26 @@ public class Main {
             } else {
                 // Hvis der ikke står "-", er det bare et præcist antal
                 count = Integer.parseInt(amount);
+            }
+
+            if (type.equals("bear")) {
+                if (scanner.hasNext("\\(.*")) {
+                    String coordinats = scanner.next(); // fx "(3,5)"
+
+                    // fjern parenteserne
+                    coordinats = coordinats.substring(1, coordinats.length() - 1); // "3,5"
+
+                    String[] parts = coordinats.split(",");
+                    int centerX = Integer.parseInt(parts[0]);
+                    int centerY = Integer.parseInt(parts[1]);
+
+                    territoryCenter = new Location(centerX, centerY);
+                } else {
+                    // ingen koordinat i input → vælg et tilfældigt center
+                    int centerX = random.nextInt(size);
+                    int centerY = random.nextInt(size);
+                    territoryCenter = new Location(centerX, centerY);
+                }
             }
 
             // Placér 'count' objekter af den pågældende type tilfældigt i verden
@@ -104,6 +126,14 @@ public class Main {
                         l = new Location(x, y);
                     }
                     world.setTile(l, new Rabbit());
+                } else if (type.equals("bear")) {
+                    while (!world.isTileEmpty(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
+                    Bear bear = new Bear(territoryCenter);
+                    world.setTile(l, bear);
                 }
 
 
@@ -122,6 +152,10 @@ public class Main {
 
         program.setDisplayInformation(Burrow.class,
                 new DisplayInformation(Color.ORANGE, "hole-small"));
+
+        program.setDisplayInformation(Bear.class,
+                new DisplayInformation(Color.BLACK, "bear"));
+
 
 
 // Start simulationen (GUI)
