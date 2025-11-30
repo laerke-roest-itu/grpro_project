@@ -2,32 +2,39 @@ import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class Bear extends Animal implements Actor {
     Location territoryCenter;
 
     public Bear(Location territoryCenter) {
+        super(); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
     }
 
     @Override
     public void act(World world) {
         Location bearLocation = world.getLocation(this);
-        Set<Location> emptyTilesNearBear = world.getEmptySurroundingTiles(bearLocation);
-        if (!emptyTilesNearBear.contains(territoryCenter)) {
+
+        super.tickCommon(world);
+
+        if (!isInsideTerritory(bearLocation)) {
             moveTowardTerritory(world);
-            age++;
-            energy --;
+        } else if (isPreyInsideTerritory(world)) {
+            hunt(world);
         } else {
-            super.act(world);
+            super.moveRandomly(world);
         }
     }
 
     private void hunt(World world) {
-        Set<Location> BearTerritory = getTerritoryTiles(world);
-        for (Location BearTerritoryTile: BearTerritory) {
-            Object o = world.getTile(BearTerritoryTile);
+        // 1. Find alle felter i bjørnens territorium
+        Set<Location> territoryTiles = getTerritoryTiles(world);
+
+        // 2. Gå dem igennem og find et byttedyr
+        for (Location tile : territoryTiles) {
+            Object o = world.getTile(tile);
 
             // spring tomme felter over
             if (o == null) continue;
@@ -38,69 +45,45 @@ public class Bear extends Animal implements Actor {
             // lad være med at spise os selv
             if (o == this) continue;
 
-            if (canEat(o)) {
-                // NU har vi fundet et bytte inde i territoriet
-                // → vi vil hen til et nabofelt ved 'tile'.
+            // tjek om vi MÅ spise det her dyr (Rabbit/Wolf styres af canEat)
+            if (!canEat(o)) continue;
 
-                Location bearLoc = world.getLocation(this);
+            // NU har vi fundet et bytte inde i territoriet
+            Location bearLoc = world.getLocation(this);
 
-                // er vi allerede nabo til byttet?
-                Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
-                if (neighbors.contains(BearTerritoryTile)) {
-                    // vi står ved siden af → spis
-                    eat(world, BearTerritoryTile);
-                } else {
-                    // ellers: bevæg os ét skridt tættere på 'tile'
-                    moveOneStepTowards(world, BearTerritoryTile);
-                }
+            // 3. Er bjørnen allerede nabo til byttet?
+            Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
+            if (neighbors.contains(tile)) {
+                // vi står ved siden af → spis
+                eat(world, tile);
+            } else {
+                // 4. Ellers: bevæg os ét skridt tættere på byttet
+                // energyCost kan vi selv vælge (fx 10)
+                moveOneStepTowardsPrey(world, tile);
             }
-        }
 
+            return;
+        }
     }
 
-    private void moveOneStepTowards(World world, Location bearTerritoryTile) {
-        Location bearLoc = world.getLocation(this);
-
-        Set<Location> emptyNeighbors =
-                world.getEmptySurroundingTiles(bearLoc);
-
-        Location bestMove = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        for (Location loc : emptyNeighbors) {
-            int d = distance(loc, bearTerritoryTile);
-            if (d < bestDistance) {
-                bestDistance = d;
-                bestMove = loc;
-            }
-        }
-
-        if (bestMove != null) {
-            world.move(this, bestMove);
-        }
-    }
 
     private void moveTowardTerritory(World world) {
-        Location bearLoc = world.getLocation(this);
+        moveOneStepTowards(world, territoryCenter, 5);
+    }
 
-        Set<Location> emptyNeighbors =
-                world.getEmptySurroundingTiles(bearLoc);
+    private void moveOneStepTowardsPrey(World world, Location preyLoc) {
+        moveOneStepTowards(world, preyLoc, 8);
+    }
 
-        Location bestMove = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        for (Location loc : emptyNeighbors) {
-            int d = distance(loc, territoryCenter);
-            if (d < bestDistance) {
-                bestDistance = d;
-                bestMove = loc;
-            }
-        }
-
-        if (bestMove != null) {
-            world.move(this, bestMove);
+    @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getTile(targetLoc);
+        if (o != null && canEat(o)) {
+            world.delete(o);
+            energy += getFoodEnergy(o);
         }
     }
+
 
     @Override
     protected boolean canEat(Object object) {
@@ -128,18 +111,25 @@ public class Bear extends Animal implements Actor {
         return null;
     }
 
-
-
-    private int distance(Location a, Location b) {
-        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
-    }
-
     private Set<Location> getTerritoryTiles(World world) {
         // radius 2
         int radius = 2;
         return world.getSurroundingTiles(territoryCenter, radius);
     }
 
+    private boolean isInsideTerritory(Location bearLocation) {
+        if (bearLocation == null) {return false;}
+        int radius = 2; // samme som i getTerritoryTiles
+        return distance(bearLocation, territoryCenter) <= radius;
+    }
 
+    private boolean isPreyInsideTerritory(World world) {
+        Set<Location> bearTerritory = getTerritoryTiles(world);
+
+        Set<Rabbit> rabbitsInBearTerritory = world.getAll(Rabbit.class, bearTerritory);
+        Set<Wolf> wolvesInBearTerritory = world.getAll(Wolf.class, bearTerritory);
+
+        return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty();
+    }
 
 }
