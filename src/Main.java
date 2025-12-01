@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Random;
@@ -12,7 +11,7 @@ import itumulator.world.World;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
                 .getResourceAsStream("input_files/tf1-1.txt");
@@ -106,9 +105,8 @@ public class Main {
                         y = random.nextInt(size);
                         l = new Location(x, y);
                     }
-
-
                     world.setTile(l, new Grass());
+
                 } else if (type.equals("burrow")) {
                     while (world.containsNonBlocking(l)) {
                         x = random.nextInt(size);
@@ -116,6 +114,7 @@ public class Main {
                         l = new Location(x, y);
                     }
                     world.setTile(l, new Burrow());
+
                 } else if (type.equals("rabbit")) {
                     // Så længe der ALLEREDE står et objekt på feltet,
                     // vælg en ny tilfældig position (vi vil undgå at placere Rabbit
@@ -126,6 +125,7 @@ public class Main {
                         l = new Location(x, y);
                     }
                     world.setTile(l, new Rabbit());
+
                 } else if (type.equals("bear")) {
                     while (!world.isTileEmpty(l)) {
                         x = random.nextInt(size);
@@ -134,9 +134,19 @@ public class Main {
                     }
                     Bear bear = new Bear(territoryCenter);
                     world.setTile(l, bear);
+
+                } else if (type.equals("wolf")) {
+                    // Lav en ny pack for alle ulve på denne linje
+                    Pack pack = new Pack();
+                    while (!world.isTileEmpty(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
+                    Wolf wolf = new Wolf(pack); // konstruktør tager pack
+                    world.setTile(l, wolf);
+
                 }
-
-
             }
         }
         scanner.close();
@@ -157,13 +167,11 @@ public class Main {
                 new DisplayInformation(Color.BLACK, "bear"));
 
 
-
 // Start simulationen (GUI)
         program.show();
         for (int i = 0; i < 200; i++) {
             program.simulate();
         }
-
 
         //int size = 5;
         //Program p = new Program(size, 800, 75);

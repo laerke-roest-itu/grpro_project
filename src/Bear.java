@@ -155,5 +155,4 @@ public class Bear extends Animal implements Actor {
 
         return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty();
     }
-
 }

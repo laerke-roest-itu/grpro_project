@@ -18,8 +18,8 @@ public class Bush implements Actor, NonBlocking {
     private final Random random;
 
     private int berry = 0;                  // antal bær på denne busk
-    private final int maxBerries = 3;       // cap for bær
-    private final int berryGrowthInterval = 10; // antal ticks mellem vækst (juster efter behov)
+    private final int maxBerries = 100;       // cap for bær
+    private final int berryGrowthInterval = 10; // antal ticks mellem vækst
     private int ticksSinceLastGrowth = 0;   // tæller til vækst
 
     // default konstruktør til Tests;
@@ -33,10 +33,10 @@ public class Bush implements Actor, NonBlocking {
 
     @Override
     public void act(World world) {
-        // to forskellige måder at håndtere growth, her er det så i forhold til ticks, men hvor kan jeg tjekke de her
-        // ticks og referere til dem?
+
+        // jeg
         ticksSinceLastGrowth++;
-        if (ticksSinceLastGrowth >= berryGrowthInterval) {
+        if (ticksSinceLastGrowth == berryGrowthInterval) {
             ticksSinceLastGrowth = 0;
             produceBerries();
         }
@@ -60,7 +60,7 @@ public class Bush implements Actor, NonBlocking {
 
                     // Placér nyt græs på alle nabofelter
                     // hvis ikke der allerede er non-blocking objekter
-                    world.setTile(neighbourTile, new Bush(this.random));
+                    world.setTile(neighbourTile, new Bush());
 
                     // har prøvet at implementere en random ud fra de 8 felter med NonBlocking elementer. Om det virker
                     // det ved jeg ikke.
@@ -85,13 +85,6 @@ public class Bush implements Actor, NonBlocking {
 
     public int getBerryCount(){
         return berry;
-
-        // ville jeg lave en hashmap her? hvordan laver jeg en tæller for hvor mange bær der er
-        // hvor mange vil jeg have, kan jeg cappe den af ved at have max 1? I tilfælde hvordan ville jeg så gøre det.
-        // det mest simple ville være at "if dag berry++" eller hvad man kalder det. Der skal i hvert fald laves 1
-        // berry.
-        // if Bear eat() Berry, berry-1. Her skal jeg så også have en nedre grænse. Jeg har lyst til at sige hvad med
-        // noget rekursion? Skal i hvert fald have noget der fortæller at Berry ikke må være >0.
     }
 
     public boolean takeBerry() {
