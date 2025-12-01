@@ -16,6 +16,12 @@ public class Bear extends Animal {
 
     @Override
     public void act(World world) {
+
+        if (getAge() >= 400 || getEnergy() <= 0) {
+            die(world);
+            return;
+        }
+
         Location bearLocation = world.getLocation(this);
 
         super.tickCommon(world);
@@ -24,6 +30,7 @@ public class Bear extends Animal {
             moveTowardTerritory(world);
         } else if (isPreyInsideTerritory(world)) {
             hunt(world);
+        } else if (eatBerriesIfHungry(world)) {
         } else {
             super.moveRandomly(world);
         }
@@ -76,6 +83,29 @@ public class Bear extends Animal {
         moveOneStepTowards(world, preyLoc, 8);
     }
 
+    private boolean eatBerriesIfHungry(World world) {
+        if (getEnergy() < 50) {
+            Location bearLoc = world.getLocation(this);
+            Set<Location> bearNeighborTiles = world.getSurroundingTiles(bearLoc);
+
+            for (Location bushLoc : bearNeighborTiles) {
+                if (world.containsNonBlocking(bushLoc)) {
+                    Object possibleBush = world.getNonBlocking(bushLoc);
+                    if (possibleBush instanceof Bush) {
+                        if (((Bush) possibleBush).hasBerries()) {
+                            int berries = ((Bush) possibleBush).getBerryCount();
+                            ((Bush) possibleBush).berriesEaten();
+                            energy += berries;
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
@@ -95,7 +125,6 @@ public class Bear extends Animal {
     protected int getFoodEnergy(Object object) {
         return 40; // eller forskelligt pr. type hvis du vil
     }
-
 
     @Override
     protected void handleSleepLocation(World world) {

@@ -105,7 +105,7 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
     }
 
     public void berriesEaten() {
-        berry=0;
+        berry = 0;
     }
 
     @Override
