@@ -1,12 +1,15 @@
+import itumulator.executable.DisplayInformation;
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.NonBlocking;
 import itumulator.world.World;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.Set;
 
-public class Bush implements Actor, NonBlocking {
+public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     /* der vælges at anse Bush som et NonBlocking objekt, da en Actor af Animal-klassen ville kunne gå igennem en busk.
         ydermere anvendes logik fra Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
         et enkelt felt fremfor alle 8 rundt om et Grass-felt.
@@ -18,7 +21,8 @@ public class Bush implements Actor, NonBlocking {
     private final Random random;
 
     private int berry = 0;                  // antal bær på denne busk
-    private final int maxBerries = 100;       // cap for bær
+    private final int maxBerries = 100;
+    private boolean hasBerries;
     private final int berryGrowthInterval = 10; // antal ticks mellem vækst
     private int ticksSinceLastGrowth = 0;   // tæller til vækst
 
@@ -73,15 +77,19 @@ public class Bush implements Actor, NonBlocking {
     // Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
 
     public void produceBerries(){
-        if (berry > maxBerries) {
+        if (berry < maxBerries) {
             berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
             // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
             // det bedste valg.
         }
     }
 
-    public boolean hasBerries(){
-        return berry > 0; // hvis der er 1 eller flere Berry så har busken et bær
+    public boolean hasBerries() {
+        if (berry > 0) { // hvis der er 1 eller flere Berry så har busken et bær
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public int getBerryCount(){
@@ -100,6 +108,14 @@ public class Bush implements Actor, NonBlocking {
         berry=0;
     }
 
+    @Override
+    public DisplayInformation getInformation() {
+        if (hasBerries()) {
+            return new DisplayInformation(Color.GRAY, "bush-berries");
+        } else {
+            return new DisplayInformation(Color.DARK_GRAY, "bush");
+        }
+    }
 
     // Bear skal få Energy når den Eat()-metode på Bush if hasBerries()
     /* i forhold til Berry skal give Energy til Bear - jeg kan have Bear-klassen til bare at give +5 Energy, hvis
@@ -118,5 +134,7 @@ public class Bush implements Actor, NonBlocking {
     //        this.increaseEnergy(5); // eller kald super.metode
     //    }
     //}
+
+
 
 }

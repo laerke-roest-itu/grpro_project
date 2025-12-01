@@ -1,7 +1,8 @@
+import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
 
-import java.util.ArrayList;
+import java.awt.*;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -55,7 +56,6 @@ public class Rabbit extends Animal {
                 if (moveTo != null && getEnergy() < 50) {
                         eat(world, moveTo);
                 }
-
 
                 //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claime et
                 //højere chance for at claime, da kaninen skal stå på et burrow for at claime det
@@ -190,5 +190,15 @@ public class Rabbit extends Animal {
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
                 && burrow.getRabbits().getFirst() == this;
+    }
+
+
+    @Override
+    public DisplayInformation getInformation() {
+        if (getAge() < 10) {
+            return new DisplayInformation(Color.GRAY, "rabbit-small"); // billede af kaninunge
+        } else {
+            return new DisplayInformation(Color.DARK_GRAY, "rabbit-large"); // billede af voksen kanin
+        }
     }
 }

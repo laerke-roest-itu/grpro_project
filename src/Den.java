@@ -1,11 +1,14 @@
+import itumulator.executable.DisplayInformation;
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.NonBlocking;
 import itumulator.world.World;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Den implements Actor, NonBlocking{
+public class Den implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     private List<Wolf> wolves = new ArrayList<>();
 
     @Override
@@ -17,5 +20,10 @@ public class Den implements Actor, NonBlocking{
 
     public List<Wolf> getWolves() {
         return wolves;
+    }
+
+    @Override
+    public DisplayInformation getInformation() {
+        return new DisplayInformation(Color.GREEN, "hole");
     }
 }

@@ -1,10 +1,14 @@
+import itumulator.executable.DisplayInformation;
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.Location;
 import itumulator.world.NonBlocking;
+
+import java.awt.*;
 import java.util.*;
 
-public class Grass implements Actor, NonBlocking {
+public class Grass implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     private final Random random;
 
     // default konstruktør til normal brug i simulatoren
@@ -42,5 +46,10 @@ public class Grass implements Actor, NonBlocking {
             }
         }
 
+    }
+
+    @Override
+    public DisplayInformation getInformation() {
+        return new DisplayInformation(Color.GREEN, "grass");
     }
 }

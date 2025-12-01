@@ -1,3 +1,4 @@
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -7,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public abstract class Animal implements Actor {
+public abstract class Animal implements Actor, DynamicDisplayInformationProvider {
     protected int age;
     protected int energy;
     protected boolean isAlive;

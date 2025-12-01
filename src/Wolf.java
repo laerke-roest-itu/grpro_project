@@ -1,5 +1,9 @@
+import itumulator.executable.DisplayInformation;
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.world.Location;
 import itumulator.world.World;
+
+import java.awt.*;
 import java.util.*;
 
 public class Wolf extends Animal {
@@ -20,16 +24,19 @@ public class Wolf extends Animal {
     public void act(World world) {
         super.act(world); // fælles aging + energitab
 
-        if (getAge() >= 300 || getEnergy() <= 0) {
+        if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
             return;
         }
 
-        // Ulve jager om dagen
         if (world.isDay()) {
-            hunt(world);
             seekPack(world);
+            checkForEnemyWolves(world);
+            if (getEnergy() < 50) {
+                hunt(world);
+            }
         }
+
 
         // Om natten kan de hvile i hulen og reproducere
         else if (world.isNight()) {
@@ -43,24 +50,53 @@ public class Wolf extends Animal {
     }
 
     // ---------- Jagt ----------
+    @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getTile(targetLoc);
+        if (o != null && canEat(o)) {
+            world.delete(o);
+            energy += getFoodEnergy(o);
+        }
+    }
 
     private void hunt(World world) {
         Location wolfLoc = world.getLocation(this);
-        Set<Location> neighbors = world.getSurroundingTiles(wolfLoc);
 
-        for (Location loc : neighbors) {
-            if (world.containsNonBlocking(loc)) {
-                Object prey = world.getNonBlocking(loc);
+        // Find alle felter inden for radius 2
+        Set<Location> radiusTiles = world.getSurroundingTiles(wolfLoc, 2);
 
-                // Ulve spiser kaniner (og evt. andre dyr)
-                if (prey instanceof Rabbit) {
-                    world.delete(prey);
-                    energy += 30; // kød giver meget energi
-                    break;        // én jagt pr. tur
+        Location targetPreyLoc = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        // 1. Find det nærmeste bytte
+        for (Location loc : radiusTiles) {
+            Object o = world.getTile(loc);
+            if (o != null && canEat(o)) {
+                int dist = distance(wolfLoc, loc);
+                if (dist < bestDistance) {
+                    bestDistance = dist;
+                    targetPreyLoc = loc;
                 }
             }
         }
+
+        // 2. Hvis der ikke er bytte, gør ingenting
+        if (targetPreyLoc == null) return;
+
+        // 3. Hvis ulven allerede står ved siden af byttet → spis
+        Set<Location> neighbors = world.getSurroundingTiles(wolfLoc);
+        if (neighbors.contains(targetPreyLoc)) {
+            eat(world, targetPreyLoc);
+            return;
+        }
+
+        // 4. Ellers: bevæg dig ét skridt tættere på det nærmeste bytte
+        moveOneStepTowards(world, targetPreyLoc, 8); // energikost fx 8
     }
+
+
+
+
 
     // ---------- Flokdyr ----------
 
@@ -91,9 +127,62 @@ public class Wolf extends Animal {
 
         if (bestMove != null) {
             world.move(this, bestMove);
-            energy -= 10;
+            energy -= 5;
         }
     }
+
+    private void checkForEnemyWolves(World world) {
+        Location wolfLoc = world.getLocation(this);
+        Set<Location> neighbors = world.getSurroundingTiles(wolfLoc);
+
+        for (Location loc : neighbors) {
+            Object o = world.getTile(loc);
+            if (o instanceof Wolf otherWolf) {
+                // spring over hvis det er os selv
+                if (otherWolf == this) continue;
+
+                // samme pack → ingen kamp
+                if (this.pack != null && this.pack == otherWolf.getPack()) continue;
+
+                // ellers: kamp!
+                fight(otherWolf, world);
+                return; // kun én kamp pr. tur
+            }
+        }
+    }
+
+    private void fight(Wolf opponent, World world) {
+        if (this.getEnergy() > opponent.getEnergy()) {
+            // denne ulv vinder
+            opponent.die(world);
+            this.energy -= 10; // kamp koster energi
+        } else if (this.getEnergy() < opponent.getEnergy()) {
+            // modstanderen vinder
+            this.die(world);
+            opponent.energy -= 10;
+        } else {
+            // lige energi → den ældste ulv vinder
+            if (this.getAge() > opponent.getAge()) {
+                opponent.die(world);
+                this.energy -= 10;
+            } else if (this.getAge() < opponent.getAge()) {
+                this.die(world);
+                opponent.energy -= 10;
+            } else {
+                // hvis både energi og alder er ens → tilfældig vinder
+                if (random.nextBoolean()) {
+                    opponent.die(world);
+                    this.energy -= 10;
+                } else {
+                    this.die(world);
+                    opponent.energy -= 10;
+                }
+            }
+        }
+    }
+
+
+
 
     // ---------- Metoder fra Animal ----------
 
@@ -144,6 +233,15 @@ public class Wolf extends Animal {
             den = new Den();
             world.setTile(wolfLoc, den);
             den.addWolf(this);
+        }
+    }
+
+    @Override
+    public DisplayInformation getInformation() {
+        if (getAge() < 40) {
+            return new DisplayInformation(Color.GRAY, "wolf-small"); // billede af unge ulv
+        } else {
+            return new DisplayInformation(Color.DARK_GRAY, "wolf"); // billede af voksen ulv
         }
     }
 }
