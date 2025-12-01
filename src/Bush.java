@@ -72,13 +72,12 @@ public class Bush implements Actor, NonBlocking {
     // skal implementere en metode så de her Bush kan få Berries
     // Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
 
-    public void produceBerries(){
-        if (berry > maxBerries) {
-            berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
-            // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
-            // det bedste valg.
+    public void produceBerries() {
+        if (berry < maxBerries) {
+            berry++;
         }
     }
+
 
     public boolean hasBerries(){
         return berry > 0; // hvis der er 1 eller flere Berry så har busken et bær
@@ -97,7 +96,7 @@ public class Bush implements Actor, NonBlocking {
     }
 
     public void berriesEaten() {
-        berry=0;
+        berry = 0;
     }
 
 
