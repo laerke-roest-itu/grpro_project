@@ -74,10 +74,13 @@ public class Bush implements Actor, NonBlocking {
 
     public void produceBerries(){
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         if (berry > maxBerries) {
             berry++; // producer et bær om dagen, det gør den så en gang om dagen
             // er nok et problem her med den lige nu vil have et bær + 1 til at starte med.
 =======
+=======
+>>>>>>> Stashed changes
         if (berry < maxBerries) {
             berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
             // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
