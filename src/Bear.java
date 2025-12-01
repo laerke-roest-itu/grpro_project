@@ -15,6 +15,12 @@ public class Bear extends Animal implements Actor {
 
     @Override
     public void act(World world) {
+
+        if (getAge() >= 400 || getEnergy() <= 0) {
+            die(world);
+            return;
+        }
+
         Location bearLocation = world.getLocation(this);
 
         super.tickCommon(world);
@@ -119,7 +125,6 @@ public class Bear extends Animal implements Actor {
         return 40; // eller forskelligt pr. type hvis du vil
     }
 
-
     @Override
     protected void handleSleepLocation(World world) {
 
@@ -155,4 +160,5 @@ public class Bear extends Animal implements Actor {
 
         return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty();
     }
+
 }
