@@ -24,7 +24,7 @@ public class Rabbit extends Animal {
 
     @Override
     public void act(World world) {
-        super.act(world); // fælles aging + energitab fra Animal
+        super.tickCommon(world); // fælles aging + energitab fra Animal
 
         //til udregning af hvornår den skal søge mod hul:
         int currentTime = world.getCurrentTime();
@@ -44,23 +44,18 @@ public class Rabbit extends Animal {
 
             } //hvis det er dag, så gør kaninen det her:
             else if (world.isDay()) {
-                Location rabbitLocation = world.getLocation(this);
-                Set<Location> emptyTilesNearRabbit = world.getEmptySurroundingTiles(rabbitLocation);
-                List<Location> listOfPlacesToMove = new ArrayList<>(emptyTilesNearRabbit);
 
                 if (currentTime == 0 && burrow != null) {
                     wakeUp(world);
                 }
 
-                if (!emptyTilesNearRabbit.isEmpty()) {
-                    int j = random.nextInt(emptyTilesNearRabbit.size());
-                    Location moveTo = listOfPlacesToMove.get(j);
-                    world.move(this, moveTo);
-                    energy -= 5;
-                    if (getEnergy() < 50) {
+                // brug fælles moveRandomly, men få moveTo tilbage
+                Location moveTo = moveRandomly(world);
+
+                if (moveTo != null && getEnergy() < 50) {
                         eat(world, moveTo);
-                    }
                 }
+
 
                 //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claime et
                 //højere chance for at claime, da kaninen skal stå på et burrow for at claime det
@@ -146,29 +141,13 @@ public class Rabbit extends Animal {
     }
 
     public void seekBurrow(World world) {
-        Location rabbitLoc = world.getLocation(this);
+        if (burrow == null) return;
+
         Location burrowLoc = world.getLocation(burrow);
-
-        //find alle tomme nabofelter
-        Set<Location> neighbors = world.getEmptySurroundingTiles(rabbitLoc);
-        Location bestMove = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        //vælg det nabofelt der minimerer afstanden mest til burrow
-        for (Location loc : neighbors) {
-            int dist = distance(loc, burrowLoc);
-            if (dist < bestDistance) {
-                bestDistance = dist;
-                bestMove = loc;
-            }
-        }
-
-        //flyt kaninen hvis vi fandt et bedre felt
-        if (bestMove != null) {
-            world.move(this, bestMove);
-            energy -= 10; // bevægelse koster energi, hvad skal hver bevægelse koste, synes i?
-        }
+        // 10 fordi det i din logik er dyrere at søge mod hul
+        moveOneStepTowards(world, burrowLoc, 10);
     }
+
 
     public void digBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
@@ -198,7 +177,6 @@ public class Rabbit extends Animal {
     }
 
     public Burrow getBurrow() {return burrow;} //til test
-    private int distance(Location a, Location b) {return Math.abs(a.getY() - b.getY()) + Math.abs(a.getX() - b.getX());}
 
 
     // ny setter – til test og evt. brug i programmet
