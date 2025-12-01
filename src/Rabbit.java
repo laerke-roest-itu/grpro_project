@@ -116,10 +116,6 @@ public class Rabbit extends Animal {
         }
     }
 
-    public void setEnergy(int i) { //til test
-        energy = i;
-    }
-
     @Override
     protected Animal createChild() {
         return new Rabbit();
