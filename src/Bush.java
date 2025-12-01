@@ -72,22 +72,12 @@ public class Bush implements Actor, NonBlocking {
     // skal implementere en metode så de her Bush kan få Berries
     // Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
 
-    public void produceBerries(){
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        if (berry > maxBerries) {
-            berry++; // producer et bær om dagen, det gør den så en gang om dagen
-            // er nok et problem her med den lige nu vil have et bær + 1 til at starte med.
-=======
-=======
->>>>>>> Stashed changes
+    public void produceBerries() {
         if (berry < maxBerries) {
-            berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
-            // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
-            // det bedste valg.
->>>>>>> Stashed changes
+            berry++;
         }
     }
+
 
     public boolean hasBerries(){
         return berry > 0; // hvis der er 1 eller flere Berry så har busken et bær
@@ -112,13 +102,10 @@ public class Bush implements Actor, NonBlocking {
         return false;
     }
 
-<<<<<<< Updated upstream
-=======
     public void berriesEaten() {
         berry = 0;
     }
 
->>>>>>> Stashed changes
 
     // Bear skal få Energy når den Eat()-metode på Bush if hasBerries()
     /* i forhold til Berry skal give Energy til Bear - jeg kan have Bear-klassen til bare at give +5 Energy, hvis
