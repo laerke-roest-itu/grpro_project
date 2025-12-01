@@ -1,11 +1,12 @@
+import itumulator.executable.DisplayInformation;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
 
-import java.util.HashSet;
+import java.awt.*;
 import java.util.Set;
 
-public class Bear extends Animal implements Actor {
+public class Bear extends Animal {
     Location territoryCenter;
 
     public Bear(Location territoryCenter) {
@@ -161,4 +162,12 @@ public class Bear extends Animal implements Actor {
         return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty();
     }
 
+    @Override
+    public DisplayInformation getInformation() {
+        if (getAge() < 60) {
+            return new DisplayInformation(Color.GRAY, "bear-small"); // billede af bjørneunge
+        } else {
+            return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
+        }
+    }
 }

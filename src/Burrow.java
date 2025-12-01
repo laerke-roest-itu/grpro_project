@@ -1,6 +1,10 @@
+import itumulator.executable.DisplayInformation;
+import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.NonBlocking;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +13,7 @@ import java.util.List;
  * It can be placed via input files or dug by rabbits.
  * Other actors can stand on a burrow without affecting it.
  */
-public class Burrow implements Actor, NonBlocking {
+public class Burrow implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     private List<Rabbit> rabbits = new ArrayList<>();
 
     @Override
@@ -24,5 +28,9 @@ public class Burrow implements Actor, NonBlocking {
 
     public List<Rabbit> getRabbits() {
         return rabbits;
+    }
+    @Override
+    public DisplayInformation getInformation() {
+        return new DisplayInformation(Color.ORANGE, "hole-small");
     }
 }

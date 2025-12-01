@@ -151,22 +151,6 @@ public class Main {
         }
         scanner.close();
 
-        // ===== VISNING / ANIMATION =====
-
-// Fortæl ITUmulator hvordan objekterne skal tegnes
-        program.setDisplayInformation(Grass.class,
-                new DisplayInformation(Color.GREEN, "grass"));
-
-        program.setDisplayInformation(Rabbit.class,
-                new DisplayInformation(Color.WHITE, "rabbit-small"));
-
-        program.setDisplayInformation(Burrow.class,
-                new DisplayInformation(Color.ORANGE, "hole-small"));
-
-        program.setDisplayInformation(Bear.class,
-                new DisplayInformation(Color.BLACK, "bear"));
-
-
 // Start simulationen (GUI)
         program.show();
         for (int i = 0; i < 200; i++) {
