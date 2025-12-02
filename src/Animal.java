@@ -15,6 +15,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected boolean isSleeping;
     protected int amountOfKids;
     protected Random random;
+    protected Object shelter;
 
     public Animal() {
         this.age = 0;
@@ -66,15 +67,14 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected abstract boolean canEat(Object object);
     protected abstract int getFoodEnergy(Object object);
 
-    // I Animal:
-    protected Location moveOneStepTowards(World world, Location target, int energyCost) {
+    protected void moveOneStepTowards(World world, Location target, int energyCost) {
         // hvor står dyret nu?
         Location currentLoc = world.getLocation(this);
-        if (currentLoc == null || target == null) return null;
+        if (currentLoc == null || target == null) return;
 
         // find tomme naboer
         Set<Location> emptyNeighbors = world.getEmptySurroundingTiles(currentLoc);
-        if (emptyNeighbors.isEmpty()) return null;
+        if (emptyNeighbors.isEmpty()) return;
 
         Location bestMove = null;
         int bestDistance = Integer.MAX_VALUE;
@@ -91,10 +91,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
             world.move(this, bestMove);
             energy -= energyCost;
         }
-
-        return bestMove;
     }
-
 
     public void sleep(World world) {
         isSleeping = true;
@@ -104,6 +101,21 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     protected int getSleepEnergy() {
         return 50; // standardværdi, kan overskrives
+    }
+
+    public void seekShelter(World world) {
+        if (shelter == null) return;
+
+        Location myLoc = world.getLocation(this);
+        Location shelterLoc = world.getLocation(shelter);
+
+        // Hvis vi allerede står på shelter → gå i seng
+        if (myLoc.equals(shelterLoc)) {
+            handleSleepLocation(world); // kobling til eksisterende sleep-logik
+            return;
+        }
+        // Ellers bevæg os ét skridt mod shelter
+        moveOneStepTowards(world, shelterLoc, 10); // energikost fx 10
     }
 
     protected abstract void handleSleepLocation(World world);
@@ -129,14 +141,19 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public void die(World world) {
         isAlive = false;
-        world.delete(this);
     }
 
     public int distance(Location a, Location b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
     }
-
     public int getAge() { return age; }
     public int getEnergy() { return energy; }
     public int getAmountOfKids() { return amountOfKids; }
+
+    public void setEnergy(int i) {
+        energy = i;
+    }
+    protected boolean isAlive() {
+        return isAlive;
+    }
 }

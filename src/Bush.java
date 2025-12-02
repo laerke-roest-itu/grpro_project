@@ -12,11 +12,7 @@ import java.util.Set;
 public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     /* der vælges at anse Bush som et NonBlocking objekt, da en Actor af Animal-klassen ville kunne gå igennem en busk.
         ydermere anvendes logik fra Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
-        et enkelt felt fremfor alle 8 rundt om et Grass-felt.
-     */
-
-    //jeg skal have mig noget display metode i forhold til at bruge billedbiblioteket af hvordan en Bush ser ud
-
+        et enkelt felt fremfor alle 8 rundt om et Grass-felt. */
 
     private final Random random;
 
@@ -37,8 +33,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
 
     @Override
     public void act(World world) {
-
-        // jeg
         ticksSinceLastGrowth++;
         if (ticksSinceLastGrowth == berryGrowthInterval) {
             ticksSinceLastGrowth = 0;
@@ -71,7 +65,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
                 }
             }
         }
-
     }
     // skal implementere en metode så de her Bush kan få Berries
     // Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
