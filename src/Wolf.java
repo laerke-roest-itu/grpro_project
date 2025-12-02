@@ -1,5 +1,4 @@
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.world.Location;
 import itumulator.world.World;
 
@@ -13,7 +12,7 @@ public class Wolf extends Animal {
     public Wolf(Pack pack) {
         super();
         this.random = new Random();
-        this.den = null;
+        this.shelter = null;
         this.pack = pack;
         if (pack != null) {
             pack.addWolf(this);
@@ -28,23 +27,27 @@ public class Wolf extends Animal {
             die(world);
             return;
         }
+        if (isAlive) {
+            if (world.getCurrentTime() >= World.getDayDuration() - 3) {
+                seekShelter(world);
 
-        if (world.isDay()) {
-            seekPack(world);
-            checkForEnemyWolves(world);
-            if (getEnergy() < 50) {
-                hunt(world);
-            }
-        }
+            } else if (world.isDay()) {
+                seekPack(world);
+                checkForEnemyWolves(world);
+                if (getEnergy() < 50) {
+                    hunt(world);
+                }
+                if (den == null && pack.getLeader() == this) {
+                    buildDen(world);
+                }
 
-
-        // Om natten kan de hvile i hulen og reproducere
-        else if (world.isNight()) {
-            if (den != null) {
-                sleep(world);
-                reproduce(world);
-            } else {
-                energy -= 5; // mister energi hvis ingen hule
+            } else if (world.isNight()) {
+                if (den != null) {
+                    sleep(world);
+                    reproduce(world);
+                } else {
+                    energy -= 5; // mister energi hvis ingen hule
+                }
             }
         }
     }
@@ -93,10 +96,6 @@ public class Wolf extends Animal {
         // 4. Ellers: bevæg dig ét skridt tættere på det nærmeste bytte
         moveOneStepTowards(world, targetPreyLoc, 8); // energikost fx 8
     }
-
-
-
-
 
     // ---------- Flokdyr ----------
 
@@ -181,9 +180,6 @@ public class Wolf extends Animal {
         }
     }
 
-
-
-
     // ---------- Metoder fra Animal ----------
 
     @Override
@@ -229,19 +225,43 @@ public class Wolf extends Animal {
 
     public void buildDen(World world) {
         Location wolfLoc = world.getLocation(this);
-        if (den == null) {
+
+        // Kun byg en hule hvis ulven ikke allerede har en
+        // og feltet er tomt (ingen blocking object)
+        if (den == null && world.isTileEmpty(wolfLoc)) {
             den = new Den();
             world.setTile(wolfLoc, den);
             den.addWolf(this);
+
+            // Hvis ulven er leder af sin pack → claim hulen
+            if (pack != null && pack.getLeader() == this) {
+                pack.claimDen(den);
+            }
         }
+    }
+
+    public void setDen(Den den) {
+        this.den = den;
     }
 
     @Override
     public DisplayInformation getInformation() {
         if (getAge() < 40) {
-            return new DisplayInformation(Color.GRAY, "wolf-small"); // billede af unge ulv
+            if (isSleeping) {
+                return new DisplayInformation(Color.GRAY, "wolf-small-sleeping"); // billede af unge ulv
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass-small"); // billede af døde unge ulv
+            } else {
+                return new DisplayInformation(Color.GRAY, "wolf-small"); // billede af unge ulv
+            }
         } else {
-            return new DisplayInformation(Color.DARK_GRAY, "wolf"); // billede af voksen ulv
+            if (isSleeping) {
+                return new DisplayInformation(Color.DARK_GRAY, "wolf-sleeping");
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass");
+            } else {
+                return new DisplayInformation(Color.DARK_GRAY, "wolf"); // billede af voksen ulv
+            }
         }
     }
 }

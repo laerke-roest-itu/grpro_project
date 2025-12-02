@@ -14,13 +14,13 @@ public class Rabbit extends Animal {
     public Rabbit() {
         super(); // kalder Animal's constructor
         this.random = new Random();
-        this.burrow = null;
+        this.shelter = burrow;
     }
 
     public Rabbit(Random random) {
         super();
         this.random = random;
-        this.burrow = null;
+        this.shelter = burrow;
     }
 
     @Override
@@ -34,17 +34,14 @@ public class Rabbit extends Animal {
         if (getAge() >= 180 || getEnergy() <= 0) {
             die(world);
             return;
+        }
 
-        } else if (isAlive) {
+        if (isAlive) {
             //hvis det er skumring, så gør kaninen det her:
-            if (currentTime >= dayDuration - 3) {
-                //hvis den har et hul at krybe i:
-                if (burrow != null) {
-                    seekBurrow(world);
-                }
+            if (world.getCurrentTime() >= World.getDayDuration() - 3) {
+                seekShelter(world);
 
-            } //hvis det er dag, så gør kaninen det her:
-            else if (world.isDay()) {
+            } else if (world.isDay()) { //hvis det er dag, så gør kaninen det her:
 
                 if (currentTime == 0 && burrow != null) {
                     wakeUp(world);
@@ -67,8 +64,7 @@ public class Rabbit extends Animal {
                     }
                 }
 
-                //hvis det er nat, så gør kaninen det her:
-            }  else if (world.isNight()) {
+            }  else if (world.isNight()) { //hvis det er nat, så gør kaninen det her:
                 if (burrow != null) {
                     // hvis der er mindst 2 kaniner i samme hul:
                     List<Rabbit> loveRabbits = burrow.getRabbits();
@@ -136,9 +132,14 @@ public class Rabbit extends Animal {
         return null;
     }
 
-    public void seekBurrow(World world) {
-        if (burrow == null) return;
+    @Override
+    public void setEnergy(int i) {
 
+    }
+
+    @Override
+    public void seekShelter(World world) {
+        if (burrow == null) return;
         Location burrowLoc = world.getLocation(burrow);
         // 10 fordi det i din logik er dyrere at søge mod hul
         moveOneStepTowards(world, burrowLoc, 10);
@@ -191,10 +192,24 @@ public class Rabbit extends Animal {
 
     @Override
     public DisplayInformation getInformation() {
-        if (getAge() < 10) {
-            return new DisplayInformation(Color.GRAY, "rabbit-small"); // billede af kaninunge
+        if (getAge() < 10) { //
+            if (isSleeping) {
+                return new DisplayInformation(Color.GRAY, "rabbit-small-sleeping");
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass-small");
+            } else {
+                return new DisplayInformation(Color.GRAY, "rabbit-small"); // billede af kaninunge
+            }
         } else {
-            return new DisplayInformation(Color.DARK_GRAY, "rabbit-large"); // billede af voksen kanin
+            if (isSleeping) {
+                return new DisplayInformation(Color.DARK_GRAY, "rabbit-sleeping");
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass");
+            } else {
+                return new DisplayInformation(Color.DARK_GRAY, "rabbit-large"); // billede af voksen kanin
+            }
         }
     }
+
+
 }

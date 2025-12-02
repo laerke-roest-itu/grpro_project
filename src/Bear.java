@@ -1,5 +1,4 @@
 import itumulator.executable.DisplayInformation;
-import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
 
@@ -16,64 +15,76 @@ public class Bear extends Animal {
 
     @Override
     public void act(World world) {
+        super.act(world);
 
         if (getAge() >= 400 || getEnergy() <= 0) {
             die(world);
             return;
         }
 
-        Location bearLocation = world.getLocation(this);
+        if (isAlive) {
+            if (world.getCurrentTime() >= World.getDayDuration() - 3) {
+                seekShelter(world);
 
-        super.tickCommon(world);
+            } else if (world.isDay()) {
+                Location bearLocation = world.getLocation(this);
+                if (!isInsideTerritory(bearLocation)) {
+                    moveTowardTerritory(world);
+                } else {
+                    if (getEnergy() <= 50) {
+                        forageOrHunt(world); // tjek både dyr og bær
+                    } else {
+                        super.moveRandomly(world);
+                    }
+                }
 
-        if (!isInsideTerritory(bearLocation)) {
-            moveTowardTerritory(world);
-        } else if (isPreyInsideTerritory(world)) {
-            hunt(world);
-        } else if (eatBerriesIfHungry(world)) {
-        } else {
-            super.moveRandomly(world);
+            } else if (world.isNight()) {
+                sleep(world);
+            }
         }
     }
 
-    private void hunt(World world) {
+    private void forageOrHunt(World world) {
         // 1. Find alle felter i bjørnens territorium
         Set<Location> territoryTiles = getTerritoryTiles(world);
 
-        // 2. Gå dem igennem og find et byttedyr
+        // 2. Gå dem igennem og find enten bytte eller buske med bær
         for (Location tile : territoryTiles) {
             Object o = world.getTile(tile);
 
-            // spring tomme felter over
             if (o == null) continue;
-
-            // vi interesserer os kun for dyr
-            if (!(o instanceof Animal)) continue;
-
-            // lad være med at spise os selv
             if (o == this) continue;
 
-            // tjek om vi MÅ spise det her dyr (Rabbit/Wolf styres af canEat)
-            if (!canEat(o)) continue;
+            // CASE A: dyr (levende eller carcass)
+            if (o instanceof Animal prey && canEat(prey)) {
+                Location bearLoc = world.getLocation(this);
+                Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
 
-            // NU har vi fundet et bytte inde i territoriet
-            Location bearLoc = world.getLocation(this);
-
-            // 3. Er bjørnen allerede nabo til byttet?
-            Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
-            if (neighbors.contains(tile)) {
-                // vi står ved siden af → spis
-                eat(world, tile);
-            } else {
-                // 4. Ellers: bevæg os ét skridt tættere på byttet
-                // energyCost kan vi selv vælge (fx 10)
-                moveOneStepTowardsPrey(world, tile);
+                if (neighbors.contains(tile)) {
+                    // vi står ved siden af → spis
+                    eat(world, tile);
+                } else {
+                    // ellers bevæg os tættere på byttet
+                    moveOneStepTowardsPrey(world, tile);
+                }
+                return; // stop efter første fund
             }
 
-            return;
+            // CASE B: busk med bær
+            if (o instanceof Bush bush && bush.hasBerries()) {
+                Location bearLoc = world.getLocation(this);
+                Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
+
+                if (neighbors.contains(tile)) {
+                    eat(world, tile);
+                } else {
+                    // ellers bevæg os tættere på busken
+                    moveOneStepTowards(world, tile, 5); // energikost fx 5
+                }
+                return; // stop efter første fund
+            }
         }
     }
-
 
     private void moveTowardTerritory(World world) {
         moveOneStepTowards(world, territoryCenter, 5);
@@ -83,38 +94,28 @@ public class Bear extends Animal {
         moveOneStepTowards(world, preyLoc, 8);
     }
 
-    private boolean eatBerriesIfHungry(World world) {
-        if (getEnergy() < 50) {
-            Location bearLoc = world.getLocation(this);
-            Set<Location> bearNeighborTiles = world.getSurroundingTiles(bearLoc);
-
-            for (Location bushLoc : bearNeighborTiles) {
-                if (world.containsNonBlocking(bushLoc)) {
-                    Object possibleBush = world.getNonBlocking(bushLoc);
-                    if (possibleBush instanceof Bush) {
-                        if (((Bush) possibleBush).hasBerries()) {
-                            int berries = ((Bush) possibleBush).getBerryCount();
-                            ((Bush) possibleBush).berriesEaten();
-                            energy += berries;
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
-        if (o != null && canEat(o)) {
-            world.delete(o);
-            energy += getFoodEnergy(o);
+
+        if (o instanceof Bush bush) {
+            if (bush.hasBerries()) {
+                int berries = bush.getBerryCount();
+                bush.berriesEaten();   // reducerer antallet af bær, men busken bliver stående
+                energy += berries;     // bjørnen får energi fra bærene
+            }
+        } else if (o instanceof Animal prey && canEat(prey)) {
+            if (!prey.isAlive()) {
+                // spiser carcass → fjern dyret helt
+                world.delete(prey);
+            } else {
+                // spiser levende bytte
+                prey.die(world);
+                world.delete(prey);
+            }
+            energy += getFoodEnergy(prey);
         }
     }
-
 
     @Override
     protected boolean canEat(Object object) {
@@ -123,12 +124,35 @@ public class Bear extends Animal {
 
     @Override
     protected int getFoodEnergy(Object object) {
-        return 40; // eller forskelligt pr. type hvis du vil
+        if (object instanceof Rabbit) {
+            return 40;
+        } else  if (object instanceof Wolf) {
+            return 60;
+        }
+        return 0;
     }
 
     @Override
     protected void handleSleepLocation(World world) {
+        Location bearLoc = world.getLocation(this);
 
+        if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
+            isSleeping = true;
+            energy += 50;
+            return;
+        } else {
+            // prøv at gå mod centeret
+            Location center = territoryCenter;
+            if (world.isTileEmpty(center)) {
+                moveOneStepTowards(world, center, 5);
+            } else { // center optaget → find et tomt nabofelt
+                Set<Location> neighbors = world.getEmptySurroundingTiles(center);
+                if (!neighbors.isEmpty()) {
+                    Location spot = neighbors.iterator().next();
+                    moveOneStepTowards(world, spot, 5);
+                }
+            }
+        }
     }
 
     @Override
@@ -141,15 +165,19 @@ public class Bear extends Animal {
         return null;
     }
 
+    private int getRadius() {
+        return 3;
+    }
+
     private Set<Location> getTerritoryTiles(World world) {
         // radius 2
-        int radius = 2;
+        int radius = getRadius();
         return world.getSurroundingTiles(territoryCenter, radius);
     }
 
     private boolean isInsideTerritory(Location bearLocation) {
         if (bearLocation == null) {return false;}
-        int radius = 2; // samme som i getTerritoryTiles
+        int radius = getRadius();
         return distance(bearLocation, territoryCenter) <= radius;
     }
 
@@ -165,9 +193,21 @@ public class Bear extends Animal {
     @Override
     public DisplayInformation getInformation() {
         if (getAge() < 60) {
-            return new DisplayInformation(Color.GRAY, "bear-small"); // billede af bjørneunge
+            if (isSleeping) {
+                return new DisplayInformation(Color.DARK_GRAY, "bear-small-sleeping");
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass-small");
+            } else {
+                return new DisplayInformation(Color.GRAY, "bear-small"); // billede af bjørneunge
+            }
         } else {
-            return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
+            if (isSleeping) {
+                return new DisplayInformation(Color.DARK_GRAY, "bear-sleeping");
+            } else if (!isAlive) {
+                return new DisplayInformation(Color.GRAY, "carcass");
+            } else {
+                return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
+            }
         }
     }
 }
