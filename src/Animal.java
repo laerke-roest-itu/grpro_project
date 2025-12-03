@@ -50,21 +50,15 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     // Default-implementation, som simple dyr kan bruge
     @Override
     public void act(World world) {
+        if (!isAlive || isSleeping) return;
         tickCommon(world);
         moveRandomly(world);
     }
 
-    public void eat(World world, Location targetLoc) {
-        if (world.containsNonBlocking(targetLoc)) {
-            Object object = world.getNonBlocking(targetLoc);
-            if (canEat(object)) {
-                world.delete(object);
-                energy += getFoodEnergy(object);
-            }
-        }
-    }
+    public void eat(World world, Location targetLoc) {}
 
     protected abstract boolean canEat(Object object);
+
     protected abstract int getFoodEnergy(Object object);
 
     protected void moveOneStepTowards(World world, Location target, int energyCost) {
@@ -127,6 +121,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     }
 
     public void reproduce(World world) {
+        if (energy < 10 || (isChild())) return;
         Animal child = createChild();
         Location loc = getReproductionLocation(world);
         if (loc != null) {
@@ -134,6 +129,13 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
             amountOfKids++;
             energy -= 15;
         }
+    }
+
+    public boolean isChild() {
+        if (getAge() < 50) {
+            return true;
+        }
+        return false;
     }
 
     protected abstract Animal createChild();

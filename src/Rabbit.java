@@ -25,11 +25,7 @@ public class Rabbit extends Animal {
 
     @Override
     public void act(World world) {
-        super.tickCommon(world); // fælles aging + energitab fra Animal
-
-        //til udregning af hvornår den skal søge mod hul:
-        int currentTime = world.getCurrentTime();
-        int dayDuration = World.getDayDuration();
+        super.act(world);
 
         if (getAge() >= 180 || getEnergy() <= 0) {
             die(world);
@@ -43,7 +39,7 @@ public class Rabbit extends Animal {
 
             } else if (world.isDay()) { //hvis det er dag, så gør kaninen det her:
 
-                if (currentTime == 0 && burrow != null) {
+                if (world.getCurrentTime() == 0 && burrow != null) {
                     wakeUp(world);
                 }
 
@@ -51,7 +47,7 @@ public class Rabbit extends Animal {
                 Location moveTo = moveRandomly(world);
 
                 if (moveTo != null && getEnergy() < 50) {
-                        eat(world, moveTo);
+                    eat(world, moveTo);
                 }
 
                 //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claime et
@@ -85,7 +81,19 @@ public class Rabbit extends Animal {
 
     @Override
     protected boolean canEat(Object object) {
-        return (object instanceof Grass);
+        if (object instanceof Grass) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getNonBlocking(targetLoc);
+        if (canEat(o)) {
+            energy += getFoodEnergy(o);
+            world.delete(o); // græs forsvinder
+        }
     }
 
     @Override
@@ -114,7 +122,16 @@ public class Rabbit extends Animal {
 
     @Override
     protected Animal createChild() {
-        return new Rabbit();
+        return new Rabbit(); // opretter en ny kanin
+    }
+
+
+    @Override
+    public boolean isChild() {
+        if (getAge() < 10) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -192,7 +209,7 @@ public class Rabbit extends Animal {
 
     @Override
     public DisplayInformation getInformation() {
-        if (getAge() < 10) { //
+        if (isChild()) { //
             if (isSleeping) {
                 return new DisplayInformation(Color.GRAY, "rabbit-small-sleeping");
             } else if (!isAlive) {

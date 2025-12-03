@@ -119,16 +119,17 @@ public class Bear extends Animal {
 
     @Override
     protected boolean canEat(Object object) {
-        return object instanceof Rabbit || object instanceof Wolf;
+        if (object instanceof Rabbit) return true;
+        if (object instanceof Wolf) return true;
+        if (object instanceof Bush) return true;
+        return false;
     }
 
     @Override
     protected int getFoodEnergy(Object object) {
-        if (object instanceof Rabbit) {
-            return 40;
-        } else  if (object instanceof Wolf) {
-            return 60;
-        }
+        if (object instanceof Rabbit) return 40;
+        if (object instanceof Wolf) return 60;
+        if (object instanceof Bush) return 10; // pr. bær
         return 0;
     }
 
@@ -157,13 +158,37 @@ public class Bear extends Animal {
 
     @Override
     protected Animal createChild() {
-        return null;
+        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
 
     @Override
     protected Location getReproductionLocation(World world) {
-        return null;
+        Location parentLoc = world.getLocation(this);
+        if (parentLoc == null) return null;
+
+        // Vi vil have ungen 2-3 felter væk fra forælderen
+        int minDistance = 3;
+        int maxDistance = 5;
+
+        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter opmrking parent
+        for (Location loc : candidates) {
+            int d = distance(parentLoc, loc);
+            if (d >= minDistance && d <= maxDistance && world.isTileEmpty(loc)) {
+                return loc; // vælg første der passer
+            }
+        }
+        // fallback: hvis ingen fundet, prøv shelter eller naboer
+        Location shelterLocation = territoryCenter;
+        if (world.isTileEmpty(shelterLocation)) {
+            return shelterLocation;
+        }
+        Set<Location> emptyAround = world.getEmptySurroundingTiles(shelterLocation);
+        if (!emptyAround.isEmpty()) {
+            return emptyAround.iterator().next();
+        }
+        return null; // ingen plads → ingen reproduktion
     }
+
 
     private int getRadius() {
         return 3;
@@ -192,7 +217,7 @@ public class Bear extends Animal {
 
     @Override
     public DisplayInformation getInformation() {
-        if (getAge() < 60) {
+        if (isChild()) {
             if (isSleeping) {
                 return new DisplayInformation(Color.DARK_GRAY, "bear-small-sleeping");
             } else if (!isAlive) {
