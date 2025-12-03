@@ -21,12 +21,13 @@ public class Wolf extends Animal {
 
     @Override
     public void act(World world) {
-        super.act(world); // fælles aging + energitab
+        super.act(world);
 
         if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
             return;
         }
+
         if (isAlive) {
             if (world.getCurrentTime() >= World.getDayDuration() - 3) {
                 seekShelter(world);
@@ -53,14 +54,6 @@ public class Wolf extends Animal {
     }
 
     // ---------- Jagt ----------
-    @Override
-    public void eat(World world, Location targetLoc) {
-        Object o = world.getTile(targetLoc);
-        if (o != null && canEat(o)) {
-            world.delete(o);
-            energy += getFoodEnergy(o);
-        }
-    }
 
     private void hunt(World world) {
         Location wolfLoc = world.getLocation(this);
@@ -183,13 +176,25 @@ public class Wolf extends Animal {
     // ---------- Metoder fra Animal ----------
 
     @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getTile(targetLoc);
+        if (o != null && canEat(o)) {
+            world.delete(o);
+            energy += getFoodEnergy(o);
+        }
+    }
+
+    @Override
     protected boolean canEat(Object object) {
-        return (object instanceof Rabbit); // ulve spiser kaniner
+        if (object instanceof Rabbit) return true;
+        if (object instanceof Bear bear && !bear.isAlive()) return true;
+        return false;
     }
 
     @Override
     protected int getFoodEnergy(Object object) {
-        return 30; // kød giver mere energi end græs
+        if (object instanceof Rabbit) return 40;
+        return 0;
     }
 
     @Override
@@ -205,9 +210,24 @@ public class Wolf extends Animal {
     }
 
     @Override
+    public boolean isChild() {
+        if (getAge() < 40) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected Location getReproductionLocation(World world) {
         if (den != null) {
-            return world.getLocation(den);
+            Location denLocation = world.getLocation(den);
+            Set<Location> emptyAround = world.getEmptySurroundingTiles(denLocation);
+
+            if (world.isTileEmpty(denLocation)) {
+                return denLocation;
+            } else if (!emptyAround.isEmpty()) {
+                return emptyAround.iterator().next();
+            }
         }
         return null;
     }
@@ -246,7 +266,7 @@ public class Wolf extends Animal {
 
     @Override
     public DisplayInformation getInformation() {
-        if (getAge() < 40) {
+        if (isChild()) {
             if (isSleeping) {
                 return new DisplayInformation(Color.GRAY, "wolf-small-sleeping"); // billede af unge ulv
             } else if (!isAlive) {
