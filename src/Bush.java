@@ -11,8 +11,7 @@ import java.util.Set;
 
 public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
     /* der vælges at anse Bush som et NonBlocking objekt, da en Actor af Animal-klassen ville kunne gå igennem en busk.
-        ydermere anvendes logik fra Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
-        et enkelt felt fremfor alle 8 rundt om et Grass-felt. */
+        ydermere anvendes logik fra Grass-klassen til at styre den tilfældige spredning. */
 
     private final Random random;
 
@@ -56,7 +55,7 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
                 // (dvs. der står ikke allerede græs eller noget andet non-blocking)
                 if (!world.containsNonBlocking(neighbourTile)) {
 
-                    // Placér nyt græs på alle nabofelter
+                    // Placér nye buske på alle nabofelter
                     // hvis ikke der allerede er non-blocking objekter
                     world.setTile(neighbourTile, new Bush());
 
@@ -89,6 +88,9 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
         return berry;
     }
 
+
+    // kan være jeg bare kan fjerne den her, der var noget samtale med Theodor der havde lavet et andet system i Bear
+    // klassen. Mindes jeg gjorde det men der var problemer da jeg pullede fra main og nogle ændringer blev rodede.
     public boolean takeBerry() {
         if (berry > 0) {
             berry--;
@@ -109,24 +111,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
             return new DisplayInformation(Color.DARK_GRAY, "bush");
         }
     }
-
-    // Bear skal få Energy når den Eat()-metode på Bush if hasBerries()
-    /* i forhold til Berry skal give Energy til Bear - jeg kan have Bear-klassen til bare at give +5 Energy, hvis
-        den spiser et Berry, hvis Energy-systemet findes hos Animal-superklassen, med mindre vi kan have en super-klasse
-        over Animal-superklassen hvor de andre klasser kan implementere Energy.
-     */
-
-    // eventuelt kode til en Bear klasse - den behøver ikke at gøre andet end at anvende takeBerry metoden, da den der
-    // ved at det bliver berry--, så den fjerner en berry fra busken.
-
-    // // antag world.getTile(location) returnerer et objekt (evt. Bush)
-    //Object tileObj = world.getTile(location);
-    //if (tileObj instanceof Bush) {
-    //    Bush bush = (Bush) tileObj;
-    //    if (bush.hasBerries() && bush.takeBerry()) {
-    //        this.increaseEnergy(5); // eller kald super.metode
-    //    }
-    //}
 
 
 
