@@ -23,6 +23,8 @@ public class Rabbit extends Animal {
         this.shelter = burrow;
     }
 
+    // ----------- ACT -----------
+
     @Override
     public void act(World world) {
         super.act(world);
@@ -79,23 +81,21 @@ public class Rabbit extends Animal {
     }
 
     @Override
-    protected boolean canEat(Object object) {
-        if (object instanceof Grass) return true;
-        return false;
+    public void seekShelter(World world) {
+        if (burrow == null) return;
+        Location burrowLoc = world.getLocation(burrow);
+        // 10 fordi det i din logik er dyrere at søge mod hul
+        moveOneStepTowards(world, burrowLoc, 10);
     }
 
+    // ----------- LIFE -----------
+
     @Override
-    public void eat(World world, Location targetLoc) {
-        Object o = world.getNonBlocking(targetLoc);
-        if (canEat(o)) {
-            energy += getFoodEnergy(o);
-            world.delete(o); // græs forsvinder
+    public void wakeUp(World world) {
+        if (burrow != null) {
+            Location burrowLoc = world.getLocation(burrow);
+            world.setTile(burrowLoc, this);
         }
-    }
-
-    @Override
-    protected int getFoodEnergy(Object object) {
-        return 20;
     }
 
     @Override
@@ -108,25 +108,33 @@ public class Rabbit extends Animal {
     @Override
     protected int getSleepEnergy() { return 25; }
 
+    // ----------- EATING -----------
+
     @Override
-    public void wakeUp(World world) {
-        if (burrow != null) {
-            Location burrowLoc = world.getLocation(burrow);
-            world.setTile(burrowLoc, this);
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getNonBlocking(targetLoc);
+        if (canEat(o)) {
+            energy += getFoodEnergy(o);
+            world.delete(o); // græs forsvinder
         }
     }
+
+    @Override
+    protected boolean canEat(Object object) {
+        if (object instanceof Grass) return true;
+        return false;
+    }
+
+    @Override
+    protected int getFoodEnergy(Object object) {
+        return 20;
+    }
+
+    // ----------- REPRODUCTION -----------
 
     @Override
     protected Animal createChild() {
         return new Rabbit(); // opretter en ny kanin
-    }
-
-    @Override
-    public boolean isChild() {
-        if (getAge() < 10) {
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -144,18 +152,7 @@ public class Rabbit extends Animal {
         return null;
     }
 
-    @Override
-    public void setEnergy(int i) {
-
-    }
-    @Override
-
-    public void seekShelter(World world) {
-        if (burrow == null) return;
-        Location burrowLoc = world.getLocation(burrow);
-        // 10 fordi det i din logik er dyrere at søge mod hul
-        moveOneStepTowards(world, burrowLoc, 10);
-    }
+    // ----------- BURROW -----------
 
     public void digBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
@@ -184,7 +181,7 @@ public class Rabbit extends Animal {
         }
     }
 
-    public Burrow getBurrow() {return burrow;} //til test
+    public Burrow getBurrow() {return burrow;}
 
     public void setBurrow(Burrow burrow) {
         this.burrow = burrow;
@@ -196,6 +193,16 @@ public class Rabbit extends Animal {
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
                 && burrow.getRabbits().getFirst() == this;
+    }
+
+    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
+
+    @Override
+    public boolean isChild() {
+        if (getAge() < 10) {
+            return true;
+        }
+        return false;
     }
 
     @Override

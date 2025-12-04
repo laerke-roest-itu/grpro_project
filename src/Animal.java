@@ -26,13 +26,19 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         this.random = new Random();
     }
 
-    // Fælles "tick" for alle dyr: alder og basis-energitab
+    // ----------- ACT -----------
+
+    @Override
+    public void act(World world) {
+        if (!isAlive || isSleeping) return;
+        tickCommon(world);
+    }
+
     protected void tickCommon(World world) {
         age++;
         energy--;
     }
 
-    // Fælles random-bevægelse, hvis et dyr *vælger* at bruge den
     protected Location moveRandomly(World world) {
         Location animalLocation = world.getLocation(this);
         Set<Location> emptyTilesNearAnimal = world.getEmptySurroundingTiles(animalLocation);
@@ -46,19 +52,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
         return moveTo;
     }
-
-    // Default-implementation, som simple dyr kan bruge
-    @Override
-    public void act(World world) {
-        if (!isAlive || isSleeping) return;
-        tickCommon(world);
-    }
-
-    public void eat(World world, Location targetLoc) {}
-
-    protected abstract boolean canEat(Object object);
-
-    protected abstract int getFoodEnergy(Object object);
 
     protected void moveOneStepTowards(World world, Location target, int energyCost) {
         // hvor står dyret nu?
@@ -86,16 +79,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         }
     }
 
-    public void sleep(World world) {
-        isSleeping = true;
-        handleSleepLocation(world);
-        energy += getSleepEnergy();
-    }
-
-    protected int getSleepEnergy() {
-        return 50; // standardværdi, kan overskrives
-    }
-
     public void seekShelter(World world) {
         if (shelter == null) return;
 
@@ -111,34 +94,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         moveOneStepTowards(world, shelterLoc, 10); // energikost fx 10
     }
 
-    protected abstract void handleSleepLocation(World world);
-
-    public void wakeUp(World world) {
-        isSleeping = false;
-        Location wakeUpLoc = world.getLocation(this);
-        world.setTile(wakeUpLoc, this);
-    }
-
-    public void reproduce(World world) {
-        if (energy < 10 || (isChild())) return;
-        Animal child = createChild();
-        Location loc = getReproductionLocation(world);
-        if (loc != null) {
-            world.setTile(loc, child);
-            amountOfKids++;
-            energy -= 15;
-        }
-    }
-
-    public boolean isChild() {
-        if (getAge() < 50) {
-            return true;
-        }
-        return false;
-    }
-
-    protected abstract Animal createChild();
-    protected abstract Location getReproductionLocation(World world);
+    // ----------- LIFE -----------
 
     public void die(World world) {
         isAlive = false;
@@ -154,21 +110,74 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         }
     }
 
+    public void sleep(World world) {
+        isSleeping = true;
+        handleSleepLocation(world);
+        energy += getSleepEnergy();
+    }
+
+    protected abstract void handleSleepLocation(World world);
+
+    protected int getSleepEnergy() {
+        return 50; // standardværdi, kan overskrives
+    }
+
+    public void wakeUp(World world) {
+        isSleeping = false;
+        Location wakeUpLoc = world.getLocation(this);
+        world.setTile(wakeUpLoc, this);
+    }
+
+    // ----------- EATING -----------
+
+    public void eat(World world, Location targetLoc) {}
+
+    protected abstract boolean canEat(Object object);
+
+    protected abstract int getFoodEnergy(Object object);
+
     private int getMeatValue() {
         return 20; //default
+    }
+
+    // ----------- REPRODUCTION -----------
+
+    public void reproduce(World world) {
+        if (energy < 15 || (isChild())) return;
+        Animal child = createChild();
+        Location loc = getReproductionLocation(world);
+        if (loc != null) {
+            world.setTile(loc, child);
+            amountOfKids++;
+            energy -= 15;
+        }
+    }
+
+    protected abstract Animal createChild();
+
+    protected abstract Location getReproductionLocation(World world);
+
+    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
+
+    public boolean isChild() {
+        if (getAge() < 50) {
+            return true;
+        }
+        return false;
     }
 
     public int distance(Location a, Location b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
     }
+
     public int getAge() { return age; }
+
     public int getEnergy() { return energy; }
+
     public int getAmountOfKids() { return amountOfKids; }
 
     public void setEnergy(int i) {
         energy = i;
     }
-    protected boolean isAlive() {
-        return isAlive;
-    }
+
 }

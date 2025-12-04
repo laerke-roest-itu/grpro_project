@@ -204,7 +204,6 @@ public class Wolf extends Animal {
     @Override
     protected boolean canEat(Object object) {
         if (object instanceof Carcass) return true;
-        if (object instanceof Rabbit) return true;
         return false;
     }
 
