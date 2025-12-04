@@ -1,10 +1,14 @@
-import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Random;
 import java.util.Scanner;
 
-import itumulator.executable.DisplayInformation;
+import Actors.Bear;
+import Actors.Rabbit;
+import Actors.Wolf;
+import Inanimate.Burrow;
+import Inanimate.Grass;
+import Inanimate.Pack;
 import itumulator.executable.Program;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -94,11 +98,11 @@ public class Main {
                 int y = random.nextInt(size);
                 Location l = new Location(x, y);
                 //System.out.println("Placerer " + type + " på (" + x + "," + y + ")");
-                // Hvis typen fra filen var "grass", placerer vi Grass på feltet
+                // Hvis typen fra filen var "grass", placerer vi Inanimate.Grass på feltet
                 // (andre typer kan også placeres)
                 if (type.equals("grass")) {
                     // Så længe der ALLEREDE står et non-blocking objekt på feltet,
-                    // vælg en ny tilfældig position (vi vil undgå at placere Grass
+                    // vælg en ny tilfældig position (vi vil undgå at placere Inanimate.Grass
                     // ovenpå andet non-blocking, fx andet græs)
                     while (world.containsNonBlocking(l)) {
                         x = random.nextInt(size);
@@ -117,7 +121,7 @@ public class Main {
 
                 } else if (type.equals("rabbit")) {
                     // Så længe der ALLEREDE står et objekt på feltet,
-                    // vælg en ny tilfældig position (vi vil undgå at placere Rabbit
+                    // vælg en ny tilfældig position (vi vil undgå at placere Actors.Rabbit
                     // ovenpå andet objekt)
                     while (!world.isTileEmpty(l)) {
                         x = random.nextInt(size);

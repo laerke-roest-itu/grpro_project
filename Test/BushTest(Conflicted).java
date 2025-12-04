@@ -1,3 +1,5 @@
+import Actors.Bear;
+import Inanimate.Bush;
 import itumulator.world.Location;
 import itumulator.world.World;
 import org.junit.jupiter.api.Test;
@@ -79,7 +81,7 @@ public class BushTest {
         Bush b = new Bush();                 // anvender default Random
         Location bushLoc = new Location(5, 5);
 
-        // placer en Bush i verdenen
+        // placer en Inanimate.Bush i verdenen
         w10.setCurrentLocation(bushLoc);
         w10.setTile(bushLoc, b);
 
@@ -89,15 +91,15 @@ public class BushTest {
         b.produceBerries(); // +1
         b.produceBerries(); // +1
 
-        assertTrue(b.hasBerries(), "Bush bør have berries efter produceBerries()");
-        assertEquals(3, b.getBerryCount(), "Bush bør have produceret præcis 3 berries.");
+        assertTrue(b.hasBerries(), "Inanimate.Bush bør have berries efter produceBerries()");
+        assertEquals(3, b.getBerryCount(), "Inanimate.Bush bør have produceret præcis 3 berries.");
     }
 // testen ser bare om det er muligt at producere berries i stedet for at vente flere ticks
 
 
     @Test
     public void berriesGetEaten() throws Exception {
-        // laver en Bush med berries og en Bear der er hungry ved siden af den
+        // laver en Inanimate.Bush med berries og en Actors.Bear der er hungry ved siden af den
         Bush b = new Bush();
         Location bushLoc = new Location(5, 5);
         Location bearLoc = new Location(5, 6); // problemer med bear ender med et output på 8 istedet for forventet 14
@@ -112,10 +114,10 @@ public class BushTest {
         assertTrue(b.hasBerries());
         assertEquals(4, b.getBerryCount());
 
-        // Laver en Bear hvis territoriecenter er dens egen lokation
+        // Laver en Actors.Bear hvis territoriecenter er dens egen lokation
         Bear bear = new Bear(bearLoc);
 
-        // Tving Bear til at være hungry ved at sætte "protected" feltet energy (fra Animal superklassen)
+        // Tving Actors.Bear til at være hungry ved at sætte "protected" feltet energy (fra Actors.Animal superklassen)
         Field energyField = null;
         Class<?> cls = bear.getClass();
 
@@ -128,11 +130,11 @@ public class BushTest {
             }
         }
 
-        assertNotNull(energyField, "Kunne ikke finde 'energy' i Bear/Animal - juster test.");
+        assertNotNull(energyField, "Kunne ikke finde 'energy' i Actors.Bear/Actors.Animal - juster test.");
         energyField.setAccessible(true);
         energyField.setInt(bear, 10); // lav energi, så bear vil prøve at spise berries
 
-        // placer Bear tæt på Bush
+        // placer Actors.Bear tæt på Inanimate.Bush
         w10.setTile(bearLoc, bear);
 
         // Act: lad bear act() én gang — den burde finde bush i neighbourTile,
@@ -140,15 +142,15 @@ public class BushTest {
         bear.act(w10);
 
         // bush bør nu have 0 berries
-        assertFalse(b.hasBerries(), "Bush bør have 0 berries efter Bear har spist dem.");
+        assertFalse(b.hasBerries(), "Inanimate.Bush bør have 0 berries efter Actors.Bear har spist dem.");
         assertEquals(0, b.getBerryCount());
 
-        // Bear energy bør være steget med antallet af berries den spiste (4)
+        // Actors.Bear energy bør være steget med antallet af berries den spiste (4)
         int finalEnergy = energyField.getInt(bear);
         assertEquals(13, finalEnergy,
-                "Bear energy bør være steget med antallet af berries den har spist (4).");
+                "Actors.Bear energy bør være steget med antallet af berries den har spist (4).");
         // bør blive 10-1 (pga. act der tager -1 energy) og så +4 fra berries så 13
-        // laver 02.12.2025 stadigt fejl, kan være det har noget med Energy systemet i Animal-klassen at gøre
+        // laver 02.12.2025 stadigt fejl, kan være det har noget med Energy systemet i Actors.Animal-klassen at gøre
     }
 
 }

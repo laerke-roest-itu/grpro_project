@@ -1,3 +1,5 @@
+import Actors.Rabbit;
+import Inanimate.Burrow;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +38,8 @@ public class RabbitTest {
         rabbit.digBurrow(world);
 
         Object obj = world.getNonBlocking(startLoc);
-        assertInstanceOf(Burrow.class, obj, "Rabbit should dig a burrow at its location");
-        assertNotNull(rabbit.getBurrow(), "Rabbit should remember its burrow");
+        assertInstanceOf(Burrow.class, obj, "Actors.Rabbit should dig a burrow at its location");
+        assertNotNull(rabbit.getBurrow(), "Actors.Rabbit should remember its burrow");
     }
 
     @Test
@@ -48,7 +50,7 @@ public class RabbitTest {
 
         rabbit.act(world);
 
-        assertNull(world.getTile(startLoc), "Rabbit should be removed from world when dead");
+        assertNull(world.getTile(startLoc), "Actors.Rabbit should be removed from world when dead");
         for (Location n : neighbours) {
             assertTrue(world.isTileEmpty(n));
         }
@@ -70,8 +72,8 @@ public class RabbitTest {
         Location newLoc = world.getLocation(rabbit);
         Location expLoc = new Location(6,5);
 
-        assertNotEquals(startLoc, newLoc, "Rabbit should move towards burrow at dusk");
-        assertEquals(expLoc, newLoc, "Rabbit should move one step towards the burrow at dusk");
+        assertNotEquals(startLoc, newLoc, "Actors.Rabbit should move towards burrow at dusk");
+        assertEquals(expLoc, newLoc, "Actors.Rabbit should move one step towards the burrow at dusk");
     }
 
 
@@ -100,6 +102,6 @@ public class RabbitTest {
 
         Object obj = world.getTile(startLoc);
         assertEquals(1, rabbit.getAmountOfKids(),
-                "Burrow should contain a new Rabbit child");
+                "Inanimate.Burrow should contain a new Actors.Rabbit child");
     }
 }

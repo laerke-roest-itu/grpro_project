@@ -1,3 +1,4 @@
+import Inanimate.Bush;
 import itumulator.world.Location;
 import itumulator.world.World;
 import org.junit.jupiter.api.Test;
@@ -75,7 +76,7 @@ public class BushTest {
         }
     }
 
-    // skal lave tests for Bush med
+    // skal lave tests for Inanimate.Bush med
     // BushProducesBerryTest
 
 
