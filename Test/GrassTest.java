@@ -1,3 +1,4 @@
+import Inanimate.Grass;
 import itumulator.world.Location;
 import itumulator.world.World;
 import org.junit.jupiter.api.*;

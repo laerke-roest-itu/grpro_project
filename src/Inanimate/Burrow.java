@@ -1,3 +1,6 @@
+package Inanimate;
+
+import Actors.Rabbit;
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
@@ -9,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Burrow represents a rabbit hole in the world.
+ * Inanimate.Burrow represents a rabbit hole in the world.
  * It can be placed via input files or dug by rabbits.
  * Other actors can stand on a burrow without affecting it.
  */

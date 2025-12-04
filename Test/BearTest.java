@@ -1,3 +1,6 @@
+import Actors.Bear;
+import Actors.Rabbit;
+import Inanimate.Bush;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import itumulator.world.World;
 import itumulator.world.Location;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 
 public class BearTest {
@@ -41,7 +43,7 @@ public class BearTest {
     }
 
 
-    /** Manhattan-distance helper (samme idé som typisk distance-funktion i Animal). */
+    /** Manhattan-distance helper (samme idé som typisk distance-funktion i Actors.Animal). */
     private int manhattan(Location a, Location b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
     }
@@ -80,7 +82,7 @@ public class BearTest {
         Location bearStart = territoryCenter;
         placeBlocking(bear, bearStart);
 
-        // Bytte (Rabbit) inde i territoriet men ikke direkte nabo
+        // Bytte (Actors.Rabbit) inde i territoriet men ikke direkte nabo
         Location preyLoc = new Location(7, 5); // afstand 2 horisontalt
         Rabbit rabbit = new Rabbit();          // antager default ctor findes
         placeBlocking(rabbit, preyLoc);
@@ -145,7 +147,7 @@ public class BearTest {
         bear.setEnergy(10);
         int energyBefore = bear.getEnergy();
 
-        // Placer en Bush på nabo-felt
+        // Placer en Inanimate.Bush på nabo-felt
         Location bushLoc = new Location(6, 5); // nabo
         Bush bush = new Bush();                // antager default ctor
         w10.setTile(bushLoc, bush);

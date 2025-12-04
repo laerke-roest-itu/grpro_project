@@ -1,3 +1,4 @@
+import Inanimate.Bush;
 import itumulator.world.Location;
 import itumulator.world.World;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ public class BushTest {
                     w10.delete(bush);
                 }
             }
-            w10.delete(b);
+            w10.delete(g);
         }
         assertTrue( count <= 12);
     }

@@ -1,3 +1,5 @@
+package Inanimate;
+
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
@@ -10,8 +12,9 @@ import java.util.Random;
 import java.util.Set;
 
 public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
-    /* der vælges at anse Bush som et NonBlocking objekt, da en Actor af Animal-klassen ville kunne gå igennem en busk.
-        ydermere anvendes logik fra Grass-klassen til at styre den tilfældige spredning. */
+    /* der vælges at anse Inanimate.Bush som et NonBlocking objekt, da en Actor af Actors.Animal-klassen ville kunne gå igennem en busk.
+        ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
+        et enkelt felt fremfor alle 8 rundt om et Inanimate.Grass-felt. */
 
     private final Random random;
 
@@ -44,7 +47,7 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
         // Henter alle nabofelter
         Set<Location> neighbours = world.getSurroundingTiles(bushLocation);
 
-        // Ca. 3% chance for at busken spreder sig i dette act - lavere % chance end Grass-klassen, da græs spreder sig
+        // Ca. 3% chance for at busken spreder sig i dette act - lavere % chance end Inanimate.Grass-klassen, da græs spreder sig
         // hurtigere end buske.
         if (random.nextInt(100) <= 3) {
 
@@ -65,8 +68,8 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
             }
         }
     }
-    // skal implementere en metode så de her Bush kan få Berries
-    // Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
+    // skal implementere en metode så de her Inanimate.Bush kan få Berries
+    // Actors.Bear klassen skal kunne kalde til klasse i forhold til hasBerries, produceBerries, berriesCount,
 
     public void produceBerries(){
         if (berry < maxBerries) {
@@ -88,9 +91,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
         return berry;
     }
 
-
-    // kan være jeg bare kan fjerne den her, der var noget samtale med Theodor der havde lavet et andet system i Bear
-    // klassen. Mindes jeg gjorde det men der var problemer da jeg pullede fra main og nogle ændringer blev rodede.
     public boolean takeBerry() {
         if (berry > 0) {
             berry--;
@@ -111,6 +111,24 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
             return new DisplayInformation(Color.DARK_GRAY, "bush");
         }
     }
+
+    // Actors.Bear skal få Energy når den Eat()-metode på Inanimate.Bush if hasBerries()
+    /* i forhold til Berry skal give Energy til Actors.Bear - jeg kan have Actors.Bear-klassen til bare at give +5 Energy, hvis
+        den spiser et Berry, hvis Energy-systemet findes hos Actors.Animal-superklassen, med mindre vi kan have en super-klasse
+        over Actors.Animal-superklassen hvor de andre klasser kan implementere Energy.
+     */
+
+    // eventuelt kode til en Actors.Bear klasse - den behøver ikke at gøre andet end at anvende takeBerry metoden, da den der
+    // ved at det bliver berry--, så den fjerner en berry fra busken.
+
+    // // antag world.getTile(location) returnerer et objekt (evt. Inanimate.Bush)
+    //Object tileObj = world.getTile(location);
+    //if (tileObj instanceof Inanimate.Bush) {
+    //    Inanimate.Bush bush = (Inanimate.Bush) tileObj;
+    //    if (bush.hasBerries() && bush.takeBerry()) {
+    //        this.increaseEnergy(5); // eller kald super.metode
+    //    }
+    //}
 
 
 
