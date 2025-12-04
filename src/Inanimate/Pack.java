@@ -1,6 +1,3 @@
-package Inanimate;
-
-import Actors.Wolf;
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.NonBlocking;
@@ -15,9 +12,12 @@ public class Pack implements Actor, NonBlocking{
     public void act(World world) {}
 
     public void addWolf(Wolf wolf) {
-        wolves.add(wolf);
-        wolf.setPack(this);
+        if (!wolves.contains(wolf)) {
+            wolves.add(wolf);
+            wolf.setPack(this);   // <– MEN se næste punkt
+        }
     }
+
 
     public Wolf getLeader() {
         return wolves.isEmpty() ? null : wolves.getFirst();

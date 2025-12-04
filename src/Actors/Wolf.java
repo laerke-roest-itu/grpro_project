@@ -1,5 +1,3 @@
-package Actors;
-
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -8,9 +6,9 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class Wolf extends Animal {
+public class Wolf extends Predator {
     private Pack pack;       // reference til ulvens flok
-    private Den den;         // ulvens hule
+    private Den den;        // ulvens hule
 
     public Wolf(Pack pack) {
         super();
@@ -22,11 +20,9 @@ public class Wolf extends Animal {
         }
     }
 
-    // ----------- ACT -----------
-
     @Override
     public void act(World world) {
-        super.act(world);
+        super.tickCommon(world);
 
         if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
@@ -39,18 +35,22 @@ public class Wolf extends Animal {
 
             } else if (world.isDay()) {
                 seekPack(world);
-                checkForEnemyWolves(world);
-                if (getEnergy() < 50) {
+
+                if (isHungry()) {
                     hunt(world);
+                } else {
+                    moveRandomly(world);
                 }
-                if (den == null && pack.getLeader() == this) {
+
+                if (den == null && pack != null && pack.getLeader() == this) {
                     buildDen(world);
                 }
+
 
             } else if (world.isNight()) {
                 if (den != null) {
                     List<Wolf> loveWolves = den.getWolves();
-                    if ((loveWolves.size() >= 2) && pack.getLeader() == this) {
+                    if ((loveWolves.size() >= 2) && pack != null && pack.getLeader() == this) {
                         sleep(world);
                         reproduce(world);
                     } else {
@@ -60,6 +60,20 @@ public class Wolf extends Animal {
                     energy -= 5; // mister energi hvis ingen hule
                 }
             }
+        }
+    }
+
+    // ---------- Flokdyr ----------
+
+    private void seekPack(World world) {
+        if (pack == null) return;
+
+        Location wolfLoc = world.getLocation(this);
+        // simpelt eksempel: bevæg dig mod første ulv i flokken
+        Wolf leader = pack.getLeader();
+        if (leader != null && leader != this) {
+            Location leaderLoc = world.getLocation(leader);
+            moveTowards(world, wolfLoc, leaderLoc);
         }
     }
 
@@ -82,113 +96,7 @@ public class Wolf extends Animal {
         }
     }
 
-    private void seekPack(World world) {
-        if (pack == null) return;
-
-        Location wolfLoc = world.getLocation(this);
-        // simpelt eksempel: bevæg dig mod første ulv i flokken
-        Wolf leader = pack.getLeader();
-        if (leader != null && leader != this) {
-            Location leaderLoc = world.getLocation(leader);
-            moveTowards(world, wolfLoc, leaderLoc);
-        }
-    }
-
-    // ----------- LIFE -----------
-
-    @Override
-    protected void handleSleepLocation(World world) {
-        if (den != null) {
-            world.remove(this); // ulven sover i sin hule
-        }
-    }
-
-    // ----------- EATING -----------
-
-    private void hunt(World world) {
-        Location wolfLoc = world.getLocation(this);
-
-        // Find alle felter inden for radius 2
-        Set<Location> radiusTiles = world.getSurroundingTiles(wolfLoc, 2);
-
-        Location targetPreyLoc = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        // 1. Find det nærmeste bytte
-        for (Location loc : radiusTiles) {
-            Object o = world.getTile(loc);
-            if (o instanceof Rabbit) {
-                int dist = distance(wolfLoc, loc);
-                if (dist < bestDistance) {
-                    bestDistance = dist;
-                    targetPreyLoc = loc;
-                }
-            }
-        }
-
-        // 2. Hvis der ikke er bytte, gør ingenting
-        if (targetPreyLoc == null) return;
-
-        // 3. Hvis ulven allerede står ved siden af byttet → spis
-        Set<Location> neighbors = world.getSurroundingTiles(wolfLoc);
-        if (neighbors.contains(targetPreyLoc)) {
-            eat(world, targetPreyLoc);
-            return;
-        }
-
-        // 4. Ellers: bevæg dig ét skridt tættere på det nærmeste bytte
-        moveOneStepTowards(world, targetPreyLoc, 8); // energikost fx 8
-    }
-
-    private void checkForEnemyWolves(World world) {
-        Location wolfLoc = world.getLocation(this);
-        Set<Location> neighbors = world.getSurroundingTiles(wolfLoc);
-
-        for (Location loc : neighbors) {
-            Object o = world.getTile(loc);
-            if (o instanceof Wolf otherWolf) {
-                // spring over hvis det er os selv
-                if (otherWolf == this) continue;
-
-                // samme pack → ingen kamp
-                if (this.pack != null && this.pack == otherWolf.getPack()) continue;
-
-                // ellers: kamp!
-                fight(otherWolf, world);
-                return; // kun én kamp pr. tur
-            }
-        }
-    }
-
-    private void fight(Wolf opponent, World world) {
-        if (this.getEnergy() > opponent.getEnergy()) {
-            // denne ulv vinder
-            opponent.die(world);
-            this.energy -= 10; // kamp koster energi
-        } else if (this.getEnergy() < opponent.getEnergy()) {
-            // modstanderen vinder
-            this.die(world);
-            opponent.energy -= 10;
-        } else {
-            // lige energi → den ældste ulv vinder
-            if (this.getAge() > opponent.getAge()) {
-                opponent.die(world);
-                this.energy -= 10;
-            } else if (this.getAge() < opponent.getAge()) {
-                this.die(world);
-                opponent.energy -= 10;
-            } else {
-                // hvis både energi og alder er ens → tilfældig vinder
-                if (random.nextBoolean()) {
-                    opponent.die(world);
-                    this.energy -= 10;
-                } else {
-                    this.die(world);
-                    opponent.energy -= 10;
-                }
-            }
-        }
-    }
+    // ---------- Metoder fra Animal ----------
 
     @Override
     public void eat(World world, Location targetLoc) {
@@ -198,23 +106,17 @@ public class Wolf extends Animal {
             int amount = Math.min(20, carcass.getMeatLeft());
             carcass.eaten(amount);
             energy += amount;
-
-        } else if (o instanceof Rabbit prey) {
-            prey.die(world);
-            Object newObj = world.getTile(targetLoc);
-            if (newObj instanceof Carcass carcass) {
-                int amount = Math.min(20, carcass.getMeatLeft());
-                carcass.eaten(amount);
-                energy += amount;
-            }
         }
+        // hvis det ikke er Carcass → gør ingenting
     }
+
 
     @Override
     protected boolean canEat(Object object) {
-        if (object instanceof Carcass) return true;
-        return false;
+        return object instanceof Carcass;
     }
+
+
 
     @Override
     protected int getFoodEnergy(Object object) {
@@ -222,11 +124,24 @@ public class Wolf extends Animal {
         return 0;
     }
 
-    // ----------- REPRODUCTION -----------
+    @Override
+    protected void handleSleepLocation(World world) {
+        if (den != null) {
+            world.remove(this); // ulven sover i sin hule
+        }
+    }
 
     @Override
-    protected Animal createChild(World world, Location childLoc) {
+    protected Animal createChild() {
         return new Wolf(pack);
+    }
+
+    @Override
+    public boolean isChild() {
+        if (getAge() < 40) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -244,11 +159,10 @@ public class Wolf extends Animal {
         return null;
     }
 
-    // ----------- PACK/DEN -----------
+    // ---------- Hjælpefunktioner ----------
 
     public void setPack(Pack pack) {
         this.pack = pack;
-        pack.addWolf(this);
     }
 
     public Pack getPack() {
@@ -276,11 +190,44 @@ public class Wolf extends Animal {
         this.den = den;
     }
 
-    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
+    @Override
+    protected Set<Location> getHuntingArea(World world) {
+        Location wolfLoc = world.getLocation(this);
+        // fx radius 2 som før
+        return world.getSurroundingTiles(wolfLoc, 2);
+    }
+
 
     @Override
-    public boolean isChild() {
-        return getAge() < 40;
+    protected int getHuntMoveCost() {
+        return 8;   // samme som før
+    }
+
+
+    @Override
+    protected boolean isEnemyPredator(Animal other) {
+        if (!(other instanceof Predator)) return false;
+
+        // Hvis det er en ulv
+        if (other instanceof Wolf otherWolf) {
+            // samme pack → ikke fjende
+            if (this.pack != null && this.pack == otherWolf.getPack()) {
+                return false;
+            }
+            // ellers → fjende
+            return true;
+
+        } else if (other instanceof Bear) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    @Override
+    protected int getAttackDamage() {
+        return 10;
     }
 
     @Override

@@ -1,8 +1,3 @@
-package Actors;
-
-import Inanimate.Bush;
-
-import Inanimate.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -10,23 +5,20 @@ import itumulator.world.World;
 import java.awt.*;
 import java.util.Set;
 
-public class Bear extends Animal {
+public class Bear extends Predator {
     Location territoryCenter;
 
     public Bear(Location territoryCenter) {
-        super(); // kalder Actors.Animal's constructor
+        super(); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
-        this.shelter = territoryCenter;
     }
-
-    // ----------- ACT -----------
 
     @Override
     public void act(World world) {
-        super.act(world);
+        super.tickCommon(world);
 
         if (getAge() >= 400 || getEnergy() <= 0) {
-            super.die(world);
+            die(world);
             return;
         }
 
@@ -39,10 +31,10 @@ public class Bear extends Animal {
                 if (!isInsideTerritory(bearLocation)) {
                     moveTowardTerritory(world);
                 } else {
-                    if (getEnergy() <= 50 && isPreyInsideTerritory(world)) {
-                        forageOrHunt(world); // tjek både dyr og bær
+                    if (isHungry()) {
+                        hunt(world);
                     } else {
-                        super.moveRandomly(world);
+                        moveRandomly(world);
                     }
                 }
 
@@ -57,11 +49,75 @@ public class Bear extends Animal {
         moveOneStepTowards(world, territoryCenter, 5);
     }
 
-    private void moveOneStepTowardsPrey(World world, Location preyLoc) {
-        moveOneStepTowards(world, preyLoc, 8);
+    @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getTile(targetLoc);
+
+        if (o instanceof Carcass carcass) {
+            int amount = Math.min(30, carcass.getMeatLeft()); // bjørn kan spise mere pr. bid end ulv
+            carcass.eaten(amount);
+            energy += amount;
+
+        } else if (o instanceof Bush bush) {
+            if (bush.hasBerries()) {
+                int berries = bush.getBerryCount();
+                bush.berriesEaten();   // alle bær væk
+                energy += berries * 2;
+            }
+        }
     }
 
-    // ----------- LIFE -----------
+    @Override
+    protected void hunt(World world) {
+        Location myLoc = world.getLocation(this);
+        Set<Location> area = getHuntingArea(world);  // dit territorie
+
+        // 1) PRIORITET: fjendtligt rovdyr
+        Location enemyLoc = findClosestEnemyPredator(world, area, myLoc);
+        if (enemyLoc != null) {
+            engageTarget(world, enemyLoc);
+            return;
+        }
+
+        // 2) PRIORITET: ådsel (Carcass), men kun hvis sulten
+        if (isHungry()) {
+            Location carcassLoc = findClosestCarcass(world, area, myLoc);
+            if (carcassLoc != null) {
+                engageTarget(world, carcassLoc);
+                return;
+            }
+
+            // 3) PRIORITET: busk med bær (stadig kun hvis sulten)
+            Location bushLoc = findClosestBushWithBerries(world, area, myLoc);
+            if (bushLoc != null) {
+                engageTarget(world, bushLoc);
+                return;
+            }
+        }
+
+        // 4) PRIORITET: levende bytte (Rabbit m.m.)
+        Location preyLoc = findClosestPrey(world, area, myLoc);
+        if (preyLoc != null) {
+            engageTarget(world, preyLoc);
+        }
+        // ellers: ingen mål → gør ikke mere i denne tur
+    }
+
+
+
+    @Override
+    protected boolean canEat(Object object) {
+        return object instanceof Carcass || object instanceof Bush;
+    }
+
+
+    @Override
+    protected int getFoodEnergy(Object object) {
+        if (object instanceof Rabbit) return 40;
+        if (object instanceof Wolf) return 60;
+        if (object instanceof Bush) return 10; // pr. bær
+        return 0;
+    }
 
     @Override
     protected void handleSleepLocation(World world) {
@@ -70,6 +126,7 @@ public class Bear extends Animal {
         if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
             isSleeping = true;
             energy += 50;
+            return;
         } else {
             // prøv at gå mod centeret
             Location center = territoryCenter;
@@ -86,104 +143,8 @@ public class Bear extends Animal {
     }
 
     @Override
-    public void wakeUp(World world) { //SKAL TILPASSES
-        isSleeping = false;
-    }
-
-    // ----------- EATING -----------
-
-    private void forageOrHunt(World world) {
-        // 1. Find alle felter i bjørnens territorium
-        Set<Location> territoryTiles = getTerritoryTiles(world);
-
-        // 2. Gå dem igennem og find enten bytte eller buske med bær
-        for (Location tile : territoryTiles) {
-            Object o = world.getTile(tile);
-
-            if (o == null) continue;
-            if (o == this) continue;
-
-            // CASE A: dyr (levende eller carcass)
-            if (o instanceof Animal prey && canEat(prey)) {
-                Location bearLoc = world.getLocation(this);
-                Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
-
-                if (neighbors.contains(tile)) {
-                    // vi står ved siden af → spis
-                    eat(world, tile);
-                } else {
-                    // ellers bevæg os tættere på byttet
-                    moveOneStepTowardsPrey(world, tile);
-                }
-                return; // stop efter første fund
-            }
-
-            // CASE B: busk med bær
-            if (o instanceof Bush bush && bush.hasBerries()) {
-                Location bearLoc = world.getLocation(this);
-                Set<Location> neighbors = world.getSurroundingTiles(bearLoc);
-
-                if (neighbors.contains(tile)) {
-                    eat(world, tile);
-                } else {
-                    // ellers bevæg os tættere på busken
-                    moveOneStepTowards(world, tile, 5); // energikost fx 5
-                }
-                return; // stop efter første fund
-            }
-        }
-    }
-
-    @Override
-    public void eat(World world, Location targetLoc) {
-        Object o = world.getTile(targetLoc);
-
-        if (o instanceof Bush bush) {
-            if (bush.hasBerries()) {
-                int berries = bush.getBerryCount();
-                bush.berriesEaten();   // reducerer antallet af bær, men busken bliver stående
-                energy += berries;     // bjørnen får energi fra bærrene
-            }
-        } else if (o instanceof Carcass carcass) {
-            int amount = Math.min(30, carcass.getMeatLeft()); // bjørnen spiser mere end ulven
-            carcass.eaten(amount);
-            energy += amount;
-
-        } else if (o instanceof Animal prey) {
-            prey.die(world);
-            // Hent carcass fra samme felt og spis det
-            Object newObj = world.getTile(targetLoc);
-            if (newObj instanceof Carcass newCarcass) {
-                int amount = Math.min(30, newCarcass.getMeatLeft());
-                newCarcass.eaten(amount);
-                energy += amount;
-            }
-        }
-    }
-
-    @Override
-    protected boolean canEat(Object object) {
-        return object instanceof Carcass || object instanceof Bush;
-    }
-
-    protected int getFoodEnergy(Object object) {
-        return 0;
-    }
-
-    // ----------- REPRODUCTION -----------
-
-    @Override
-    public void reproduce(World world) {
-        Set<Bear> bearsInTerritory = world.getAll(Bear.class, getTerritoryTiles(world));
-        if (bearsInTerritory.size() >= 5) return; // maks 5 bjørne i territoriet
-
-        Location childLoc = getReproductionLocation(world);
-        if (childLoc != null) {
-            Bear child = new Bear(childLoc);
-            world.setTile(childLoc, child);
-            amountOfKids++;
-            energy -= 15;
-        }
+    protected Animal createChild() {
+        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
 
     @Override
@@ -191,11 +152,11 @@ public class Bear extends Animal {
         Location parentLoc = world.getLocation(this);
         if (parentLoc == null) return null;
 
-        // Vi vil have ungen 2-3 felter væk fra forælder
+        // Vi vil have ungen 2-3 felter væk fra forælderen
         int minDistance = 3;
         int maxDistance = 5;
 
-        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter omkring parent
+        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter opmrking parent
         for (Location loc : candidates) {
             int d = distance(parentLoc, loc);
             if (d >= minDistance && d <= maxDistance && world.isTileEmpty(loc)) {
@@ -214,19 +175,12 @@ public class Bear extends Animal {
         return null; // ingen plads → ingen reproduktion
     }
 
-    @Override
-    protected Animal createChild(World world, Location childLoc) {
-        return new Bear(childLoc); // ungen får sit eget territoriecenter
-    }
-
-    // ----------- TERRITORY -----------
 
     private int getRadius() {
         return 3;
     }
 
     private Set<Location> getTerritoryTiles(World world) {
-        // radius 2
         int radius = getRadius();
         return world.getSurroundingTiles(territoryCenter, radius);
     }
@@ -237,17 +191,13 @@ public class Bear extends Animal {
         return distance(bearLocation, territoryCenter) <= radius;
     }
 
-    private boolean isPreyInsideTerritory(World world) {
-        Set<Location> bearTerritory = getTerritoryTiles(world);
-
-        Set<Rabbit> rabbitsInBearTerritory = world.getAll(Rabbit.class, bearTerritory);
-        Set<Wolf> wolvesInBearTerritory = world.getAll(Wolf.class, bearTerritory);
-        Set<Bush> bushesInBearTerritory = world.getAll(Bush.class, bearTerritory);
-
-        return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty() || !bushesInBearTerritory.isEmpty();
+    private Location findClosestBushWithBerries(World world, Set<Location> area, Location from) {
+        // bruger Predators findClosestMatching(...)
+        return findClosestMatching(world, area, from, o ->
+                o instanceof Bush bush && bush.hasBerries()
+        );
     }
 
-    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {
@@ -264,5 +214,38 @@ public class Bear extends Animal {
                 return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
             }
         }
+    }
+
+    @Override
+    protected Set<Location> getHuntingArea(World world) {
+        return getTerritoryTiles(world);
+    }
+
+
+    @Override
+    protected int getHuntMoveCost() {
+        return 8;
+    }
+
+    @Override
+    protected boolean isEnemyPredator(Animal other) {
+        if (!(other instanceof Predator)) return false;
+
+        if (other instanceof Wolf) {
+            return true;  // bjørn ser ulve som konkurrenter
+        }
+
+        if (other instanceof Bear otherBear) {
+            // evt. ikke fjender: return false;
+            return otherBear != this; // aldrig “fjende med sig selv”
+        }
+
+        return false;
+    }
+
+
+    @Override
+    protected int getAttackDamage() {
+        return 25;
     }
 }
