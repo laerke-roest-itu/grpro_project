@@ -1,3 +1,6 @@
+package Actors;
+
+import Inanimate.Carcass;
 import itumulator.world.Location;
 import itumulator.world.World;
 import java.util.function.Predicate;
@@ -43,6 +46,10 @@ public abstract class Predator extends Animal {
             engageTarget(world, preyLoc);
         }
         // ellers: ingen mål → gør ingenting denne tur
+    }
+
+    protected boolean isHungry() {
+        return getEnergy() < 50;
     }
 
     protected void engageTarget(World world, Location targetLoc) {

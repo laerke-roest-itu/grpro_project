@@ -1,3 +1,6 @@
+package Actors;
+import Inanimate.Bush;
+import Inanimate.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -16,7 +19,7 @@ public class Bear extends Predator {
 
     @Override
     public void act(World world) {
-        super.tickCommon(world);
+        super.act(world);
 
         if (getAge() >= 400 || getEnergy() <= 0) {
             die(world);
@@ -121,13 +124,17 @@ public class Bear extends Predator {
     }
 
     @Override
+    protected Animal createChild(World world, Location childLoc) {
+        return null;
+    }
+
+    @Override
     protected void handleSleepLocation(World world) {
         Location bearLoc = world.getLocation(this);
 
         if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
             isSleeping = true;
             energy += 50;
-            return;
         } else {
             // prøv at gå mod centeret
             Location center = territoryCenter;
@@ -143,21 +150,21 @@ public class Bear extends Predator {
         }
     }
 
-    @Override
     protected Animal createChild() {
         return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
+
 
     @Override
     protected Location getReproductionLocation(World world) {
         Location parentLoc = world.getLocation(this);
         if (parentLoc == null) return null;
 
-        // Vi vil have ungen 2-3 felter væk fra forælderen
+        // Vi vil have ungen 2-3 felter væk fra forælder
         int minDistance = 3;
         int maxDistance = 5;
 
-        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter opmrking parent
+        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter omkring parent
         for (Location loc : candidates) {
             int d = distance(parentLoc, loc);
             if (d >= minDistance && d <= maxDistance && world.isTileEmpty(loc)) {
@@ -237,8 +244,8 @@ public class Bear extends Predator {
         }
 
         if (other instanceof Bear otherBear) {
-            // evt. ikke fjender: return false;
-            return otherBear != this; // aldrig “fjende med sig selv”
+            // Evt. ikke fjender: return false;
+            return otherBear != this; // aldrig "fjende med sig selv"
         }
 
         return false;

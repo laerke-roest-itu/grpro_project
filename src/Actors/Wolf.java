@@ -1,3 +1,6 @@
+package Actors;
+
+import Inanimate.*;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -22,7 +25,7 @@ public class Wolf extends Predator {
 
     @Override
     public void act(World world) {
-        super.tickCommon(world);
+        super.act(world);
 
         if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
@@ -125,15 +128,15 @@ public class Wolf extends Predator {
     }
 
     @Override
+    protected Animal createChild(World world, Location childLoc) {
+        return new Wolf(pack);
+    }
+
+    @Override
     protected void handleSleepLocation(World world) {
         if (den != null) {
             world.remove(this); // ulven sover i sin hule
         }
-    }
-
-    @Override
-    protected Animal createChild() {
-        return new Wolf(pack);
     }
 
     @Override

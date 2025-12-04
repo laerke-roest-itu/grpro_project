@@ -1,8 +1,3 @@
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Random;
-import java.util.Scanner;
-
 import Actors.Bear;
 import Actors.Rabbit;
 import Actors.Wolf;
@@ -12,6 +7,11 @@ import Inanimate.Pack;
 import itumulator.executable.Program;
 import itumulator.world.Location;
 import itumulator.world.World;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
 
