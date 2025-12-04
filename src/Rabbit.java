@@ -65,8 +65,8 @@ public class Rabbit extends Animal {
                     // hvis der er mindst 2 kaniner i samme hul:
                     List<Rabbit> loveRabbits = burrow.getRabbits();
                     if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
-                        sleep(world);
                         reproduce(world);
+                        sleep(world);
                     } else {
                         sleep(world);
                     }
@@ -75,15 +75,12 @@ public class Rabbit extends Animal {
                     energy -= 5;
                 }
             }
-
         }
     }
 
     @Override
     protected boolean canEat(Object object) {
-        if (object instanceof Grass) {
-            return true;
-        }
+        if (object instanceof Grass) return true;
         return false;
     }
 
@@ -98,7 +95,7 @@ public class Rabbit extends Animal {
 
     @Override
     protected int getFoodEnergy(Object object) {
-        return 10;
+        return 20;
     }
 
     @Override
@@ -110,7 +107,6 @@ public class Rabbit extends Animal {
 
     @Override
     protected int getSleepEnergy() { return 25; }
-
 
     @Override
     public void wakeUp(World world) {
@@ -124,7 +120,6 @@ public class Rabbit extends Animal {
     protected Animal createChild() {
         return new Rabbit(); // opretter en ny kanin
     }
-
 
     @Override
     public boolean isChild() {
@@ -153,15 +148,14 @@ public class Rabbit extends Animal {
     public void setEnergy(int i) {
 
     }
-
     @Override
+
     public void seekShelter(World world) {
         if (burrow == null) return;
         Location burrowLoc = world.getLocation(burrow);
         // 10 fordi det i din logik er dyrere at søge mod hul
         moveOneStepTowards(world, burrowLoc, 10);
     }
-
 
     public void digBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
@@ -192,8 +186,6 @@ public class Rabbit extends Animal {
 
     public Burrow getBurrow() {return burrow;} //til test
 
-
-    // ny setter – til test og evt. brug i programmet
     public void setBurrow(Burrow burrow) {
         this.burrow = burrow;
         if (burrow != null) {
@@ -206,27 +198,21 @@ public class Rabbit extends Animal {
                 && burrow.getRabbits().getFirst() == this;
     }
 
-
     @Override
     public DisplayInformation getInformation() {
         if (isChild()) { //
             if (isSleeping) {
                 return new DisplayInformation(Color.GRAY, "rabbit-small-sleeping");
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass-small");
             } else {
                 return new DisplayInformation(Color.GRAY, "rabbit-small"); // billede af kaninunge
             }
         } else {
             if (isSleeping) {
                 return new DisplayInformation(Color.DARK_GRAY, "rabbit-sleeping");
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass");
             } else {
                 return new DisplayInformation(Color.DARK_GRAY, "rabbit-large"); // billede af voksen kanin
             }
         }
     }
-
 
 }
