@@ -1,3 +1,6 @@
+package Inanimate;
+
+import Actors.Wolf;
 import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.NonBlocking;

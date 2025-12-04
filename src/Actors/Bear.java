@@ -1,3 +1,8 @@
+package Actors;
+
+import Inanimate.Bush;
+
+import Inanimate.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -9,7 +14,7 @@ public class Bear extends Animal {
     Location territoryCenter;
 
     public Bear(Location territoryCenter) {
-        super(); // kalder Animal's constructor
+        super(); // kalder Actors.Animal's constructor
         this.territoryCenter = territoryCenter;
         this.shelter = territoryCenter;
     }

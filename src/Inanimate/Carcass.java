@@ -1,9 +1,9 @@
+package Inanimate;
+
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.World;
-
-import java.awt.*;
 
 import java.awt.*;
 

@@ -1,3 +1,5 @@
+package Inanimate;
+
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;

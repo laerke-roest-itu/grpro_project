@@ -1,3 +1,5 @@
+package Actors;
+
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -12,7 +14,7 @@ public class Rabbit extends Animal {
     private final Random random;
 
     public Rabbit() {
-        super(); // kalder Animal's constructor
+        super(); // kalder Actors.Animal's constructor
         this.random = new Random();
         this.shelter = burrow;
     }
@@ -52,8 +54,8 @@ public class Rabbit extends Animal {
                     eat(world, moveTo);
                 }
 
-                //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claime et
-                //højere chance for at claime, da kaninen skal stå på et burrow for at claime det
+                //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claim et
+                //højere chance for at claim, da kaninen skal stå på et burrow for at claim det
                 if (burrow == null) {
                     if (random.nextDouble() < 0.25) {
                         digBurrow(world);
@@ -101,7 +103,7 @@ public class Rabbit extends Animal {
     @Override
     protected void handleSleepLocation(World world) {
         if (burrow != null) {
-            world.remove(this); // Rabbit sover i burrow
+            world.remove(this); // Actors.Rabbit sover I burrow
         }
     }
 
@@ -121,8 +123,7 @@ public class Rabbit extends Animal {
 
     @Override
     protected boolean canEat(Object object) {
-        if (object instanceof Grass) return true;
-        return false;
+        return object instanceof Grass;
     }
 
     @Override
@@ -133,8 +134,10 @@ public class Rabbit extends Animal {
     // ----------- REPRODUCTION -----------
 
     @Override
-    protected Animal createChild() {
-        return new Rabbit(); // opretter en ny kanin
+    protected Animal createChild(World world, Location childLoc) {
+        Rabbit child = new Rabbit();
+        child.setBurrow(this.burrow);
+        return child;
     }
 
     @Override
@@ -195,14 +198,11 @@ public class Rabbit extends Animal {
                 && burrow.getRabbits().getFirst() == this;
     }
 
-    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public boolean isChild() {
-        if (getAge() < 10) {
-            return true;
-        }
-        return false;
+        return getAge() < 10;
     }
 
     @Override
