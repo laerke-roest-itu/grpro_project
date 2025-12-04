@@ -31,7 +31,7 @@ public class Bear extends Animal {
                 if (!isInsideTerritory(bearLocation)) {
                     moveTowardTerritory(world);
                 } else {
-                    if (getEnergy() <= 50) {
+                    if (getEnergy() <= 50 && isPreyInsideTerritory(world)) {
                         forageOrHunt(world); // tjek både dyr og bær
                     } else {
                         super.moveRandomly(world);
@@ -39,6 +39,7 @@ public class Bear extends Animal {
                 }
 
             } else if (world.isNight()) {
+                reproduce(world);
                 sleep(world);
             }
         }
@@ -119,6 +120,7 @@ public class Bear extends Animal {
 
     @Override
     protected boolean canEat(Object object) {
+        if (object instanceof Carcass) return true;
         if (object instanceof Rabbit) return true;
         if (object instanceof Wolf) return true;
         if (object instanceof Bush) return true;
@@ -211,8 +213,9 @@ public class Bear extends Animal {
 
         Set<Rabbit> rabbitsInBearTerritory = world.getAll(Rabbit.class, bearTerritory);
         Set<Wolf> wolvesInBearTerritory = world.getAll(Wolf.class, bearTerritory);
+        Set<Bush> bushesInBearTerritory = world.getAll(Bush.class, bearTerritory);
 
-        return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty();
+        return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty() || !bushesInBearTerritory.isEmpty();
     }
 
     @Override
@@ -220,16 +223,12 @@ public class Bear extends Animal {
         if (isChild()) {
             if (isSleeping) {
                 return new DisplayInformation(Color.DARK_GRAY, "bear-small-sleeping");
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass-small");
             } else {
                 return new DisplayInformation(Color.GRAY, "bear-small"); // billede af bjørneunge
             }
         } else {
             if (isSleeping) {
                 return new DisplayInformation(Color.DARK_GRAY, "bear-sleeping");
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass");
             } else {
                 return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
             }

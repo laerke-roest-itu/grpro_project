@@ -52,7 +52,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     public void act(World world) {
         if (!isAlive || isSleeping) return;
         tickCommon(world);
-        moveRandomly(world);
     }
 
     public void eat(World world, Location targetLoc) {}
@@ -143,6 +142,20 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public void die(World world) {
         isAlive = false;
+
+        Location loc = world.getLocation(this);
+        if (loc != null) {
+            int meat = getMeatValue(); // afhænger af art
+            int rot = 25;              // fx antal ticks før ådslet rådner væk
+            Carcass carcass = new Carcass(this.getClass().getSimpleName(), meat, rot);
+
+            world.delete(this);        // fjern det levende dyr
+            world.setTile(loc, carcass); // placer ådslet
+        }
+    }
+
+    private int getMeatValue() {
+        return 20; //default
     }
 
     public int distance(Location a, Location b) {

@@ -4,6 +4,7 @@ import itumulator.world.World;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Wolf extends Animal {
     private Pack pack;       // reference til ulvens flok
@@ -44,8 +45,13 @@ public class Wolf extends Animal {
 
             } else if (world.isNight()) {
                 if (den != null) {
-                    sleep(world);
-                    reproduce(world);
+                    List<Wolf> loveWolves = den.getWolves();
+                    if ((loveWolves.size() >= 2) && pack.getLeader() == this) {
+                        sleep(world);
+                        reproduce(world);
+                    } else {
+                        sleep(world);
+                    }
                 } else {
                     energy -= 5; // mister energi hvis ingen hule
                 }
@@ -67,7 +73,7 @@ public class Wolf extends Animal {
         // 1. Find det nærmeste bytte
         for (Location loc : radiusTiles) {
             Object o = world.getTile(loc);
-            if (o != null && canEat(o)) {
+            if (o instanceof Rabbit) {
                 int dist = distance(wolfLoc, loc);
                 if (dist < bestDistance) {
                     bestDistance = dist;
@@ -178,16 +184,27 @@ public class Wolf extends Animal {
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
-        if (o != null && canEat(o)) {
-            world.delete(o);
-            energy += getFoodEnergy(o);
+
+        if (o instanceof Carcass carcass) {
+            int amount = Math.min(20, carcass.getMeatLeft());
+            carcass.eaten(amount);
+            energy += amount;
+
+        } else if (o instanceof Rabbit prey) {
+            prey.die(world);
+            Object newObj = world.getTile(targetLoc);
+            if (newObj instanceof Carcass carcass) {
+                int amount = Math.min(20, carcass.getMeatLeft());
+                carcass.eaten(amount);
+                energy += amount;
+            }
         }
     }
 
     @Override
     protected boolean canEat(Object object) {
+        if (object instanceof Carcass) return true;
         if (object instanceof Rabbit) return true;
-        if (object instanceof Bear bear && !bear.isAlive()) return true;
         return false;
     }
 
@@ -269,16 +286,12 @@ public class Wolf extends Animal {
         if (isChild()) {
             if (isSleeping) {
                 return new DisplayInformation(Color.GRAY, "wolf-small-sleeping"); // billede af unge ulv
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass-small"); // billede af døde unge ulv
             } else {
                 return new DisplayInformation(Color.GRAY, "wolf-small"); // billede af unge ulv
             }
         } else {
             if (isSleeping) {
                 return new DisplayInformation(Color.DARK_GRAY, "wolf-sleeping");
-            } else if (!isAlive) {
-                return new DisplayInformation(Color.GRAY, "carcass");
             } else {
                 return new DisplayInformation(Color.DARK_GRAY, "wolf"); // billede af voksen ulv
             }
