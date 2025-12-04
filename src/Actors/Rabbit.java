@@ -1,5 +1,7 @@
 package Actors;
 
+import Inanimate.Burrow;
+import Inanimate.Grass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -221,5 +223,4 @@ public class Rabbit extends Animal {
             }
         }
     }
-
 }
