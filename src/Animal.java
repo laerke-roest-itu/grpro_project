@@ -31,10 +31,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     @Override
     public void act(World world) {
         if (!isAlive || isSleeping) return;
-        tickCommon(world);
+        tickCommon();
     }
 
-    protected void tickCommon(World world) {
+    protected void tickCommon() {
         age++;
         energy--;
     }
@@ -144,8 +144,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public void reproduce(World world) {
         if (energy < 15 || (isChild())) return;
-        Animal child = createChild();
         Location loc = getReproductionLocation(world);
+        Animal child = createChild(world, loc);
         if (loc != null) {
             world.setTile(loc, child);
             amountOfKids++;
@@ -153,17 +153,14 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         }
     }
 
-    protected abstract Animal createChild();
+    protected abstract Animal createChild(World world, Location childLoc);
 
     protected abstract Location getReproductionLocation(World world);
 
-    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     public boolean isChild() {
-        if (getAge() < 50) {
-            return true;
-        }
-        return false;
+        return getAge() < 50;
     }
 
     public int distance(Location a, Location b) {

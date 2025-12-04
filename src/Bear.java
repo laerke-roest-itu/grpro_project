@@ -11,6 +11,7 @@ public class Bear extends Animal {
     public Bear(Location territoryCenter) {
         super(); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
+        this.shelter = territoryCenter;
     }
 
     // ----------- ACT -----------
@@ -64,7 +65,6 @@ public class Bear extends Animal {
         if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
             isSleeping = true;
             energy += 50;
-            return;
         } else {
             // prøv at gå mod centeret
             Location center = territoryCenter;
@@ -82,7 +82,7 @@ public class Bear extends Animal {
 
     @Override
     public void wakeUp(World world) { //SKAL TILPASSES
-        super.wakeUp(world);
+        isSleeping = false;
     }
 
     // ----------- EATING -----------
@@ -137,14 +137,12 @@ public class Bear extends Animal {
             if (bush.hasBerries()) {
                 int berries = bush.getBerryCount();
                 bush.berriesEaten();   // reducerer antallet af bær, men busken bliver stående
-                energy += berries;     // bjørnen får energi fra bærene
-                return;
+                energy += berries;     // bjørnen får energi fra bærrene
             }
         } else if (o instanceof Carcass carcass) {
             int amount = Math.min(30, carcass.getMeatLeft()); // bjørnen spiser mere end ulven
             carcass.eaten(amount);
             energy += amount;
-            return;
 
         } else if (o instanceof Animal prey) {
             prey.die(world);
@@ -160,9 +158,7 @@ public class Bear extends Animal {
 
     @Override
     protected boolean canEat(Object object) {
-        if (object instanceof Carcass) return true;
-        if (object instanceof Bush) return true;
-        return false;
+        return object instanceof Carcass || object instanceof Bush;
     }
 
     protected int getFoodEnergy(Object object) {
@@ -174,8 +170,14 @@ public class Bear extends Animal {
     @Override
     public void reproduce(World world) {
         Set<Bear> bearsInTerritory = world.getAll(Bear.class, getTerritoryTiles(world));
-        if (bearsInTerritory.size() < 5) {
-            super.reproduce(world);
+        if (bearsInTerritory.size() >= 5) return; // maks 5 bjørne i territoriet
+
+        Location childLoc = getReproductionLocation(world);
+        if (childLoc != null) {
+            Bear child = new Bear(childLoc);
+            world.setTile(childLoc, child);
+            amountOfKids++;
+            energy -= 15;
         }
     }
 
@@ -184,11 +186,11 @@ public class Bear extends Animal {
         Location parentLoc = world.getLocation(this);
         if (parentLoc == null) return null;
 
-        // Vi vil have ungen 2-3 felter væk fra forælderen
+        // Vi vil have ungen 2-3 felter væk fra forælder
         int minDistance = 3;
         int maxDistance = 5;
 
-        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter opmrking parent
+        Set<Location> candidates = world.getSurroundingTiles(parentLoc, 5); // alle felter omkring parent
         for (Location loc : candidates) {
             int d = distance(parentLoc, loc);
             if (d >= minDistance && d <= maxDistance && world.isTileEmpty(loc)) {
@@ -208,8 +210,8 @@ public class Bear extends Animal {
     }
 
     @Override
-    protected Animal createChild() {
-        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
+    protected Animal createChild(World world, Location childLoc) {
+        return new Bear(childLoc); // ungen får sit eget territoriecenter
     }
 
     // ----------- TERRITORY -----------
@@ -240,7 +242,7 @@ public class Bear extends Animal {
         return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty() || !bushesInBearTerritory.isEmpty();
     }
 
-    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {
