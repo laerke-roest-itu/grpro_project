@@ -1,4 +1,5 @@
-import Inanimate.Den;
+package Inanimate;
+
 import Actors.Wolf;
 
 import itumulator.simulator.Actor;
