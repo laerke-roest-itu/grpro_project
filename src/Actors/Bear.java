@@ -11,6 +11,7 @@ public class Bear extends Predator {
     public Bear(Location territoryCenter) {
         super(); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
+        this.shelter = territoryCenter;
     }
 
     @Override
