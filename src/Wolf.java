@@ -20,6 +20,8 @@ public class Wolf extends Animal {
         }
     }
 
+    // ----------- ACT -----------
+
     @Override
     public void act(World world) {
         super.act(world);
@@ -59,7 +61,47 @@ public class Wolf extends Animal {
         }
     }
 
-    // ---------- Jagt ----------
+    private void moveTowards(World world, Location from, Location to) {
+        Set<Location> neighbors = world.getEmptySurroundingTiles(from);
+        Location bestMove = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        for (Location loc : neighbors) {
+            int dist = Math.abs(loc.getX() - to.getX()) + Math.abs(loc.getY() - to.getY());
+            if (dist < bestDistance) {
+                bestDistance = dist;
+                bestMove = loc;
+            }
+        }
+
+        if (bestMove != null) {
+            world.move(this, bestMove);
+            energy -= 5;
+        }
+    }
+
+    private void seekPack(World world) {
+        if (pack == null) return;
+
+        Location wolfLoc = world.getLocation(this);
+        // simpelt eksempel: bevæg dig mod første ulv i flokken
+        Wolf leader = pack.getLeader();
+        if (leader != null && leader != this) {
+            Location leaderLoc = world.getLocation(leader);
+            moveTowards(world, wolfLoc, leaderLoc);
+        }
+    }
+
+    // ----------- LIFE -----------
+
+    @Override
+    protected void handleSleepLocation(World world) {
+        if (den != null) {
+            world.remove(this); // ulven sover i sin hule
+        }
+    }
+
+    // ----------- EATING -----------
 
     private void hunt(World world) {
         Location wolfLoc = world.getLocation(this);
@@ -94,39 +136,6 @@ public class Wolf extends Animal {
 
         // 4. Ellers: bevæg dig ét skridt tættere på det nærmeste bytte
         moveOneStepTowards(world, targetPreyLoc, 8); // energikost fx 8
-    }
-
-    // ---------- Flokdyr ----------
-
-    private void seekPack(World world) {
-        if (pack == null) return;
-
-        Location wolfLoc = world.getLocation(this);
-        // simpelt eksempel: bevæg dig mod første ulv i flokken
-        Wolf leader = pack.getLeader();
-        if (leader != null && leader != this) {
-            Location leaderLoc = world.getLocation(leader);
-            moveTowards(world, wolfLoc, leaderLoc);
-        }
-    }
-
-    private void moveTowards(World world, Location from, Location to) {
-        Set<Location> neighbors = world.getEmptySurroundingTiles(from);
-        Location bestMove = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        for (Location loc : neighbors) {
-            int dist = Math.abs(loc.getX() - to.getX()) + Math.abs(loc.getY() - to.getY());
-            if (dist < bestDistance) {
-                bestDistance = dist;
-                bestMove = loc;
-            }
-        }
-
-        if (bestMove != null) {
-            world.move(this, bestMove);
-            energy -= 5;
-        }
     }
 
     private void checkForEnemyWolves(World world) {
@@ -179,8 +188,6 @@ public class Wolf extends Animal {
         }
     }
 
-    // ---------- Metoder fra Animal ----------
-
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
@@ -213,24 +220,11 @@ public class Wolf extends Animal {
         return 0;
     }
 
-    @Override
-    protected void handleSleepLocation(World world) {
-        if (den != null) {
-            world.remove(this); // ulven sover i sin hule
-        }
-    }
+    // ----------- REPRODUCTION -----------
 
     @Override
-    protected Animal createChild() {
+    protected Animal createChild(World world, Location childLoc) {
         return new Wolf(pack);
-    }
-
-    @Override
-    public boolean isChild() {
-        if (getAge() < 40) {
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -248,7 +242,7 @@ public class Wolf extends Animal {
         return null;
     }
 
-    // ---------- Hjælpefunktioner ----------
+    // ----------- PACK/DEN -----------
 
     public void setPack(Pack pack) {
         this.pack = pack;
@@ -278,6 +272,13 @@ public class Wolf extends Animal {
 
     public void setDen(Den den) {
         this.den = den;
+    }
+
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
+
+    @Override
+    public boolean isChild() {
+        return getAge() < 40;
     }
 
     @Override
