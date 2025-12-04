@@ -1,3 +1,4 @@
+import Actors.Bear;
 import Inanimate.Bush;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -46,7 +47,7 @@ public class BushTest {
                     w10.delete(bush);
                 }
             }
-            w10.delete(g);
+            w10.delete(b);
         }
         assertTrue( count <= 12);
     }
@@ -101,7 +102,7 @@ public class BushTest {
         // laver en Bush med berries og en Bear der er hungry ved siden af den
         Bush b = new Bush();
         Location bushLoc = new Location(5, 5);
-        Location bearLoc = new Location(5, 6); // problemer med bear ender med et output på 8 istedet for forventet 14
+        Location bearLoc = new Location(5, 6); // problemer med bear ender med et output på 8 i stedet for forventet 14
 
         w10.setTile(bushLoc, b);
 
@@ -148,7 +149,7 @@ public class BushTest {
         int finalEnergy = energyField.getInt(bear);
         assertEquals(13, finalEnergy,
                 "Bear energy bør være steget med antallet af berries den har spist (4).");
-        // bør blive 10-1 (pga. act der tager -1 energy) og så +4 fra berries så 13
+        // Bør blive 10-1 (pga. act der tager -1 energy) og så +4 fra berries så 13
         // laver 02.12.2025 stadigt fejl, kan være det har noget med Energy systemet i Animal-klassen at gøre
     }
 
