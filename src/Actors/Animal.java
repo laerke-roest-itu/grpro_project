@@ -1,5 +1,6 @@
 package Actors;
 
+import Inanimate.Carcass;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;

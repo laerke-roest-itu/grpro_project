@@ -46,7 +46,7 @@ public class BushTest {
                     w10.delete(bush);
                 }
             }
-            w10.delete(g);
+            w10.delete(b);
         }
         assertTrue( count <= 12);
     }
