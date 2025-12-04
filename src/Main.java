@@ -14,7 +14,7 @@ public class Main {
     static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
-                .getResourceAsStream("input_files/tf1-1.txt");
+                .getResourceAsStream("input_files/tf2-4.txt");
 
         if (is == null) {
             throw new FileNotFoundException("Inputfil ikke fundet");
