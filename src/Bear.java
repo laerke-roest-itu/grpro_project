@@ -13,12 +13,14 @@ public class Bear extends Animal {
         this.territoryCenter = territoryCenter;
     }
 
+    // ----------- ACT -----------
+
     @Override
     public void act(World world) {
         super.act(world);
 
         if (getAge() >= 400 || getEnergy() <= 0) {
-            die(world);
+            super.die(world);
             return;
         }
 
@@ -44,6 +46,46 @@ public class Bear extends Animal {
             }
         }
     }
+
+    private void moveTowardTerritory(World world) {
+        moveOneStepTowards(world, territoryCenter, 5);
+    }
+
+    private void moveOneStepTowardsPrey(World world, Location preyLoc) {
+        moveOneStepTowards(world, preyLoc, 8);
+    }
+
+    // ----------- LIFE -----------
+
+    @Override
+    protected void handleSleepLocation(World world) {
+        Location bearLoc = world.getLocation(this);
+
+        if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
+            isSleeping = true;
+            energy += 50;
+            return;
+        } else {
+            // prøv at gå mod centeret
+            Location center = territoryCenter;
+            if (world.isTileEmpty(center)) {
+                moveOneStepTowards(world, center, 5);
+            } else { // center optaget → find et tomt nabofelt
+                Set<Location> neighbors = world.getEmptySurroundingTiles(center);
+                if (!neighbors.isEmpty()) {
+                    Location spot = neighbors.iterator().next();
+                    moveOneStepTowards(world, spot, 5);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void wakeUp(World world) { //SKAL TILPASSES
+        super.wakeUp(world);
+    }
+
+    // ----------- EATING -----------
 
     private void forageOrHunt(World world) {
         // 1. Find alle felter i bjørnens territorium
@@ -87,14 +129,6 @@ public class Bear extends Animal {
         }
     }
 
-    private void moveTowardTerritory(World world) {
-        moveOneStepTowards(world, territoryCenter, 5);
-    }
-
-    private void moveOneStepTowardsPrey(World world, Location preyLoc) {
-        moveOneStepTowards(world, preyLoc, 8);
-    }
-
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
@@ -104,63 +138,45 @@ public class Bear extends Animal {
                 int berries = bush.getBerryCount();
                 bush.berriesEaten();   // reducerer antallet af bær, men busken bliver stående
                 energy += berries;     // bjørnen får energi fra bærene
+                return;
             }
-        } else if (o instanceof Animal prey && canEat(prey)) {
-            if (!prey.isAlive()) {
-                // spiser carcass → fjern dyret helt
-                world.delete(prey);
-            } else {
-                // spiser levende bytte
-                prey.die(world);
-                world.delete(prey);
+        } else if (o instanceof Carcass carcass) {
+            int amount = Math.min(30, carcass.getMeatLeft()); // bjørnen spiser mere end ulven
+            carcass.eaten(amount);
+            energy += amount;
+            return;
+
+        } else if (o instanceof Animal prey) {
+            prey.die(world);
+            // Hent carcass fra samme felt og spis det
+            Object newObj = world.getTile(targetLoc);
+            if (newObj instanceof Carcass newCarcass) {
+                int amount = Math.min(30, newCarcass.getMeatLeft());
+                newCarcass.eaten(amount);
+                energy += amount;
             }
-            energy += getFoodEnergy(prey);
         }
     }
 
     @Override
     protected boolean canEat(Object object) {
         if (object instanceof Carcass) return true;
-        if (object instanceof Rabbit) return true;
-        if (object instanceof Wolf) return true;
         if (object instanceof Bush) return true;
         return false;
     }
 
-    @Override
     protected int getFoodEnergy(Object object) {
-        if (object instanceof Rabbit) return 40;
-        if (object instanceof Wolf) return 60;
-        if (object instanceof Bush) return 10; // pr. bær
         return 0;
     }
 
-    @Override
-    protected void handleSleepLocation(World world) {
-        Location bearLoc = world.getLocation(this);
+    // ----------- REPRODUCTION -----------
 
-        if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
-            isSleeping = true;
-            energy += 50;
-            return;
-        } else {
-            // prøv at gå mod centeret
-            Location center = territoryCenter;
-            if (world.isTileEmpty(center)) {
-                moveOneStepTowards(world, center, 5);
-            } else { // center optaget → find et tomt nabofelt
-                Set<Location> neighbors = world.getEmptySurroundingTiles(center);
-                if (!neighbors.isEmpty()) {
-                    Location spot = neighbors.iterator().next();
-                    moveOneStepTowards(world, spot, 5);
-                }
-            }
+    @Override
+    public void reproduce(World world) {
+        Set<Bear> bearsInTerritory = world.getAll(Bear.class, getTerritoryTiles(world));
+        if (bearsInTerritory.size() < 5) {
+            super.reproduce(world);
         }
-    }
-
-    @Override
-    protected Animal createChild() {
-        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
 
     @Override
@@ -191,6 +207,12 @@ public class Bear extends Animal {
         return null; // ingen plads → ingen reproduktion
     }
 
+    @Override
+    protected Animal createChild() {
+        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
+    }
+
+    // ----------- TERRITORY -----------
 
     private int getRadius() {
         return 3;
@@ -217,6 +239,8 @@ public class Bear extends Animal {
 
         return !rabbitsInBearTerritory.isEmpty() || !wolvesInBearTerritory.isEmpty() || !bushesInBearTerritory.isEmpty();
     }
+
+    // ----------- SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {
