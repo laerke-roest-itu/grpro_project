@@ -17,6 +17,8 @@ public class Bear extends Predator {
         this.shelter = territoryCenter;
     }
 
+    // ----------- ACT -----------
+
     @Override
     public void act(World world) {
         super.act(world);
@@ -53,22 +55,37 @@ public class Bear extends Predator {
         moveOneStepTowards(world, territoryCenter, 5);
     }
 
+    // ----------- LIFE -----------
+
     @Override
-    public void eat(World world, Location targetLoc) {
-        Object o = world.getTile(targetLoc);
+    protected void handleSleepLocation(World world) {
+        Location bearLoc = world.getLocation(this);
 
-        if (o instanceof Carcass carcass) {
-            int amount = Math.min(30, carcass.getMeatLeft()); // bjørn kan spise mere pr. bid end ulv
-            carcass.eaten(amount);
-            energy += amount;
-
-        } else if (o instanceof Bush bush) {
-            if (bush.hasBerries()) {
-                int berries = bush.getBerryCount();
-                bush.berriesEaten();   // alle bær væk
-                energy += berries * 2;
+        if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
+            isSleeping = true;
+            energy += 50;
+        } else {
+            // prøv at gå mod centeret
+            Location center = territoryCenter;
+            if (world.isTileEmpty(center)) {
+                moveOneStepTowards(world, center, 5);
+            } else { // center optaget → find et tomt nabofelt
+                Set<Location> neighbors = world.getEmptySurroundingTiles(center);
+                if (!neighbors.isEmpty()) {
+                    Location spot = neighbors.iterator().next();
+                    moveOneStepTowards(world, spot, 5);
+                }
             }
         }
+    }
+
+    // ----------- EATING -----------
+
+    private Location findClosestBushWithBerries(World world, Set<Location> area, Location from) {
+        // bruger Predators findClosestMatching(...)
+        return findClosestMatching(world, area, from, o ->
+                o instanceof Bush bush && bush.hasBerries()
+        );
     }
 
     @Override
@@ -107,13 +124,28 @@ public class Bear extends Predator {
         // ellers: ingen mål → gør ikke mere i denne tur
     }
 
-
-
     @Override
     public boolean canEat(Object object) {
         return object instanceof Carcass || object instanceof Bush;
     }
 
+    @Override
+    public void eat(World world, Location targetLoc) {
+        Object o = world.getTile(targetLoc);
+
+        if (o instanceof Carcass carcass) {
+            int amount = Math.min(30, carcass.getMeatLeft()); // bjørn kan spise mere pr. bid end ulv
+            carcass.eaten(amount);
+            energy += amount;
+
+        } else if (o instanceof Bush bush) {
+            if (bush.hasBerries()) {
+                int berries = bush.getBerryCount();
+                bush.berriesEaten();   // alle bær væk
+                energy += berries * 2;
+            }
+        }
+    }
 
     @Override
     public int getFoodEnergy(Object object) {
@@ -123,41 +155,15 @@ public class Bear extends Predator {
         return 0;
     }
 
-    private int getMeatValue() {
-        return 100; //default
+    protected int getMeatValue() {
+        return 100;
     }
 
-    @Override
+    // ----------- REPRODUCTION -----------
+
     protected Animal createChild(World world, Location childLoc) {
-        return null;
-    }
-
-    @Override
-    protected void handleSleepLocation(World world) {
-        Location bearLoc = world.getLocation(this);
-
-        if (bearLoc.equals(territoryCenter) || distance(bearLoc, territoryCenter) <= 1) {
-            isSleeping = true;
-            energy += 50;
-        } else {
-            // prøv at gå mod centeret
-            Location center = territoryCenter;
-            if (world.isTileEmpty(center)) {
-                moveOneStepTowards(world, center, 5);
-            } else { // center optaget → find et tomt nabofelt
-                Set<Location> neighbors = world.getEmptySurroundingTiles(center);
-                if (!neighbors.isEmpty()) {
-                    Location spot = neighbors.iterator().next();
-                    moveOneStepTowards(world, spot, 5);
-                }
-            }
-        }
-    }
-
-    protected Animal createChild() {
         return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
-
 
     @Override
     protected Location getReproductionLocation(World world) {
@@ -180,6 +186,7 @@ public class Bear extends Predator {
         if (world.isTileEmpty(shelterLocation)) {
             return shelterLocation;
         }
+
         Set<Location> emptyAround = world.getEmptySurroundingTiles(shelterLocation);
         if (!emptyAround.isEmpty()) {
             return emptyAround.iterator().next();
@@ -187,6 +194,7 @@ public class Bear extends Predator {
         return null; // ingen plads → ingen reproduktion
     }
 
+    // ----------- TERRITORY & FIGHT -----------
 
     private int getRadius() {
         return 3;
@@ -203,13 +211,35 @@ public class Bear extends Predator {
         return distance(bearLocation, territoryCenter) <= radius;
     }
 
-    private Location findClosestBushWithBerries(World world, Set<Location> area, Location from) {
-        // bruger Predators findClosestMatching(...)
-        return findClosestMatching(world, area, from, o ->
-                o instanceof Bush bush && bush.hasBerries()
-        );
+    @Override
+    protected Set<Location> getHuntingArea(World world) {
+        return getTerritoryTiles(world);
     }
 
+    @Override
+    protected int getHuntMoveCost() {
+        return 8;
+    }
+
+    @Override
+    public boolean isEnemyPredator(Animal other) {
+        if (!(other instanceof Predator)) return false;
+        if (other instanceof Wolf) {
+            return true;  // bjørn ser ulve som konkurrenter
+        }
+        if (other instanceof Bear otherBear) {
+            // Evt. ikke fjender: return false;
+            return otherBear != this; // aldrig "fjende med sig selv"
+        }
+        return false;
+    }
+
+    @Override
+    public int getAttackDamage() {
+        return 25;
+    }
+
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {
@@ -226,38 +256,5 @@ public class Bear extends Predator {
                 return new DisplayInformation(Color.DARK_GRAY, "bear"); // billede af voksen bjørn
             }
         }
-    }
-
-    @Override
-    protected Set<Location> getHuntingArea(World world) {
-        return getTerritoryTiles(world);
-    }
-
-
-    @Override
-    protected int getHuntMoveCost() {
-        return 8;
-    }
-
-    @Override
-    public boolean isEnemyPredator(Animal other) {
-        if (!(other instanceof Predator)) return false;
-
-        if (other instanceof Wolf) {
-            return true;  // bjørn ser ulve som konkurrenter
-        }
-
-        if (other instanceof Bear otherBear) {
-            // Evt. ikke fjender: return false;
-            return otherBear != this; // aldrig "fjende med sig selv"
-        }
-
-        return false;
-    }
-
-
-    @Override
-    public int getAttackDamage() {
-        return 25;
     }
 }

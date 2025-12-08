@@ -127,8 +127,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public void wakeUp(World world) {
         isSleeping = false;
-        Location wakeUpLoc = world.getLocation(this);
-        world.setTile(wakeUpLoc, this);
     }
 
     // ----------- EATING -----------
@@ -139,9 +137,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     protected abstract int getFoodEnergy(Object object);
 
-    private int getMeatValue() {
-        return 0; //default
-    }
+    protected abstract int getMeatValue();
 
     // ----------- REPRODUCTION -----------
 
