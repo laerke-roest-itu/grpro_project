@@ -161,7 +161,7 @@ public class WolfTest {
 
     @Test
     void canEatOnlyCarcass() {
-        Object carcass = new Carcass();    // RET HER hvis Carcass kræver andre argumenter
+        Object carcass = new Carcass(50,25);    // RET HER hvis Carcass kræver andre argumenter
         Object rabbit = new Rabbit();
         Object bear = new Bear(new Location(0, 0));
         Object somethingElse = new Object();
@@ -175,7 +175,7 @@ public class WolfTest {
     @Test
     void eatFromCarcassIncreasesEnergyAndReducesMeat() {
         Location loc = new Location(4, 4);
-        Carcass carcass = new Carcass();       // RET HER hvis konstruktør er anderledes
+        Carcass carcass = new Carcass(50,25);       // RET HER hvis konstruktør er anderledes
         place(carcass, loc);
 
         // sæt ulven et sted i verden
