@@ -140,7 +140,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected abstract int getFoodEnergy(Object object);
 
     private int getMeatValue() {
-        return 20; //default
+        return 0; //default
     }
 
     // ----------- REPRODUCTION -----------

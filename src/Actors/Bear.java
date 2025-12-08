@@ -123,6 +123,10 @@ public class Bear extends Predator {
         return 0;
     }
 
+    private int getMeatValue() {
+        return 100; //default
+    }
+
     @Override
     protected Animal createChild(World world, Location childLoc) {
         return null;

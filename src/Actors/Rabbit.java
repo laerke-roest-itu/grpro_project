@@ -133,6 +133,10 @@ public class Rabbit extends Animal {
         return 20;
     }
 
+    private int getMeatValue() {
+        return 20;
+    }
+
     // ----------- REPRODUCTION -----------
 
     @Override

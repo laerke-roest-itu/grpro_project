@@ -127,6 +127,10 @@ public class Wolf extends Predator {
         return 0;
     }
 
+    private int getMeatValue() {
+        return 50; //default
+    }
+
     @Override
     protected Animal createChild(World world, Location childLoc) {
         return new Wolf(pack);
