@@ -120,6 +120,7 @@ public class Wolf extends Predator {
     }
 
 
+
     @Override
     protected int getFoodEnergy(Object object) {
         if (object instanceof Rabbit) return 40;

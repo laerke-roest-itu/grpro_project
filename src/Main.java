@@ -1,8 +1,3 @@
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Random;
-import java.util.Scanner;
-
 import Actors.Bear;
 import Actors.Rabbit;
 import Actors.Wolf;
@@ -13,12 +8,17 @@ import itumulator.executable.Program;
 import itumulator.world.Location;
 import itumulator.world.World;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Random;
+import java.util.Scanner;
+
 public class Main {
 
     static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
-                .getResourceAsStream("input_files/tf1-1.txt");
+                .getResourceAsStream("input_files/tf2-4.txt");
 
         if (is == null) {
             throw new FileNotFoundException("Inputfil ikke fundet");

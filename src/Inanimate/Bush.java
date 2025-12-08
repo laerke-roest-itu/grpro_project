@@ -58,7 +58,7 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
                 // (dvs. der står ikke allerede græs eller noget andet non-blocking)
                 if (!world.containsNonBlocking(neighbourTile)) {
 
-                    // Placér nyt græs på alle nabofelter
+                    // Placér nye buske på alle nabofelter
                     // hvis ikke der allerede er non-blocking objekter
                     world.setTile(neighbourTile, new Bush());
 
