@@ -127,8 +127,8 @@ public class Wolf extends Predator {
         return 0;
     }
 
-    private int getMeatValue() {
-        return 50; //default
+    protected int getMeatValue() {
+        return 50;
     }
 
     @Override

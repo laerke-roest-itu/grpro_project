@@ -9,11 +9,9 @@ import java.awt.*;
 
 public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private int meatLeft;      // hvor meget kød der er tilbage
-    private int rotTimer;      // hvor mange ticks før ådslet rådner væk
-    private String type;       // hvilken art det stammer fra
+    private int rotTimer;      // hvor mange ticks før ådslet rådner væk// hvilken art det stammer fra
 
-    public Carcass(String type, int meatLeft, int rotTimer) {
-        this.type = type;
+    public Carcass(int meatLeft, int rotTimer) {
         this.meatLeft = meatLeft;
         this.rotTimer = rotTimer;
     }
@@ -39,10 +37,13 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
 
     @Override
     public DisplayInformation getInformation() {
-        if (meatLeft > 0) {
+        if (meatLeft >= 50) {
             return new DisplayInformation(Color.GRAY, "carcass");
+        } else if (meatLeft >= 0 && meatLeft < 50) {
+            return new DisplayInformation(Color.GRAY, "carcass-small");
+        } else {
+            return null;
         }
-        return null;
     }
 }
 
