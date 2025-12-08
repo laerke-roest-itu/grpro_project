@@ -106,7 +106,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         if (loc != null) {
             int meat = getMeatValue(); // afhænger af art
             int rot = 25;              // fx antal ticks før ådslet rådner væk
-            Carcass carcass = new Carcass(this.getClass().getSimpleName(), meat, rot);
+            Carcass carcass = new Carcass(meat, rot);
 
             world.delete(this);        // fjern det levende dyr
             world.setTile(loc, carcass); // placer ådslet
