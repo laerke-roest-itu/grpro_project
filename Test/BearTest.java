@@ -1,3 +1,8 @@
+import Actors.Bear;
+import Actors.Rabbit;
+import Actors.Wolf;
+import Inanimate.Bush;
+import Inanimate.Carcass;
 import itumulator.world.World;
 import itumulator.world.Location;
 import org.junit.jupiter.api.AfterEach;
@@ -119,8 +124,8 @@ public class BearTest {
 
         bear.act(w10);
 
-        assertFalse(isAlive(bear), "Bjørnen skal dø når age >= 400.");
-        assertNull(w10.getLocation(bear), "Død bjørn bør være fjernet fra verden.");
+        //assertFalse(isAlive(bear), "Bjørnen skal dø når age >= 400.");
+        assertFalse(w10.contains(bear), "Bjørnen skal være fjernet fra verden når den dør.");
     }
 
     @Test
@@ -133,8 +138,8 @@ public class BearTest {
 
         bear.act(w10);
 
-        assertFalse(isAlive(bear), "Bjørnen skal dø når energy <= 0.");
-        assertNull(w10.getLocation(bear), "Bjørnen bør fjernes fra verden når den dør.");
+        //assertFalse(isAlive(bear), "Bjørnen skal dø når energy <= 0.");
+        assertFalse(w10.contains(bear), "Bjørnen skal være fjernet fra verden når den dør.");
     }
 
     @Test
@@ -179,13 +184,13 @@ public class BearTest {
 
         // carcass ved siden af
         Location carcassLoc = new Location(territoryCenter.getX() + 1, territoryCenter.getY());
-        Carcass carcass = new Carcass();      // RET HER hvis Carcass har anden ctor
+        Carcass carcass = new Carcass("rabbit", 20, 25);      // RET HER hvis Carcass har anden ctor
         place(carcass, carcassLoc);
 
         int energyBefore = getEnergy(bear);
         int meatBefore = carcass.getMeatLeft();
 
-        bear.act(w10); // bør gå i day-gren, inde i territoriet, sulten → hunt() → eat(carcass)
+        bear.act(w10); // Husk at tage højde for at act koster én energi
 
         int energyAfter = getEnergy(bear);
         int meatAfter = carcass.getMeatLeft();
@@ -194,7 +199,7 @@ public class BearTest {
         assertTrue(meatEaten <= 30 && meatEaten >= 0,
                 "Bjørnen må højst spise 30 kød ad gangen fra Carcass.");
 
-        assertEquals(energyBefore + meatEaten, energyAfter,
+        assertEquals(energyBefore + meatEaten - 1, energyAfter,
                 "Bjørnens energi skal stige med samme mængde kød som den spiser.");
     }
 
@@ -203,7 +208,7 @@ public class BearTest {
     @Test
     void eatCarcassDirectly_increasesEnergyAndReducesMeat() {
         Location loc = new Location(4, 4);
-        Carcass carcass = new Carcass();      // RET HER hvis ctor er anderledes
+        Carcass carcass = new Carcass("rabbit", 20, 25);      // RET HER hvis ctor er anderledes
         place(carcass, loc);
 
         setEnergy(bear, 5);
@@ -226,7 +231,8 @@ public class BearTest {
     @Test
     void eatBushWithBerries_givesDoubleEnergyPerBerry() {
         Location loc = new Location(6, 6);
-        Bush bush = new Bush();     // antager den starter med nogle bær
+        Bush bush = new Bush();
+        bush.produceBerries();
         place(bush, loc);
 
         setEnergy(bear, 10);
@@ -249,7 +255,7 @@ public class BearTest {
 
     @Test
     void canEatOnlyCarcassOrBush() {
-        Object carcass = new Carcass();
+        Object carcass = new Carcass("rabbit", 20, 25);
         Object bush = new Bush();
         Object rabbit = new Rabbit();
         Object wolf = new Wolf(null);

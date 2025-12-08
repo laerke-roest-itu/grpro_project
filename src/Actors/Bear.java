@@ -110,13 +110,13 @@ public class Bear extends Predator {
 
 
     @Override
-    protected boolean canEat(Object object) {
+    public boolean canEat(Object object) {
         return object instanceof Carcass || object instanceof Bush;
     }
 
 
     @Override
-    protected int getFoodEnergy(Object object) {
+    public int getFoodEnergy(Object object) {
         if (object instanceof Rabbit) return 40;
         if (object instanceof Wolf) return 60;
         if (object instanceof Bush) return 10; // pr. bær
@@ -240,7 +240,7 @@ public class Bear extends Predator {
     }
 
     @Override
-    protected boolean isEnemyPredator(Animal other) {
+    public boolean isEnemyPredator(Animal other) {
         if (!(other instanceof Predator)) return false;
 
         if (other instanceof Wolf) {
@@ -257,7 +257,7 @@ public class Bear extends Predator {
 
 
     @Override
-    protected int getAttackDamage() {
+    public int getAttackDamage() {
         return 25;
     }
 }
