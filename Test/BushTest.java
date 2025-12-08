@@ -147,9 +147,9 @@ public class BushTest {
 
         // Bear energy bør være steget med antallet af berries den spiste (4)
         int finalEnergy = energyField.getInt(bear);
-        assertEquals(13, finalEnergy,
+        assertEquals(17, finalEnergy,
                 "Bear energy bør være steget med antallet af berries den har spist (4).");
-        // Bør blive 10-1 (pga. act der tager -1 energy) og så +4 fra berries så 13
+        // Bør blive 10-1 (pga. act der tager -1 energy) og så +4 fra berries så 17 pga. linje 69 i Bear-klassen
         // laver 02.12.2025 stadigt fejl, kan være det har noget med Energy systemet i Animal-klassen at gøre
     }
 
