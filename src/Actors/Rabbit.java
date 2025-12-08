@@ -99,6 +99,7 @@ public class Rabbit extends Animal {
         if (burrow != null) {
             Location burrowLoc = world.getLocation(burrow);
             world.setTile(burrowLoc, this);
+            isSleeping = false;
         }
     }
 
@@ -133,7 +134,7 @@ public class Rabbit extends Animal {
         return 20;
     }
 
-    private int getMeatValue() {
+    protected int getMeatValue() {
         return 20;
     }
 

@@ -5,6 +5,7 @@ import Inanimate.Bush;
 import Inanimate.Carcass;
 import itumulator.world.World;
 import itumulator.world.Location;
+import Actors.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -184,7 +185,7 @@ public class BearTest {
 
         // carcass ved siden af
         Location carcassLoc = new Location(territoryCenter.getX() + 1, territoryCenter.getY());
-        Carcass carcass = new Carcass("rabbit", 20, 25);      // RET HER hvis Carcass har anden ctor
+        Carcass carcass = new Carcass(50,25);      // RET HER hvis Carcass har anden ctor
         place(carcass, carcassLoc);
 
         int energyBefore = getEnergy(bear);
@@ -208,7 +209,7 @@ public class BearTest {
     @Test
     void eatCarcassDirectly_increasesEnergyAndReducesMeat() {
         Location loc = new Location(4, 4);
-        Carcass carcass = new Carcass("rabbit", 20, 25);      // RET HER hvis ctor er anderledes
+        Carcass carcass = new Carcass(50,25);      // RET HER hvis ctor er anderledes
         place(carcass, loc);
 
         setEnergy(bear, 5);
@@ -255,7 +256,7 @@ public class BearTest {
 
     @Test
     void canEatOnlyCarcassOrBush() {
-        Object carcass = new Carcass("rabbit", 20, 25);
+        Object carcass = new Carcass(50,25);
         Object bush = new Bush();
         Object rabbit = new Rabbit();
         Object wolf = new Wolf(null);
