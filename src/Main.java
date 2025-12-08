@@ -1,9 +1,5 @@
-import Actors.Bear;
-import Actors.Rabbit;
-import Actors.Wolf;
-import Inanimate.Burrow;
-import Inanimate.Grass;
-import Inanimate.Pack;
+import Actors.*;
+import Inanimate.*;
 import itumulator.executable.Program;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -46,7 +42,6 @@ public class Main {
         Program program = new Program(size, display_size, delay);
         // Hent verden (World) ud af programmet – det er her vi placerer objekter
         World world = program.getWorld();
-
 
         // Læs resten af filen linje for linje (egentlig token for token)
         while (scanner.hasNext()) {
@@ -93,7 +88,7 @@ public class Main {
 
             // Placér 'count' objekter af den pågældende type tilfældigt i verden
             for (int i = 0; i < count; i++) {
-                // Vælg en tilfældig (x,y)-position i verden
+                // Vælg en tilfældig (x, y)-position i verden
                 int x = random.nextInt(size);
                 int y = random.nextInt(size);
                 Location l = new Location(x, y);
@@ -110,6 +105,23 @@ public class Main {
                         l = new Location(x, y);
                     }
                     world.setTile(l, new Grass());
+
+                } else if (type.equals("carcass")) {
+                    if (scanner.hasNext("fungi")) {
+                        while (world.containsNonBlocking(l)) {
+                            x = random.nextInt(size);
+                            y = random.nextInt(size);
+                            l = new Location(x, y);
+                        }
+                        world.setTile(l, new Carcass(80,25, true));
+                    } else {
+                        while (world.containsNonBlocking(l)) {
+                            x = random.nextInt(size);
+                            y = random.nextInt(size);
+                            l = new Location(x, y);
+                        }
+                        world.setTile(l, new Carcass(80,25));
+                    }
 
                 } else if (type.equals("burrow")) {
                     while (world.containsNonBlocking(l)) {
@@ -149,7 +161,6 @@ public class Main {
                     }
                     Wolf wolf = new Wolf(pack); // konstruktør tager pack
                     world.setTile(l, wolf);
-
                 }
             }
         }
