@@ -1,3 +1,8 @@
+import Actors.Bear;
+import Actors.Rabbit;
+import Actors.Wolf;
+import Inanimate.Carcass;
+import Inanimate.Pack;
 import itumulator.world.World;
 import itumulator.world.Location;
 import itumulator.executable.DisplayInformation;

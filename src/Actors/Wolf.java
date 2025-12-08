@@ -115,7 +115,7 @@ public class Wolf extends Predator {
 
 
     @Override
-    protected boolean canEat(Object object) {
+    public boolean canEat(Object object) {
         return object instanceof Carcass;
     }
 
@@ -212,7 +212,7 @@ public class Wolf extends Predator {
 
 
     @Override
-    protected boolean isEnemyPredator(Animal other) {
+    public boolean isEnemyPredator(Animal other) {
         if (!(other instanceof Predator)) return false;
 
         // Hvis det er en ulv
@@ -233,7 +233,7 @@ public class Wolf extends Predator {
 
 
     @Override
-    protected int getAttackDamage() {
+    public int getAttackDamage() {
         return 10;
     }
 
