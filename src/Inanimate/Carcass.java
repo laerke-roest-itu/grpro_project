@@ -20,6 +20,7 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
     public void act(World world) {
         rotTimer--;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         if (rotTimer <= 0 || meatLeft <= 0) {
             world.delete(this); // ådslet forsvinder
         }
@@ -29,6 +30,11 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         trySpawnFungi();
 
         if (rotTimer <= 0 || meatLeft <= 0) {
+=======
+        trySpawnFungi();
+
+        if (rotTimer <= 0 || meatLeft <= 0) {
+>>>>>>> Stashed changes
             Location myLoc = world.getLocation(this);
 
             // gemmer om der var svamp, før vi sletter ådslet
