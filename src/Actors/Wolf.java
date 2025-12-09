@@ -25,7 +25,11 @@ public class Wolf extends Predator {
 
     @Override
     public void act(World world) {
-        super.act(world);
+
+        // SIKKERHED: findes dyret stadig?
+        if (world.getLocation(this) == null) return;
+
+        super.tickCommon();
 
         if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
