@@ -20,7 +20,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
 
     private int berry = 0;                  // antal bær på denne busk
     private final int maxBerries = 100;
-    private boolean hasBerries;
     private final int berryGrowthInterval = 10; // antal ticks mellem vækst
     private int ticksSinceLastGrowth = 0;   // tæller til vækst
 
@@ -89,14 +88,6 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
 
     public int getBerryCount(){
         return berry;
-    }
-
-    public boolean takeBerry() {
-        if (berry > 0) {
-            berry--;
-            return true;
-        }
-        return false;
     }
 
     public void berriesEaten() {

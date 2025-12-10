@@ -13,7 +13,6 @@ import java.util.Set;
 
 public class Rabbit extends Animal {
     private Burrow burrow;
-    private final Random random;
 
     public Rabbit() {
         super(); // kalder Actors.Animal's constructor
@@ -134,6 +133,7 @@ public class Rabbit extends Animal {
         return 20;
     }
 
+    @Override
     protected int getMeatValue() {
         return 20;
     }

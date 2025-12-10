@@ -22,13 +22,8 @@ public class Pack implements Actor, NonBlocking{
         }
     }
 
-
     public Wolf getLeader() {
         return wolves.isEmpty() ? null : wolves.getFirst();
-    }
-
-    public List<Wolf> getWolves() {
-        return wolves;
     }
 
     public void claimDen(Den den) {

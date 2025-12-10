@@ -170,10 +170,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public int getEnergy() { return energy; }
 
-    public int getAmountOfKids() { return amountOfKids; }
-
     public void setEnergy(int i) {
         energy = i;
     }
+
+    public int getAmountOfKids() { return amountOfKids; }
 
 }

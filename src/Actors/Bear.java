@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Set;
 
 public class Bear extends Predator {
-    Location territoryCenter;
+    private Location territoryCenter;
 
     public Bear(Location territoryCenter) {
         super(); // kalder Animal's constructor
@@ -155,12 +155,14 @@ public class Bear extends Predator {
         return 0;
     }
 
+    @Override
     protected int getMeatValue() {
         return 100;
     }
 
     // ----------- REPRODUCTION -----------
 
+    @Override
     protected Animal createChild(World world, Location childLoc) {
         return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
     }
