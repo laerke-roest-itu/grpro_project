@@ -48,17 +48,40 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
         rotTimer--;
         trySpawnFungi();
+
         if (rotTimer <= 0 || meatLeft <= 0) {
-            if (hasFungi) {
-                // placer fungi på ådslets position hvis der er en svampeinstans knyttet til ådslet
-                Location myLoc = world.getLocation(this);
-                world.setTile(myLoc, new Fungi(this.calculateFungiLifespan()));
-                world.delete(this); // ådslet forsvinder
+            Location myLoc = world.getLocation(this);
+
+            // gemmer om der var svamp, før vi sletter ådslet
+            boolean spawnFungi = hasFungi;
+
+            // ådslet forsvinder altid
+            world.delete(this);
+
+            // hvis ingen svamp → færdig
+            if (!spawnFungi || myLoc == null) {
+                return;
+            }
+
+            // tjek hvad der står som non-blocking på feltet
+            Object nb = world.getNonBlocking(myLoc);
+
+            if (nb == null) {
+                // ingen non-blocking → bare placer svamp
+                world.setTile(myLoc, new Fungi(calculateFungiLifespan()));
+
+            } else if (nb instanceof Grass) {
+                // må gerne overskrive grass
+                world.delete(nb);
+                world.setTile(myLoc, new Fungi(calculateFungiLifespan()));
+
             } else {
-                world.delete(this); // ådslet forsvinder
+                // fx Burrow eller noget andet non-blocking → gør ingenting
+                // (ingen svamp på kortet, men logikken er stadig ok)
             }
         }
     }
+
 
     private void trySpawnFungi() {
         if (hasFungi) return; // hvis der allerede er en fungi, så gør intet

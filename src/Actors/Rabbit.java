@@ -33,6 +33,10 @@ public class Rabbit extends Animal {
     public void act(World world) {
         super.act(world);
 
+        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
+            return;
+        }*/
+
         if (getAge() >= 180 || getEnergy() <= 0) {
             die(world);
             return;
@@ -79,6 +83,7 @@ public class Rabbit extends Animal {
                 } else {
                     // den er ude i det fri og mister bare energi i stedet for at sove
                     energy -= 5;
+                    //sleep(world);
                 }
             }
         }

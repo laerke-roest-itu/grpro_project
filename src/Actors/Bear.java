@@ -14,14 +14,19 @@ public class Bear extends Predator {
     public Bear(Location territoryCenter) {
         super(); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
-        this.shelter = territoryCenter;
+        //this.shelter = territoryCenter;
     }
 
     // ----------- ACT -----------
 
     @Override
     public void act(World world) {
+
         super.act(world);
+
+        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
+            return;
+        }*/
 
         if (getAge() >= 400 || getEnergy() <= 0) {
             die(world);
@@ -30,7 +35,8 @@ public class Bear extends Predator {
 
         if (isAlive) {
             if (world.getCurrentTime() >= World.getDayDuration() - 3) {
-                seekShelter(world);
+                //seekShelter(world);
+                moveTowardTerritory(world);
 
             } else if (world.isDay()) {
                 Location bearLocation = world.getLocation(this);

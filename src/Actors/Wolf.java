@@ -25,7 +25,13 @@ public class Wolf extends Predator {
 
     @Override
     public void act(World world) {
+
+
         super.act(world);
+
+        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
+            return;
+        }*/
 
         if (getAge() >= 240 || getEnergy() <= 0) {
             die(world);
@@ -177,7 +183,16 @@ public class Wolf extends Predator {
     }
 
     public void buildDen(World world) {
-        Location wolfLoc = world.getLocation(this);
+        Location wolfLoc;
+
+        // BESKYTTELSE: prøv at hente lokation, men giv op hvis ulven ikke er i verden
+        try {
+            wolfLoc = world.getLocation(this);
+        } catch (IllegalArgumentException e) {
+            return; // ulven findes ikke i verden → gør ingenting
+        }
+
+        if (wolfLoc == null) return;
 
         // Kun byg en hule hvis ulven ikke allerede har en
         // og feltet er tomt (ingen blocking object)
@@ -186,12 +201,12 @@ public class Wolf extends Predator {
             world.setTile(wolfLoc, den);
             den.addWolf(this);
 
-            // Hvis ulven er leder af sin pack → claim hulen
             if (pack != null && pack.getLeader() == this) {
                 pack.claimDen(den);
             }
         }
     }
+
 
     public void setDen(Den den) {
         this.den = den;
