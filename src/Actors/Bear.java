@@ -22,10 +22,11 @@ public class Bear extends Predator {
     @Override
     public void act(World world) {
 
-        // SIKKERHED: findes dyret stadig?
-        if (world.getLocation(this) == null) return;
+        super.act(world);
 
-        super.tickCommon();
+        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
+            return;
+        }*/
 
         if (getAge() >= 400 || getEnergy() <= 0) {
             die(world);
