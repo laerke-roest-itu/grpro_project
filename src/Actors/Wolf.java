@@ -14,7 +14,7 @@ public class Wolf extends Predator {
     private Den den;        // ulvens hule
 
     public Wolf(Pack pack) {
-        super();
+        super(240);
         this.random = new Random();
         this.shelter = null;
         this.pack = pack;
@@ -33,7 +33,7 @@ public class Wolf extends Predator {
             return;
         }*/
 
-        if (getAge() >= 240 || getEnergy() <= 0) {
+        if (getAge() >= getMaxAge() || getEnergy() <= 0) {
             die(world);
             return;
         }

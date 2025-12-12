@@ -1,5 +1,6 @@
 package Inanimate;
 
+import Actors.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
@@ -11,9 +12,8 @@ import java.util.Random;
 import java.awt.*;
 import java.util.Set;
 
-public class Fungi implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Fungi extends Landscape {
     private int lifespan;
-    private Random random = new Random();
 
     public Fungi(int lifespan) {
         this.lifespan = lifespan;
@@ -65,16 +65,4 @@ public class Fungi implements Actor, NonBlocking, DynamicDisplayInformationProvi
         }
     }
 
-
-    // Fungi properties and methods would go here
-
-    // K3-2a. Udover at ådsler nedbrydes, så hjælper svampene til. Således kan der opstå svampe I et ådsel
-    // Dette kan ikke ses på selve kortet, men svampen lever I selve ådslet.
-    //Når ådslet er nedbrudt (og forsvinder), kan den ses som en svamp placeret på kortet, der hvor ådslet lå
-    // For at læse inputfilerne skal du sikre dig, at et ådsel kan indlæses med svamp (foregår i main)
-
-    //- K3-2b. Svampe kan kun overleve, hvis der er andre ådsler den kan sprede sig til i
-    //nærheden. Er dette ikke tilfældet, vil svampen også dø efter lidt tid. Desto større ådslet
-    //er, desto længere vil svampen leve efter ådslet er væk. Da svampen kan udsende
-    //sporer, kan den række lidt længere end kun de omkringliggende pladser.
 }

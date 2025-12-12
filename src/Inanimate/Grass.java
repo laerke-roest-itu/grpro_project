@@ -1,16 +1,13 @@
 package Inanimate;
 
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
-import itumulator.simulator.Actor;
 import itumulator.world.World;
 import itumulator.world.Location;
-import itumulator.world.NonBlocking;
 
 import java.awt.*;
 import java.util.*;
 
-public class Grass implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Grass extends Landscape {
     private final Random random;
 
     // default konstruktør til normal brug i simulatoren

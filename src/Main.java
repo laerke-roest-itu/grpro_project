@@ -131,7 +131,15 @@ public class Main {
                     }
                     world.setTile(l, new Burrow());
 
-                } else if (type.equals("rabbit")) {
+                } else if (type.equals("bush")) {
+                    while (world.containsNonBlocking(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
+                    world.setTile(l, new Bush());
+
+                }else if (type.equals("rabbit")) {
                     // Så længe der ALLEREDE står et objekt på feltet,
                     // vælg en ny tilfældig position (vi vil undgå at placere Actors.Rabbit
                     // ovenpå andet objekt)
@@ -161,6 +169,15 @@ public class Main {
                     }
                     Wolf wolf = new Wolf(pack); // konstruktør tager pack
                     world.setTile(l, wolf);
+
+                } else if (type.equals("deer")) {
+                    while (!world.isTileEmpty(l)) {
+                        x = random.nextInt(size);
+                        y = random.nextInt(size);
+                        l = new Location(x, y);
+                    }
+                    Deer deer = new Deer(); // konstruktør tager pack
+                    world.setTile(l, deer);
                 }
             }
         }

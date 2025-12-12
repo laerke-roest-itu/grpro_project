@@ -1,6 +1,5 @@
 package Actors;
 import Inanimate.Bush;
-import Inanimate.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -12,7 +11,7 @@ public class Bear extends Predator {
     Location territoryCenter;
 
     public Bear(Location territoryCenter) {
-        super(); // kalder Animal's constructor
+        super(400); // kalder Animal's constructor
         this.territoryCenter = territoryCenter;
         //this.shelter = territoryCenter;
     }
@@ -28,7 +27,7 @@ public class Bear extends Predator {
             return;
         }*/
 
-        if (getAge() >= 400 || getEnergy() <= 0) {
+        if (getAge() >= getMaxAge() || getEnergy() <= 0) {
             die(world);
             return;
         }
