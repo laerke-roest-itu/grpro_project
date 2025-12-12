@@ -1,6 +1,5 @@
 package Actors;
 
-import Inanimate.Carcass;
 import itumulator.world.Location;
 import itumulator.world.World;
 import java.util.function.Predicate;
@@ -9,6 +8,9 @@ import java.util.Set;
 
 public abstract class Predator extends Animal {
 
+    protected Predator(int maxAge) {
+        super(maxAge);
+    }
     // 1) Hvilket område jager dette rovdyr i?
     //    Bjørn: territoriet. Ulv: felter omkring ulven (radius 2).
     protected abstract Set<Location> getHuntingArea(World world);

@@ -11,83 +11,49 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class Rabbit extends Animal {
+public class Rabbit extends Herbivore {
     private Burrow burrow;
     private final Random random;
 
     public Rabbit() {
-        super(); // kalder Actors.Animal's constructor
+        super(180); // kalder Actors.Animal's constructor
         this.random = new Random();
-        this.shelter = burrow;
     }
 
     public Rabbit(Random random) {
-        super();
+        super(180);
         this.random = random;
-        this.shelter = burrow;
     }
 
     // ----------- ACT -----------
 
     @Override
     public void act(World world) {
-        super.act(world);
+        super.act(world); // kører Herbivore-logikken (tick+dag+skumring)
 
-        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
-            return;
-        }*/
+        // hvis den døde eller sover efter super: stop
+        if (!isAlive || isSleeping) return;
 
-        if (getAge() >= 180 || getEnergy() <= 0) {
-            die(world);
-            return;
+        // kun burrow-ting i dag (ikke i skumring/nat)
+        if (world.isDay() && burrow == null) {
+            double r = random.nextDouble();
+            if (r < 0.25) digBurrow(world);
+            else if (r < 0.50) claimBurrow(world);
         }
 
-        if (isAlive) {
-            //hvis det er skumring, så gør kaninen det her:
-            if (world.getCurrentTime() >= World.getDayDuration() - 3) {
-                seekShelter(world);
-
-            } else if (world.isDay()) { //hvis det er dag, så gør kaninen det her:
-
-                if (world.getCurrentTime() == 0 && burrow != null) {
-                    wakeUp(world);
+        if (world.isNight()) {
+            if (burrow != null) {
+                List<Rabbit> loveRabbits = burrow.getRabbits();
+                if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
+                    reproduce(world);
                 }
-
-                // brug fælles moveRandomly, men få moveTo tilbage
-                Location moveTo = moveRandomly(world);
-
-                if (moveTo != null && getEnergy() < 50) {
-                    eat(world, moveTo);
-                }
-
-                //hvis kaninen ikke har et hul, vil den i løbet af dagen måske grave et, måske claim et
-                //højere chance for at claim, da kaninen skal stå på et burrow for at claim det
-                if (burrow == null) {
-                    if (random.nextDouble() < 0.25) {
-                        digBurrow(world);
-                    } else if (random.nextDouble() < 0.5) {
-                        claimBurrow(world);
-                    }
-                }
-
-            }  else if (world.isNight()) { //hvis det er nat, så gør kaninen det her:
-                if (burrow != null) {
-                    // hvis der er mindst 2 kaniner i samme hul:
-                    List<Rabbit> loveRabbits = burrow.getRabbits();
-                    if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
-                        reproduce(world);
-                        sleep(world);
-                    } else {
-                        sleep(world);
-                    }
-                } else {
-                    // den er ude i det fri og mister bare energi i stedet for at sove
-                    energy -= 5;
-                    //sleep(world);
-                }
+                sleep(world);
+            } else {
+                energy -= 5;
             }
         }
     }
+
 
     @Override
     public void seekShelter(World world) {
@@ -171,39 +137,37 @@ public class Rabbit extends Animal {
 
     public void digBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
-
         Object obj = world.getNonBlocking(rabbitLocation);
+
         if (!(obj instanceof Burrow)) {
-            if (obj instanceof Grass) {
-                world.delete(obj);
-            }
+            if (obj instanceof Grass) world.delete(obj);
+
             Burrow newBurrow = new Burrow();
             world.setTile(rabbitLocation, newBurrow);
-            burrow = newBurrow;
-            burrow.addRabbit(this);
+            setBurrow(newBurrow);       // <-- i stedet for burrow = newBurrow; ...
         }
     }
 
     public void claimBurrow(World world) {
-        //kaninens lokation:
         Location rabbitLocation = world.getLocation(this);
-
-        //tjek om der står et burrow på feltet
         Object obj = world.getNonBlocking(rabbitLocation);
-        if (obj instanceof Burrow) { //altså hvis den står på et burrow
-            burrow = (Burrow) obj;
-            burrow.addRabbit(this);
+
+        if (obj instanceof Burrow b) {
+            setBurrow(b);               // <-- i stedet for burrow = (Burrow) obj; ...
         }
     }
+
 
     public Burrow getBurrow() {return burrow;}
 
     public void setBurrow(Burrow burrow) {
         this.burrow = burrow;
+        this.shelter = burrow;          // <-- vigtig
         if (burrow != null) {
-            burrow.addRabbit(this); // så hullet også "kender" kaninen
+            burrow.addRabbit(this);
         }
     }
+
 
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()

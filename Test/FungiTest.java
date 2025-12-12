@@ -1,4 +1,4 @@
-import Inanimate.Carcass;
+import Actors.Carcass;
 import Inanimate.Fungi;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -33,7 +33,7 @@ public class FungiTest {
         // efter én tick burde carcass have fået fungi (hvis indenfor radius 2)
         assertNotNull(carcass.getFungi(), "Carcass should have been infected by nearby fungi");
         // jeg skal placere nogle carcass og en svamp i verdenen, og så køre et act og se om carcassene bliver inficeret
-    }
+    } //problem 12.12.2025 - ser ud til den giver mig værdien itumulator.executable.DisplayInformation@4f638935
 
     // Test for om svampen dør efter sin levetid
     @Test
@@ -52,7 +52,7 @@ public class FungiTest {
         // efter anden tick bør svampen være døende/slettet i act, afhængigt af implementering:
         Object tileAfter = world.getTile(loc);
         assertFalse(tileAfter instanceof Fungi, "Fungi burde være død og fjernet fra verdenen efter lifespan");
-    }
+    } // 12.12.2025 - ser ud til den her test kører helt som forventet.
 
     @Test
     void testFungiHiddenInCarcass() {

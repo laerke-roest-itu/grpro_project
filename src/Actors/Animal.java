@@ -1,6 +1,5 @@
 package Actors;
 
-import Inanimate.Carcass;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;
@@ -13,6 +12,7 @@ import java.util.Set;
 
 public abstract class Animal implements Actor, DynamicDisplayInformationProvider {
     protected int age;
+    protected int maxAge;
     protected int energy;
     protected boolean isAlive;
     protected boolean isSleeping;
@@ -20,13 +20,17 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected Random random;
     protected Object shelter;
 
-    public Animal() {
+    public Animal(int maxAge) {
         this.age = 0;
+        this.maxAge = maxAge;
         this.energy = 100;
         this.isAlive = true;
         this.isSleeping = false;
         this.amountOfKids = 0;
         this.random = new Random();
+    }
+
+    protected Animal() {
     }
 
     // ----------- ACT -----------
@@ -175,5 +179,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     public void setEnergy(int i) {
         energy = i;
     }
+
+    public int getMaxAge() { return maxAge;}
 
 }

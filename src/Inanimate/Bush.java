@@ -1,17 +1,14 @@
 package Inanimate;
 
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
-import itumulator.simulator.Actor;
 import itumulator.world.Location;
-import itumulator.world.NonBlocking;
 import itumulator.world.World;
 
 import java.awt.*;
 import java.util.Random;
 import java.util.Set;
 
-public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Bush extends Landscape {
     /* der vælges at anse Inanimate.Bush som et NonBlocking objekt, da en Actor af Actors.Animal-klassen ville kunne gå igennem en busk.
         ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
         et enkelt felt fremfor alle 8 rundt om et Inanimate.Grass-felt. */

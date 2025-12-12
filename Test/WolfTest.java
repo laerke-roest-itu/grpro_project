@@ -1,11 +1,10 @@
 import Actors.Bear;
 import Actors.Rabbit;
 import Actors.Wolf;
-import Inanimate.Carcass;
+import Actors.Carcass;
 import Inanimate.Pack;
 import itumulator.world.World;
 import itumulator.world.Location;
-import itumulator.executable.DisplayInformation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

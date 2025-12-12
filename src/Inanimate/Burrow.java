@@ -2,10 +2,7 @@ package Inanimate;
 
 import Actors.Rabbit;
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
-import itumulator.simulator.Actor;
 import itumulator.world.World;
-import itumulator.world.NonBlocking;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,7 +13,7 @@ import java.util.List;
  * It can be placed via input files or dug by rabbits.
  * Other actors can stand on a burrow without affecting it.
  */
-public class Burrow implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Burrow extends Landscape {
     private List<Rabbit> rabbits = new ArrayList<>();
 
     @Override
