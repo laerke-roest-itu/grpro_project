@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Den implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Den extends Landscape {
     private List<Wolf> wolves = new ArrayList<>();
 
     @Override

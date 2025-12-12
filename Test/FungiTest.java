@@ -1,4 +1,4 @@
-import Inanimate.Carcass;
+import Actors.Carcass;
 import Inanimate.Fungi;
 import itumulator.world.Location;
 import itumulator.world.World;

@@ -1,5 +1,6 @@
 package Inanimate;
 
+import Actors.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
@@ -11,9 +12,8 @@ import java.util.Random;
 import java.awt.*;
 import java.util.Set;
 
-public class Fungi implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Fungi extends Landscape {
     private int lifespan;
-    Random random;
     private World world;
 
     public Fungi(int lifespan) {

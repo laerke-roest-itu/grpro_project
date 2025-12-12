@@ -1,6 +1,5 @@
 package Actors;
 import Inanimate.Bush;
-import Inanimate.Carcass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;

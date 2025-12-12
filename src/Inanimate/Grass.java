@@ -10,8 +10,7 @@ import itumulator.world.NonBlocking;
 import java.awt.*;
 import java.util.*;
 
-public class Grass implements Actor, NonBlocking, DynamicDisplayInformationProvider {
-    private final Random random;
+public class Grass extends Landscape {
 
     // default konstruktør til normal brug i simulatoren
     public Grass() {

@@ -1,22 +1,16 @@
 package Inanimate;
 
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
-import itumulator.simulator.Actor;
 import itumulator.world.Location;
-import itumulator.world.NonBlocking;
 import itumulator.world.World;
 
 import java.awt.*;
 import java.util.Random;
 import java.util.Set;
 
-public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvider {
+public class Bush extends Landscape {
     /* der vælges at anse Inanimate.Bush som et NonBlocking objekt, da en Actor af Actors.Animal-klassen ville kunne gå igennem en busk.
-        ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
-        et enkelt felt fremfor alle 8 rundt om et Inanimate.Grass-felt. */
-
-    private final Random random;
+        ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning.*/
 
     private int berry = 0;                  // antal bær på denne busk
     private final int maxBerries = 100;
@@ -73,9 +67,7 @@ public class Bush implements Actor, NonBlocking, DynamicDisplayInformationProvid
 
     public void produceBerries(){
         if (berry < maxBerries) {
-            berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
-            // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
-            // det bedste valg.
+            berry++;
         }
     }
 
