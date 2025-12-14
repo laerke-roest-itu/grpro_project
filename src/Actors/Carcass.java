@@ -83,7 +83,6 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
-
     private void trySpawnFungi() {
         if (hasFungi) return; // hvis der allerede er en fungi, så gør intet
 
@@ -113,7 +112,6 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         return meatLeft;
     }
 
-
     public void setFungi(Fungi f) {
         this.fungi = f;
     }
@@ -125,8 +123,6 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private int calculateFungiLifespan() {
         return maxMeat * 2;
     }
-
-
 
     @Override
     public DisplayInformation getInformation() {

@@ -10,18 +10,20 @@ import java.util.*;
 import java.util.List;
 
 public class Wolf extends Predator {
-    private Pack pack;       // reference til ulvens flok
+    private WolfPack pack;       // reference til ulvens flok
     private Den den;        // ulvens hule
 
-    public Wolf(Pack pack) {
+    public Wolf(WolfPack pack) {
         super(240);
         this.random = new Random();
         this.shelter = null;
         this.pack = pack;
         if (pack != null) {
-            pack.addWolf(this);
+            pack.addMember(this);
         }
     }
+
+    // ----------- ACT -----------
 
     @Override
     public void act(World world) {
@@ -29,9 +31,9 @@ public class Wolf extends Predator {
 
         super.act(world);
 
-        /*if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
+        if (!isAlive || isSleeping) {    // 2) stop subclass-logik hvis dyret ikke skal gøre noget
             return;
-        }*/
+        }
 
         if (getAge() >= getMaxAge() || getEnergy() <= 0) {
             die(world);
@@ -72,40 +74,21 @@ public class Wolf extends Predator {
         }
     }
 
-    // ---------- Flokdyr ----------
+    // ----------- LIFE -----------
 
-    private void seekPack(World world) {
-        if (pack == null) return;
-
-        Location wolfLoc = world.getLocation(this);
-        // simpelt eksempel: bevæg dig mod første ulv i flokken
-        Wolf leader = pack.getLeader();
-        if (leader != null && leader != this) {
-            Location leaderLoc = world.getLocation(leader);
-            moveTowards(world, wolfLoc, leaderLoc);
+    @Override
+    protected void handleSleepLocation(World world) {
+        if (den != null) {
+            world.remove(this); // ulven sover i sin hule
         }
     }
 
-    private void moveTowards(World world, Location from, Location to) {
-        Set<Location> neighbors = world.getEmptySurroundingTiles(from);
-        Location bestMove = null;
-        int bestDistance = Integer.MAX_VALUE;
-
-        for (Location loc : neighbors) {
-            int dist = Math.abs(loc.getX() - to.getX()) + Math.abs(loc.getY() - to.getY());
-            if (dist < bestDistance) {
-                bestDistance = dist;
-                bestMove = loc;
-            }
-        }
-
-        if (bestMove != null) {
-            world.move(this, bestMove);
-            energy -= 5;
-        }
+    @Override
+    public boolean isChild() {
+        return getAge() < 40;
     }
 
-    // ---------- Metoder fra Animal ----------
+    // ----------- EATING -----------
 
     @Override
     public void eat(World world, Location targetLoc) {
@@ -119,13 +102,10 @@ public class Wolf extends Predator {
         // hvis det ikke er Carcass → gør ingenting
     }
 
-
     @Override
     public boolean canEat(Object object) {
         return object instanceof Carcass;
     }
-
-
 
     @Override
     protected int getFoodEnergy(Object object) {
@@ -133,28 +113,16 @@ public class Wolf extends Predator {
         return 0;
     }
 
+    @Override
     protected int getMeatValue() {
         return 50;
     }
 
+    // ----------- REPRODUCTION -----------
+
     @Override
     protected Animal createChild(World world, Location childLoc) {
         return new Wolf(pack);
-    }
-
-    @Override
-    protected void handleSleepLocation(World world) {
-        if (den != null) {
-            world.remove(this); // ulven sover i sin hule
-        }
-    }
-
-    @Override
-    public boolean isChild() {
-        if (getAge() < 40) {
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -172,13 +140,32 @@ public class Wolf extends Predator {
         return null;
     }
 
-    // ---------- Hjælpefunktioner ----------
 
-    public void setPack(Pack pack) {
+    // ----------- PACK/DEN -----------
+
+    private void seekPack(World world) {
+        if (pack == null) return;
+
+        Wolf leader = pack.getLeader();
+        if (leader == null || leader == this) return;
+
+        Location leaderLoc;
+        try {
+            leaderLoc = world.getLocation(leader);
+        } catch (IllegalArgumentException e) {
+            return; // lederen findes ikke i verden lige nu
+        }
+
+        if (leaderLoc == null) return;
+
+        moveOneStepTowards(world, leaderLoc); // vælg energipris
+    }
+
+    public void setPack(WolfPack pack) {
         this.pack = pack;
     }
 
-    public Pack getPack() {
+    public WolfPack getPack() {
         return pack;
     }
 
@@ -207,7 +194,6 @@ public class Wolf extends Predator {
         }
     }
 
-
     public void setDen(Den den) {
         this.den = den;
     }
@@ -219,12 +205,10 @@ public class Wolf extends Predator {
         return world.getSurroundingTiles(wolfLoc, 2);
     }
 
-
     @Override
     protected int getHuntMoveCost() {
         return 8;   // samme som før
     }
-
 
     @Override
     public boolean isEnemyPredator(Animal other) {
@@ -246,11 +230,12 @@ public class Wolf extends Predator {
         return false;
     }
 
-
     @Override
     public int getAttackDamage() {
         return 10;
     }
+
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {

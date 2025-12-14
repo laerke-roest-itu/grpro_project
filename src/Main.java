@@ -113,14 +113,14 @@ public class Main {
                             y = random.nextInt(size);
                             l = new Location(x, y);
                         }
-                        world.setTile(l, new Carcass(80,25, true));
+                        world.setTile(l, new Carcass(80, 25, true));
                     } else {
                         while (world.containsNonBlocking(l)) {
                             x = random.nextInt(size);
                             y = random.nextInt(size);
                             l = new Location(x, y);
                         }
-                        world.setTile(l, new Carcass(80,25));
+                        world.setTile(l, new Carcass(80, 25));
                     }
 
                 } else if (type.equals("burrow")) {
@@ -139,7 +139,7 @@ public class Main {
                     }
                     world.setTile(l, new Bush());
 
-                }else if (type.equals("rabbit")) {
+                } else if (type.equals("rabbit")) {
                     // Så længe der ALLEREDE står et objekt på feltet,
                     // vælg en ny tilfældig position (vi vil undgå at placere Actors.Rabbit
                     // ovenpå andet objekt)
@@ -161,43 +161,48 @@ public class Main {
 
                 } else if (type.equals("wolf")) {
                     // Lav en ny pack for alle ulve på denne linje
-                    Pack pack = new Pack();
+                    WolfPack Pack = new BasicWolfPack();
                     while (!world.isTileEmpty(l)) {
                         x = random.nextInt(size);
                         y = random.nextInt(size);
                         l = new Location(x, y);
                     }
-                    Wolf wolf = new Wolf(pack); // konstruktør tager pack
+                    Wolf wolf = new Wolf(Pack); // konstruktør tager pack
                     world.setTile(l, wolf);
 
                 } else if (type.equals("deer")) {
-                    while (!world.isTileEmpty(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
+                    DeerPack deerPack = new BasicDeerPack();
+
+                    for (int j = 0; j < count; j++) {
+                        // find tom location ...
+                        Deer deer = new Deer(deerPack);
+                        world.setTile(l, deer);
+
+                        // hvis det er første (leader), så sæt home = startposition
+                        if (j == 0) {
+                            deerPack.setHome(l);
+                        }
                     }
-                    Deer deer = new Deer(); // konstruktør tager pack
-                    world.setTile(l, deer);
                 }
             }
-        }
-        scanner.close();
+            scanner.close();
 
 // Start simulationen (GUI)
-        program.show();
-        for (int i = 0; i < 200; i++) {
-            program.simulate();
+            program.show();
+            for (int i = 0; i < 200; i++) {
+                program.simulate();
+            }
+
+            //int size = 5;
+            //Program p = new Program(size, 800, 75);
+
+            //World w = p.getWorld();
+
+            // w.setTile(new Location(0, 0), new <MyClass>());
+
+            // p.setDisplayInformation(<MyClass>.class, new DisplayInformation(<Color>, "<ImageName>"));
+
+            //p.show();
         }
-
-        //int size = 5;
-        //Program p = new Program(size, 800, 75);
-
-        //World w = p.getWorld();
-
-        // w.setTile(new Location(0, 0), new <MyClass>());
-
-        // p.setDisplayInformation(<MyClass>.class, new DisplayInformation(<Color>, "<ImageName>"));
-
-        //p.show();
     }
 }

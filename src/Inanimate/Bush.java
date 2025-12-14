@@ -10,8 +10,7 @@ import java.util.Set;
 
 public class Bush extends Landscape {
     /* der vælges at anse Inanimate.Bush som et NonBlocking objekt, da en Actor af Actors.Animal-klassen ville kunne gå igennem en busk.
-        ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. Her til bare specificeret til
-        et enkelt felt fremfor alle 8 rundt om et Inanimate.Grass-felt. */
+        ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. */
 
     private final Random random;
 
@@ -70,9 +69,7 @@ public class Bush extends Landscape {
 
     public void produceBerries(){
         if (berry < maxBerries) {
-            berry++; //usikker på om den bare starter ud med at lave 2 eller ej, det skal måske også være => men der
-            // kommer måske en logisk fejl hvis den bliver = maxBerries og så forsøger at lave et berry til. > er nok
-            // det bedste valg.
+            berry++; // hver gang metoden kaldes, så vokser der 1 Berry på busken indtil maxBerries er nået
         }
     }
 
@@ -114,18 +111,6 @@ public class Bush extends Landscape {
         den spiser et Berry, hvis Energy-systemet findes hos Actors.Animal-superklassen, med mindre vi kan have en super-klasse
         over Actors.Animal-superklassen hvor de andre klasser kan implementere Energy.
      */
-
-    // eventuelt kode til en Actors.Bear klasse - den behøver ikke at gøre andet end at anvende takeBerry metoden, da den der
-    // ved at det bliver berry--, så den fjerner en berry fra busken.
-
-    // // antag world.getTile(location) returnerer et objekt (evt. Inanimate.Bush)
-    //Object tileObj = world.getTile(location);
-    //if (tileObj instanceof Inanimate.Bush) {
-    //    Inanimate.Bush bush = (Inanimate.Bush) tileObj;
-    //    if (bush.hasBerries() && bush.takeBerry()) {
-    //        this.increaseEnergy(5); // eller kald super.metode
-    //    }
-    //}
 
 
 

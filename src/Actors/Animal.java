@@ -41,8 +41,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         tickCommon();
     }
 
-
-
     protected void tickCommon() {
         age++;
         energy--;
@@ -88,6 +86,11 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         }
     }
 
+    protected void moveOneStepTowards(World world, Location target) {
+        moveOneStepTowards(world, target, 5);
+    }
+
+
     public void seekShelter(World world) {
         if (shelter == null) return;
 
@@ -100,7 +103,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
             return;
         }
         // Ellers bevæg os ét skridt mod shelter
-        moveOneStepTowards(world, shelterLoc, 10); // energikost fx 10
+        moveOneStepTowards(world, shelterLoc); // energikost fx 10
     }
 
     // ----------- LIFE -----------
@@ -144,6 +147,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected abstract int getFoodEnergy(Object object);
 
     protected abstract int getMeatValue();
+
+    protected boolean isHungry() {
+        return getEnergy() < 50;
+    }
 
     // ----------- REPRODUCTION -----------
 

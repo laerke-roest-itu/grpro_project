@@ -50,10 +50,6 @@ public abstract class Predator extends Animal {
         // ellers: ingen mål → gør ingenting denne tur
     }
 
-    protected boolean isHungry() {
-        return getEnergy() < 50;
-    }
-
     protected void engageTarget(World world, Location targetLoc) {
         Location myLoc = world.getLocation(this);
         Set<Location> neighbors = world.getSurroundingTiles(myLoc);

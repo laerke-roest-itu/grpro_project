@@ -27,7 +27,7 @@ public class Rabbit extends Herbivore {
 
     // ----------- ACT -----------
 
-    @Override
+    /*@Override
     public void act(World world) {
         super.act(world); // kører Herbivore-logikken (tick+dag+skumring)
 
@@ -52,27 +52,82 @@ public class Rabbit extends Herbivore {
                 energy -= 5;
             }
         }
+    }*/
+
+    // --- DAG ---
+    @Override
+    protected void dayBehaviour(World world) {
+        super.dayBehaviour(world); // move + eat hvis sulten
+
+        // Burrow-ting kun i dag, og kun hvis vi ikke har et
+        if (burrow == null) {
+            double r = random.nextDouble();
+            if (r < 0.25) digBurrow(world);
+            else if (r < 0.50) claimBurrow(world);
+        }
     }
 
+    // --- NAT ---
+    @Override
+    protected void nightBehaviour(World world) {
+        if (burrow != null) {
+            // reproduktion hvis mindst 2 og jeg er "leder" i hulen
+            List<Rabbit> loveRabbits = burrow.getRabbits();
+            if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
+                reproduce(world);
+            }
+            sleep(world);
+        } else {
+            energy -= 5; // ingen shelter
+        }
+    }
 
     @Override
     public void seekShelter(World world) {
         if (burrow == null) return;
-        Location burrowLoc = world.getLocation(burrow);
-        // 10 fordi det i din logik er dyrere at søge mod hul
-        moveOneStepTowards(world, burrowLoc, 10);
+
+        Location burrowLoc;
+        try {
+            burrowLoc = world.getLocation(burrow);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        if (burrowLoc == null) return;
+
+        moveOneStepTowards(world, burrowLoc);
     }
+
 
     // ----------- LIFE -----------
 
     @Override
     public void wakeUp(World world) {
-        if (burrow != null) {
-            Location burrowLoc = world.getLocation(burrow);
+        if (burrow == null) return;
+
+        Location burrowLoc;
+        try {
+            burrowLoc = world.getLocation(burrow);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        if (burrowLoc == null) return;
+
+
+        // 1) prøv at stå på burrow-tile hvis den er fri
+        if (world.isTileEmpty(burrowLoc)) {
             world.setTile(burrowLoc, this);
+            isSleeping = false;
+            return;
+        }
+
+        // 2) ellers: find et tomt nabofelt
+        Set<Location> empty = world.getEmptySurroundingTiles(burrowLoc);
+        if (!empty.isEmpty()) {
+            world.setTile(empty.iterator().next(), this);
             isSleeping = false;
         }
     }
+
 
     @Override
     protected void handleSleepLocation(World world) {
@@ -120,18 +175,31 @@ public class Rabbit extends Herbivore {
 
     @Override
     protected Location getReproductionLocation(World world) {
-        if (burrow != null) {
-            Location burrowLocation = world.getLocation(burrow);
-            Set<Location> emptyTilesAroundBurrow = world.getEmptySurroundingTiles(burrowLocation);
+        if (burrow == null) return null;
 
-            if (world.isTileEmpty(burrowLocation)) {
-                return burrowLocation;
-            } else if (!emptyTilesAroundBurrow.isEmpty()) {
-                return emptyTilesAroundBurrow.iterator().next();
-            }
+        Location burrowLocation;
+        try {
+            burrowLocation = world.getLocation(burrow);
+        } catch (IllegalArgumentException e) {
+            return null; // burrow findes ikke i verden længere
         }
+
+        if (burrowLocation == null) return null;
+
+        // først: prøv selve burrow-feltet
+        if (world.isTileEmpty(burrowLocation)) {
+            return burrowLocation;
+        }
+
+        // ellers: find et tomt nabofelt
+        Set<Location> emptyTilesAroundBurrow = world.getEmptySurroundingTiles(burrowLocation);
+        if (!emptyTilesAroundBurrow.isEmpty()) {
+            return emptyTilesAroundBurrow.iterator().next();
+        }
+
         return null;
     }
+
 
     // ----------- BURROW -----------
 

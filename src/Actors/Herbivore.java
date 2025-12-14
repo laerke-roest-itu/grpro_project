@@ -15,37 +15,34 @@ public abstract class Herbivore extends Animal {
 
     @Override
     public void act(World world) {
-        // dødstjek før vi bruger world/getLocation/move osv.
         if (!isAlive) return;
+
         if (getAge() >= getMaxAge() || getEnergy() <= 0) {
             die(world);
             return;
         }
 
-        // skumring: gå mod shelter
+        // skumring: gå mod shelter (home/burrow/etc.)
         if (world.getCurrentTime() >= World.getDayDuration() - 3) {
             seekShelter(world);
-            return; // vigtigt: vi vil ikke også gå random og spise i skumring
+            return;
         }
 
-        // dag: vågn + tick + bevæg/spis
+        // nat: subklasse bestemmer
+        if (world.isNight()) {
+            nightBehaviour(world);
+            return;
+        }
+
+        // dag
         if (world.isDay()) {
-            if (world.getCurrentTime() == 0 && isSleeping) {
-                wakeUp(world);
-            }
+            if (world.getCurrentTime() == 0 && isSleeping) wakeUp(world);
 
-            super.act(world); // Animal.act -> tickCommon (kun hvis vågen og i live)
-
-            // hvis super.act ikke gjorde noget (fx blev sovende), stop her
+            super.act(world); // tickCommon (kun hvis vågen)
             if (!isAlive || isSleeping) return;
 
-            Location moveTo = moveRandomly(world);
-            if (moveTo != null && getEnergy() < 50) {
-                eat(world, moveTo);
-            }
+            dayBehaviour(world); // subklasse kan ændre bevægelse/spis
         }
-
-        // nat: default gør Herbivore ingenting (subklasser håndterer nat)
     }
 
     // ----------- LIFE -----------
@@ -54,13 +51,29 @@ public abstract class Herbivore extends Animal {
     protected void handleSleepLocation(World world) {
     }
 
+    /** Default dag: gå random og spis hvis sulten */
+    protected void dayBehaviour(World world) {
+        Location moveTo = moveRandomly(world);
+        if (moveTo != null && isHungry()) {
+            eat(world, moveTo);
+        }
+    }
+
+    /** Default nat: sov hvis man har shelter, ellers mist energi */
+    protected void nightBehaviour(World world) {
+        if (hasShelter()) sleep(world);
+        else energy -= 5;
+    }
+
     protected boolean hasShelter() { return shelter != null; }
 
     // ----------- EATING -----------
 
     @Override
     protected boolean canEat(Object object) {
-        return object instanceof Grass || object instanceof Bush;
+        if (object instanceof Grass) return true;
+        if (object instanceof Bush bush) return bush.hasBerries();
+        return false;
     }
 
     @Override
