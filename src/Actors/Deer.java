@@ -9,33 +9,43 @@ import java.util.Set;
 
 public class Deer extends Herbivore {
     protected boolean isFleeing;
+    private DeerPack pack;
 
-    public Deer() {
-        super(300); // kalder Actors.Animal's constructor
+
+    public Deer(DeerPack pack) {
+        super(300);
+        this.pack = pack;
         this.isFleeing = false;
+        if (pack != null) pack.add(this);
     }
+
 
     @Override
     public void act(World world) {
-
         Location myLoc = world.getLocation(this);
         if (myLoc == null) return;
 
-        // Tjek felter inden for radius 2
-        Set<Location> nearbyTiles = world.getSurroundingTiles(myLoc, 2);
-        for (Location predLoc : nearbyTiles) {
-            Object actor = world.getTile(predLoc);
-            if (actor instanceof Predator) { // fx Wolf eller Bear
-                isFleeing = true;
-                Flee(world, myLoc, predLoc);
-                alertNearbyDeer(world, myLoc, predLoc); // flokmentalitet
-                return;
-            } else {
-                super.act(world); // Herbivore‑logik (fx spise planter)
-            }
+        Location predatorLoc = findNearbyPredator(world, myLoc, 2);
+
+        if (predatorLoc != null) {
+            isFleeing = true;
+            Flee(world, myLoc, predatorLoc);
+            alertNearbyDeer(world, myLoc, predatorLoc);
+            return;
         }
+
         isFleeing = false;
+        super.act(world); // kun én gang
     }
+
+    private Location findNearbyPredator(World world, Location myLoc, int radius) {
+        for (Location loc : world.getSurroundingTiles(myLoc, radius)) {
+            Object o = world.getTile(loc);
+            if (o instanceof Predator) return loc; // evt. vælg den nærmeste
+        }
+        return null;
+    }
+
 
     public void Flee(World world, Location myLoc, Location predatorLoc) {
         Set<Location> emptyTiles = world.getEmptySurroundingTiles(myLoc);
