@@ -9,14 +9,14 @@ import java.util.Set;
 
 public class Deer extends Herbivore {
     protected boolean isFleeing;
-    private DeerPack pack;
+    //private DeerPack pack;
 
 
-    public Deer(DeerPack pack) {
+    public Deer() {
         super(300);
-        this.pack = pack;
+        //this.pack = pack;
         this.isFleeing = false;
-        if (pack != null) pack.add(this);
+        //if (pack != null) pack.add(this);
     }
 
 
