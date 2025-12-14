@@ -41,6 +41,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         tickCommon();
     }
 
+
+
     protected void tickCommon() {
         age++;
         energy--;
