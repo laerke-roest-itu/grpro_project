@@ -11,6 +11,8 @@ public abstract class Herbivore extends Animal {
         super(maxAge);
     }
 
+    // ----------- ACT -----------
+
     @Override
     public void act(World world) {
         // dødstjek før vi bruger world/getLocation/move osv.
@@ -46,13 +48,20 @@ public abstract class Herbivore extends Animal {
         // nat: default gør Herbivore ingenting (subklasser håndterer nat)
     }
 
+    // ----------- LIFE -----------
+
+    @Override
+    protected void handleSleepLocation(World world) {
+    }
+
+    protected boolean hasShelter() { return shelter != null; }
+
+    // ----------- EATING -----------
 
     @Override
     protected boolean canEat(Object object) {
         return object instanceof Grass || object instanceof Bush;
     }
-
-    protected boolean hasShelter() { return shelter != null; }
 
     @Override
     protected int getFoodEnergy(Object object) {
@@ -64,20 +73,19 @@ public abstract class Herbivore extends Animal {
         return 0;
     }
 
+    // ----------- REPRODUCTION -----------
+
     @Override
     protected Animal createChild(World world, Location childLoc) {
         return null;
     }
 
     @Override
-    protected void handleSleepLocation(World world) {
-
-    }
-
-    @Override
     protected Location getReproductionLocation(World world) {
         return null;
     }
+
+    // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
     @Override
     public DisplayInformation getInformation() {
