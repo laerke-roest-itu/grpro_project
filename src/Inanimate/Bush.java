@@ -1,50 +1,44 @@
 package Inanimate;
 
 import itumulator.executable.DisplayInformation;
-import itumulator.world.Location;
 import itumulator.world.World;
 
 import java.awt.*;
 import java.util.Random;
-import java.util.Set;
+
 
 public class Bush extends Landscape {
-    /* der vælges at anse Inanimate.Bush som et NonBlocking objekt, da et dyr ville kunne gå igennem en busk,
-    så Actor af Actors.Animal-klassen ville kunne gå igennem en busk.
-    Ydermere anvendes logik fra Inanimate.Grass-klassen til at styre den tilfældige spredning. */
-
-    private final Random random;
-
 
     private int berry = 0;                  // antal bær på denne busk
     private final int maxBerries = 100;
     private final int berryGrowthInterval = 10; // antal ticks mellem vækst
     private int ticksSinceLastGrowth = 0;   // tæller til vækst
 
-    // default konstruktør til Tests;
+    // normal brug i simulator
     public Bush() {
-        this(new Random());
+        super();
     }
 
+    // test-brug: styr tilfældighed
     public Bush(Random random) {
-        this.random = random;
+        super(random);
     }
 
     @Override
-    protected int spreadChance() {
+    protected int spreadChance() { //spreadChance fra superklassen gives en værdi
         return 3;
     }
 
     @Override
-    protected Landscape createNewInstance() {
+    protected Landscape createNewInstance() { // createNewInstance fra superklassen gives en instans af Bush
         return new Bush();
     }
     
     @Override
     protected void afterAct(World world) {
         ticksSinceLastGrowth++;
-        if (ticksSinceLastGrowth == berryGrowthInterval) {
-            ticksSinceLastGrowth = 0;
+        if (ticksSinceLastGrowth == berryGrowthInterval) { // når der er gået nok ticks siden sidste vækst laves
+            ticksSinceLastGrowth = 0;                       // et berry og tælleren nulstilles
             produceBerries();
         }
     }
