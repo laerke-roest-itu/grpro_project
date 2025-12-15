@@ -18,8 +18,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     public boolean isAlive;
     protected boolean isSleeping;
     protected int amountOfKids;
-    protected Random random;
     protected Object shelter;
+    protected Random random;
 
     public Animal(int maxAge) {
         this.age = 0;
@@ -29,9 +29,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         this.isSleeping = false;
         this.amountOfKids = 0;
         this.random = new Random();
-    }
-
-    protected Animal() {
     }
 
     // ----------- ACT -----------
@@ -90,7 +87,6 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected void moveOneStepTowards(World world, Location target) {
         moveOneStepTowards(world, target, 5);
     }
-
 
     public void seekShelter(World world) {
         if (shelter == null) return;
@@ -172,11 +168,11 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
-    public void setGroup(Group<? extends Animal> group) {
-    }
     public boolean isChild() {
         return getAge() < 50;
     }
+
+    public boolean isAlive() { return isAlive;}
 
     public int distance(Location a, Location b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
@@ -184,17 +180,17 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     public int getAge() { return age; }
 
-    public int getEnergy() { return energy; }
+    public int getMaxAge() { return maxAge;}
 
-    public int getAmountOfKids() { return amountOfKids; }
+    public int getEnergy() { return energy; }
 
     public void setEnergy(int i) {
         energy = i;
     }
 
-    public int getMaxAge() { return maxAge;}
+    public int getAmountOfKids() { return amountOfKids; }
 
-    public boolean isAlive() { return isAlive;}
-
+    public void setGroup(Group<? extends Animal> group) {
+    }
 
 }

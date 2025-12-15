@@ -30,7 +30,7 @@ public abstract class Group<T extends Animal>
 
     @Override
     public T getLeader() {
-        return members.isEmpty() ? null : members.getFirst();
+        return members.isEmpty() ? null : members.get(0);
     }
 
     @Override
@@ -52,5 +52,6 @@ public abstract class Group<T extends Animal>
     public void act(World world) {
         // Pack gør ikke noget selv (men skal eksistere i verden)
     }
+
 }
 

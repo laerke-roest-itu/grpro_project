@@ -13,8 +13,9 @@ import java.util.Set;
 public abstract class Landscape implements NonBlocking, Actor, DynamicDisplayInformationProvider {
     protected Random random;
     protected Location location;
-    protected abstract int spreadChance();
-    protected abstract Landscape createNewInstance();
+    protected abstract int spreadChance(); // implementeret i Grass & Bush subklasserne der giver endelig værdi
+    protected abstract Landscape createNewInstance(); //implementeret i Grass & Bush for at bestemme hvilken instans
+                                                      //der skabes.
 
 
 
@@ -29,23 +30,21 @@ public abstract class Landscape implements NonBlocking, Actor, DynamicDisplayInf
         afterAct(world);
     }
 
-    private void doSpread(World world) { // udfør sorednings methoden med en given chance der overrides i subklasser
+    private void doSpread(World world) { // udfør sprednings methoden med en given chance der overrides i subklasser
         Location location = world.getLocation(this);
         Set<Location> neighbours = world.getSurroundingTiles(location);
 
         if (random.nextInt(100) <= spreadChance()) {
             for (Location neighbour : neighbours) {
                 if (!world.containsNonBlocking(neighbour)) {
-                    world.setTile(neighbour, createNewInstance());
-                }
+                    world.setTile(neighbour, createNewInstance()); // på alle nabofelter der ikke allerede er optaget
+                }                                                  // sættes en ny instans af den givne Landscape subklasse
             }
         }
     }
 
-
-
-    protected void afterAct(World world) {}
-
+    protected void afterAct(World world) {} // anvendes til yderligere logik efter act, kan overrides i subklasser
+                                            // som default tom
     @Override
     public abstract DisplayInformation getInformation();
 }
