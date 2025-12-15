@@ -2,7 +2,7 @@ import Actors.Bear;
 import Actors.Rabbit;
 import Actors.Wolf;
 import Actors.Carcass;
-import Inanimate.BasicPack;
+import Inanimate.*;
 import itumulator.world.World;
 import itumulator.world.Location;
 import org.junit.jupiter.api.AfterEach;
@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WolfTest {
 
     private World w10;
-    private BasicPack pack;
+    private Pack pack;
     private Wolf wolf;
 
     @BeforeEach
     void setUp() {
         w10 = new World(10);
-        pack = new BasicPack();               // RET hvis Pack kræver andre argumenter
+        pack = new Pack();// RET hvis Pack kræver andre argumenter
         wolf = new Wolf(pack);
     }
 
@@ -204,14 +204,14 @@ public class WolfTest {
     @Test
     void isEnemyPredatorDifferentPackWolvesAndBearsAreEnemies() {
         // Denne ulv er i pack1
-        BasicPack pack1 = new BasicPack();
+        Pack pack1 = new Pack();
         Wolf wolf1 = new Wolf(pack1);
 
         // Ulv i samme pack → ikke fjende
         Wolf samePackWolf = new Wolf(pack1);
 
         // Ulv i anden pack → fjende
-        BasicPack pack2 = new BasicPack();
+        Pack pack2 = new Pack();
         Wolf otherPackWolf = new Wolf(pack2);
 
         // Bjørn → fjende

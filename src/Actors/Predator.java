@@ -137,7 +137,7 @@ public abstract class Predator extends Animal {
 
     protected abstract int getAttackDamage();         // grund-damage
 
-    protected int getAttackDamageAgainst(Animal target) {
+    public int getAttackDamageAgainst(Animal target) {
         // standard: samme mod alle
         return getAttackDamage();
     }

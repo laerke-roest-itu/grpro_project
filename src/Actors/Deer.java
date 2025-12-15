@@ -1,6 +1,6 @@
 package Actors;
 
-import Inanimate.DeerPack;
+import Inanimate.Herd;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
@@ -8,24 +8,24 @@ import itumulator.world.World;
 import java.awt.*;
 import java.util.Set;
 public class Deer extends Herbivore {
-    private DeerPack pack;
+    private Herd herd;
     private boolean isFleeing;
 
-    public Deer(DeerPack pack) {
+    public Deer(Herd herd) {
         super(300);
-        this.pack = pack;
+        this.herd = herd;
         this.isFleeing = false;
 
-        if (pack != null) {
-            pack.addMember(this);
+        if (herd != null) {
+            herd.addMember(this);
         }
     }
 
     // shelter = pack home (Location), så vi override'r
     @Override
     public void seekShelter(World world) {
-        if (pack == null) return;
-        Location home = pack.getHome();
+        if (herd == null) return;
+        Location home = herd.getHome();
         if (home == null) return;
         moveOneStepTowards(world, home);
     }
@@ -44,8 +44,8 @@ public class Deer extends Herbivore {
         if (myLoc == null) return;
 
         // hvis jeg er leader og pack.home ikke er sat endnu => sæt den én gang
-        if (pack != null && pack.getHome() == null && pack.getLeader() == this) {
-            pack.setHome(myLoc); // leaderens startposition
+        if (herd != null && herd.getHome() == null && herd.getLeader() == this) {
+            herd.setHome(myLoc); // leaderens startposition
         }
 
         // rovdyr i nærheden?
@@ -82,8 +82,8 @@ public class Deer extends Herbivore {
     /** Deer dag: hold sammen med flokken (ellers random + spis) */
     @Override
     protected void dayBehaviour(World world) {
-        if (pack != null) {
-            Deer leader = pack.getLeader();
+        if (herd != null) {
+            Deer leader = herd.getLeader();
 
             if (leader != null && leader != this) {
                 Location myLoc;
@@ -123,12 +123,12 @@ public class Deer extends Herbivore {
         // hvis vi har home -> søg shelter (home) i natten også (valgfrit)
         // eller bare sov hvis du vil
         seekShelter(world);
-        // hvis du vil “kun sove når fremme”, kan du tjekke distance:
+        // hvis du vil "kun sove når fremme", kan du tjekke distance:
         Location myLoc;
         try { myLoc = world.getLocation(this); }
         catch (IllegalArgumentException e) { return; }
 
-        Location home = (pack == null) ? null : pack.getHome();
+        Location home = (herd == null) ? null : herd.getHome();
         if (myLoc != null && home != null && distance(myLoc, home) == 0) {
             sleep(world);
         }
@@ -188,12 +188,12 @@ public class Deer extends Herbivore {
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
-    public void setPack(DeerPack pack) {
-        this.pack = pack;
+    public void setPack(Herd herd) {
+        this.herd = herd;
     }
 
-    public DeerPack getPack() {
-        return pack;
+    public Herd getHerd() {
+        return herd;
     }
 
     @Override

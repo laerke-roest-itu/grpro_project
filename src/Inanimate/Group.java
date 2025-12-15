@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BasicPack<T extends Animal>
-        implements Pack<T>, Actor, NonBlocking {
+public abstract class Group<T extends Animal>
+        implements Groupable<T>, Actor, NonBlocking {
 
     private final List<T> members = new ArrayList<>();
     private Location home;
@@ -20,6 +20,7 @@ public class BasicPack<T extends Animal>
     public void addMember(T animal) {
         if (animal == null || members.contains(animal)) return;
         members.add(animal);
+        animal.setGroup(this);
     }
 
     @Override
