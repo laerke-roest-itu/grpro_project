@@ -14,7 +14,7 @@ public class Main {
     static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
-                .getResourceAsStream("input_files/tf2-4.txt");
+                .getResourceAsStream("input_files/tf4-MAX_Integer.txt");
 
         if (is == null) {
             throw new FileNotFoundException("Inputfil ikke fundet");
@@ -33,9 +33,6 @@ public class Main {
         int delay = 1000;
         int display_size = 800;
 
-        // Variabel til "count" = hvor mange objekter af en given type der skal laves
-        int count = 0;
-
         Location territoryCenter = null;
 
         // Opret ITUmulator-programmet med den læste størrelse
@@ -45,155 +42,117 @@ public class Main {
 
         // Læs resten af filen linje for linje (egentlig token for token)
         while (scanner.hasNext()) {
-            // type: fx "grass", "person" osv.
-            String type = scanner.next();
-            // amount: enten "10" eller "3-7"
-            String amount = scanner.next();
-            //System.out.println("Læser type = " + type + ", amount = " + amount);
-            // Tjek om amount er et interval (min-max) eller et enkelt tal
-            if (amount.contains("-")) {
-                // Del teksten op ved "-" → "3-7" bliver ["3", "7"]
-                String[] parts = amount.split("-");
-                int min = Integer.parseInt(parts[0]); // konverter "3" til 3
-                int max = Integer.parseInt(parts[1]); // konverter "7" til 7
 
-                // Vælg et tilfældigt antal mellem min og max (begge inkl.)
-                // random.nextInt(max - min + 1) giver et tal i [0, max-min]
-                // + min flytter intervallet op til [min, max]
+            String type = scanner.next();
+            String amount = scanner.next();
+
+            int count;
+
+            // ─────────────────────────────────────
+            // 1) ANTAL (fast eller min-max)
+            // ─────────────────────────────────────
+            if (amount.contains("-")) {
+                String[] parts = amount.split("-");
+                int min = Integer.parseInt(parts[0]);
+                int max = Integer.parseInt(parts[1]);
                 count = min + random.nextInt(max - min + 1);
             } else {
-                // Hvis der ikke står "-", er det bare et præcist antal
                 count = Integer.parseInt(amount);
             }
 
             if (type.equals("bear")) {
-                if (scanner.hasNext("\\(.*")) {
-                    String coordinats = scanner.next(); // fx "(3,5)"
-
-                    // fjern parenteserne
-                    coordinats = coordinats.substring(1, coordinats.length() - 1); // "3,5"
-
-                    String[] parts = coordinats.split(",");
-                    int centerX = Integer.parseInt(parts[0]);
-                    int centerY = Integer.parseInt(parts[1]);
-
-                    territoryCenter = new Location(centerX, centerY);
-                } else {
-                    // ingen koordinat i input → vælg et tilfældigt center
-                    int centerX = random.nextInt(size);
-                    int centerY = random.nextInt(size);
-                    territoryCenter = new Location(centerX, centerY);
+                if (scanner.hasNext("\\(.*\\)")) {
+                    String coords = scanner.next();         // "(3,5)"
+                    coords = coords.substring(1, coords.length() - 1);
+                    String[] p = coords.split(",");
+                    territoryCenter = new Location(Integer.parseInt(p[0]), Integer.parseInt(p[1]));
+                } else if (territoryCenter == null) {
+                    // hvis ingen center er sat endnu, vælg et tilfældigt
+                    territoryCenter = new Location(random.nextInt(size), random.nextInt(size));
                 }
             }
 
-            // Placér 'count' objekter af den pågældende type tilfældigt i verden
+            // ─────────────────────────────────────
+            // 2) EKSTRA FLAGS PR. LINJE
+            // ─────────────────────────────────────
+            boolean carcassHasFungi = false;
+
+            if (type.equals("carcass") && scanner.hasNext("fungi")) {
+                scanner.next();           // spis token "fungi"
+                carcassHasFungi = true;
+            }
+
+            // ÉN pack pr. linje
+            WolfPack wolfPack = null;
+            DeerPack deerPack = null;
+
+            if (type.equals("wolf")) {
+                wolfPack = new BasicWolfPack();
+            }
+            if (type.equals("deer")) {
+                deerPack = new BasicDeerPack();
+            }
+
+            // ─────────────────────────────────────
+            // 3) SPAWN count OBJEKTER
+            // ─────────────────────────────────────
             for (int i = 0; i < count; i++) {
-                // Vælg en tilfældig (x, y)-position i verden
-                int x = random.nextInt(size);
-                int y = random.nextInt(size);
-                Location l = new Location(x, y);
-                //System.out.println("Placerer " + type + " på (" + x + "," + y + ")");
-                // Hvis typen fra filen var "grass", placerer vi Inanimate.Grass på feltet
-                // (andre typer kan også placeres)
-                if (type.equals("grass")) {
-                    // Så længe der ALLEREDE står et non-blocking objekt på feltet,
-                    // vælg en ny tilfældig position (vi vil undgå at placere Inanimate.Grass
-                    // ovenpå andet non-blocking, fx andet græs)
-                    while (world.containsNonBlocking(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
-                    }
-                    world.setTile(l, new Grass());
 
-                } else if (type.equals("carcass")) {
-                    if (scanner.hasNext("fungi")) {
-                        while (world.containsNonBlocking(l)) {
-                            x = random.nextInt(size);
-                            y = random.nextInt(size);
-                            l = new Location(x, y);
-                        }
-                        world.setTile(l, new Carcass(80, 25, true));
-                    } else {
-                        while (world.containsNonBlocking(l)) {
-                            x = random.nextInt(size);
-                            y = random.nextInt(size);
-                            l = new Location(x, y);
-                        }
-                        world.setTile(l, new Carcass(80, 25));
+                Location l;
+                do {
+                    l = new Location(random.nextInt(size), random.nextInt(size));
+                } while (
+                        (type.equals("grass") || type.equals("fungi"))
+                                ? world.containsNonBlocking(l)
+                                : !world.isTileEmpty(l)
+                );
+
+                switch (type) {
+
+                    case "grass" -> world.setTile(l, new Grass());
+
+                    case "fungi" -> world.setTile(l, new Fungi(100));
+
+                    case "bush" -> world.setTile(l, new Bush());
+
+                    case "burrow" -> world.setTile(l, new Burrow());
+
+                    case "carcass" -> {
+                        if (carcassHasFungi)
+                            world.setTile(l, new Carcass(80, 25, true));
+                        else
+                            world.setTile(l, new Carcass(80, 25));
                     }
 
-                } else if (type.equals("burrow")) {
-                    while (world.containsNonBlocking(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
+                    case "rabbit" -> world.setTile(l, new Rabbit());
+
+                    case "bear" -> {
+                        Bear bear = new Bear(territoryCenter);
+                        world.setTile(l, bear);
                     }
-                    world.setTile(l, new Burrow());
 
-                } else if (type.equals("bush")) {
-                    while (world.containsNonBlocking(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
+                    case "wolf" -> {
+                        Wolf wolf = new Wolf(wolfPack);
+                        world.setTile(l, wolf);
                     }
-                    world.setTile(l, new Bush());
 
-                } else if (type.equals("rabbit")) {
-                    // Så længe der ALLEREDE står et objekt på feltet,
-                    // vælg en ny tilfældig position (vi vil undgå at placere Actors.Rabbit
-                    // ovenpå andet objekt)
-                    while (!world.isTileEmpty(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
-                    }
-                    world.setTile(l, new Rabbit());
-
-                } else if (type.equals("bear")) {
-                    while (!world.isTileEmpty(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
-                    }
-                    Bear bear = new Bear(territoryCenter);
-                    world.setTile(l, bear);
-
-                } else if (type.equals("wolf")) {
-                    // Lav en ny pack for alle ulve på denne linje
-                    WolfPack Pack = new BasicWolfPack();
-                    while (!world.isTileEmpty(l)) {
-                        x = random.nextInt(size);
-                        y = random.nextInt(size);
-                        l = new Location(x, y);
-                    }
-                    Wolf wolf = new Wolf(Pack); // konstruktør tager pack
-                    world.setTile(l, wolf);
-
-                } else if (type.equals("deer")) {
-                    DeerPack deerPack = new BasicDeerPack();
-
-                    for (int j = 0; j < count; j++) {
-                        // find tom location ...
+                    case "deer" -> {
                         Deer deer = new Deer(deerPack);
                         world.setTile(l, deer);
 
-                        // hvis det er første (leader), så sæt home = startposition
-                        if (j == 0) {
-                            deerPack.setHome(l);
-                        }
+                        // første hjort = leader → home
+                        if (i == 0) deerPack.setHome(l);
+                    }
+
+                    default -> {
+                        // ukendt type i inputfilen → ignorer eller print
+                        System.out.println("Ukendt type: " + type);
                     }
                 }
             }
-            scanner.close();
+        }
 
-// Start simulationen (GUI)
-            program.show();
-            for (int i = 0; i < 200; i++) {
-                program.simulate();
-            }
-
-            //int size = 5;
+        //int size = 5;
             //Program p = new Program(size, 800, 75);
 
             //World w = p.getWorld();
@@ -203,6 +162,14 @@ public class Main {
             // p.setDisplayInformation(<MyClass>.class, new DisplayInformation(<Color>, "<ImageName>"));
 
             //p.show();
-        }
+
+
+        scanner.close();
+
+// Start simulationen (GUI)
+        program.show();
+            for (int i = 0; i < 200; i++) {
+            program.simulate();
+            }
     }
 }
