@@ -1,5 +1,6 @@
 package Actors;
 
+import Inanimate.Group;
 import itumulator.executable.DynamicDisplayInformationProvider;
 import itumulator.simulator.Actor;
 import itumulator.world.Location;
@@ -14,7 +15,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected int age;
     protected int maxAge;
     protected int energy;
-    protected boolean isAlive;
+    public boolean isAlive;
     protected boolean isSleeping;
     protected int amountOfKids;
     protected Random random;
@@ -171,6 +172,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
+    public void setGroup(Group<? extends Animal> group) {
+    }
     public boolean isChild() {
         return getAge() < 50;
     }
@@ -190,5 +193,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     }
 
     public int getMaxAge() { return maxAge;}
+
+    public boolean isAlive() { return isAlive;}
+
 
 }

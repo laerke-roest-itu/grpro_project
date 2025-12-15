@@ -10,10 +10,10 @@ import java.util.*;
 import java.util.List;
 
 public class Wolf extends Predator {
-    private WolfPack pack;       // reference til ulvens flok
+    private Pack pack;       // reference til ulvens flok
     private Den den;        // ulvens hule
 
-    public Wolf(WolfPack pack) {
+    public Wolf(Pack pack) {
         super(240);
         this.random = new Random();
         this.shelter = null;
@@ -161,11 +161,11 @@ public class Wolf extends Predator {
         moveOneStepTowards(world, leaderLoc); // vælg energipris
     }
 
-    public void setPack(WolfPack pack) {
+    public void setMember(Pack pack) {
         this.pack = pack;
     }
 
-    public WolfPack getPack() {
+    public Pack getPack() {
         return pack;
     }
 

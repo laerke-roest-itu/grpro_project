@@ -8,27 +8,43 @@ import itumulator.world.World;
 import itumulator.world.Location;
 
 import java.util.Random;
+import java.util.Set;
 
 public abstract class Landscape implements NonBlocking, Actor, DynamicDisplayInformationProvider {
     protected Random random;
     protected Location location;
+    protected abstract int spreadChance();
+    protected abstract Landscape createNewInstance();
+
+
 
     public Landscape() {
         this.random = new Random();
     }
 
+
     @Override
-    public void act(World world) {
-        // Default implementation
+    public final void act(World world) {
+        doSpread(world);
+        afterAct(world);
     }
 
-    public void setLocation(Location loc) {
-        this.location = loc;
+    private void doSpread(World world) { // udfør sorednings methoden med en given chance der overrides i subklasser
+        Location location = world.getLocation(this);
+        Set<Location> neighbours = world.getSurroundingTiles(location);
+
+        if (random.nextInt(100) <= spreadChance()) {
+            for (Location neighbour : neighbours) {
+                if (!world.containsNonBlocking(neighbour)) {
+                    world.setTile(neighbour, createNewInstance());
+                }
+            }
+        }
     }
 
-    public Location getLocation() {
-        return location;
-    }
+
+
+    protected void afterAct(World world) {}
 
     @Override
     public abstract DisplayInformation getInformation();

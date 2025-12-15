@@ -83,14 +83,14 @@ public class Main {
             }
 
             // ÉN pack pr. linje
-            WolfPack wolfPack = null;
-            DeerPack deerPack = null;
+            Pack wolfPack = null;
+            Herd deerHerd = null;
 
             if (type.equals("wolf")) {
-                wolfPack = new BasicWolfPack();
+                wolfPack = new Pack();
             }
             if (type.equals("deer")) {
-                deerPack = new BasicDeerPack();
+                deerHerd = new Herd();
             }
 
             // ─────────────────────────────────────
@@ -137,11 +137,11 @@ public class Main {
                     }
 
                     case "deer" -> {
-                        Deer deer = new Deer(deerPack);
+                        Deer deer = new Deer(deerHerd);
                         world.setTile(l, deer);
 
                         // første hjort = leader → home
-                        if (i == 0) deerPack.setHome(l);
+                        if (i == 0) deerHerd.setHome(l);
                     }
 
                     default -> {

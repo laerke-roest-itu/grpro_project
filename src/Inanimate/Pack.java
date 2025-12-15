@@ -1,21 +1,20 @@
 package Inanimate;
 
-import Actors.Animal;
-import itumulator.world.Location;
-import java.util.List;
+import Actors.Wolf;
 
-public interface Pack<T extends Animal> {
+public class Pack extends Group<Wolf> {
+    private Den den;
 
-    void addMember(T animal);
+    public void claimDen(Den den) {
+        this.den = den;
+        for (Wolf w : getMembers()) {
+            w.setDen(den);
+        }
+    }
 
-    void removeMember(T animal);
+    public Den getDen() {
+        return den;
+    }
 
-    T getLeader();
-
-    List<T> getMembers();
-
-    Location getHome();
-
-    void setHome(Location location);
 }
 
