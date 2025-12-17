@@ -1,6 +1,7 @@
 package Actors;
 
 import Inanimate.Burrow;
+import Inanimate.Fungi;
 import Inanimate.Grass;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
@@ -207,14 +208,24 @@ public class Rabbit extends Herbivore {
         Location rabbitLocation = world.getLocation(this);
         Object obj = world.getNonBlocking(rabbitLocation);
 
-        if (!(obj instanceof Burrow)) {
-            if (obj instanceof Grass) world.delete(obj);
-
-            Burrow newBurrow = new Burrow();
-            world.setTile(rabbitLocation, newBurrow);
-            setBurrow(newBurrow);       // <-- i stedet for burrow = newBurrow; ...
+        if (obj instanceof Burrow b) {
+            setBurrow(b);   // valgfrit: claim eksisterende
+            return;
         }
+
+        if (obj != null && !(obj instanceof Grass || obj instanceof Fungi)) {
+            return;         // noget andet non-blocking → grav ikke
+        }
+
+        if (obj instanceof Grass || obj instanceof Fungi) {
+            world.delete(obj);
+        }
+
+        Burrow newBurrow = new Burrow();
+        world.setTile(rabbitLocation, newBurrow);
+        setBurrow(newBurrow);
     }
+
 
     public void claimBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
@@ -239,7 +250,7 @@ public class Rabbit extends Herbivore {
 
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
-                && burrow.getRabbits().getFirst() == this;
+                && burrow.getRabbits().get(0) == this;
     }
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------

@@ -8,7 +8,7 @@ import java.util.Random;
 
 
 public class Bush extends Landscape {
-
+    //private final Random random;
     private int berry = 0;                  // antal bær på denne busk
     private final int maxBerries = 100;
     private final int berryGrowthInterval = 10; // antal ticks mellem vækst
@@ -16,12 +16,13 @@ public class Bush extends Landscape {
 
     // normal brug i simulator
     public Bush() {
-        super();
+        this(new Random());
     }
 
     // test-brug: styr tilfældighed
     public Bush(Random random) {
-        super(random);
+        super();
+        this.random = random;
     }
 
     @Override

@@ -12,6 +12,17 @@ public class Den extends Landscape {
     private List<Wolf> wolves = new ArrayList<>();
 
     @Override
+    protected int spreadChance() {
+        return 0;
+    }
+
+    @Override
+    protected Landscape createNewInstance() {
+        return new Den();
+    }
+
+
+    @Override
     public void act(World world) {}
 
     public void addWolf(Wolf wolf) {

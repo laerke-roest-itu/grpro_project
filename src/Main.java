@@ -10,8 +10,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
-
-    static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
                 .getResourceAsStream("input_files/tf4-MAX_Integer.txt");
