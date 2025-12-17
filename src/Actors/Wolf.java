@@ -30,7 +30,8 @@ public class Wolf extends Predator {
 
     // ----------- ACT ------------
 
-    /** Wolf's act method, handling day/night behavior and life cycle.
+    /**
+     * Wolf's act method, handling day/night behavior and life cycle.
      *
      * @param world the world in which the wolf exists
      */
@@ -44,13 +45,11 @@ public class Wolf extends Predator {
     @Override
     public void nightBehaviour(World world) {
         if (den != null) {
-            List<Wolf> loveWolves = den.getWolves();
-            if ((loveWolves.size() >= 2) && pack != null && pack.getLeader() == this) {
-                sleep(world);
+            List<Wolf> loveWolves = pack.getMembers();
+            if ((loveWolves.size() >= 2)) {
                 reproduce(world);
-            } else {
-                sleep(world);
             }
+            sleep(world);
         } else {
             energy -= 5; // lose energy from exposure if no Den
         }
@@ -58,12 +57,12 @@ public class Wolf extends Predator {
 
     @Override
     public void dayBehaviour(World world) {
-        seekPack(world);
-
         if (isHungry()) {
             hunt(world);
-        } else {
+        } else if (pack.getLeader() == this) {
             moveRandomly(world);
+        } else {
+            seekPack(world);
         }
 
         if (den == null && pack != null && pack.getLeader() == this) {
@@ -73,7 +72,8 @@ public class Wolf extends Predator {
 
     // ----------- LIFE -----------
 
-    /** Wolf seeks shelter in its den.
+    /**
+     * Wolf seeks shelter in its den.
      *
      * @param world the world in which the wolf exists
      */
@@ -85,7 +85,8 @@ public class Wolf extends Predator {
         }
     }
 
-    /** Wolf wakes up from sleep, trying to stand on its den or nearby.
+    /**
+     * Wolf wakes up from sleep, trying to stand on its den or nearby.
      *
      * @param world the world in which the wolf exists
      */
@@ -122,30 +123,32 @@ public class Wolf extends Predator {
         }
     }
 
-    /** Check if the wolf is a child (age < 40).
+    /**
+     * Check if the wolf is a child (age < 40).
      *
      * @return true if the wolf is a child, false otherwise
      */
 
     @Override
     public boolean isChild() {
-        return getAge() < 40;
+        return getAge() < 30;
     }
 
     // ----------- EATING -----------
 
-    /** Wolf eats from a carcass on the target location.
+    /**
+     * Wolf eats from a carcass on the target location.
      *
-     * @param world the world in which the wolf exists
+     * @param world     the world in which the wolf exists
      * @param targetLoc the location of the carcass to eat from
-        */
+     */
 
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
 
         if (o instanceof Carcass carcass) {
-            int amount = Math.min(20, carcass.getMeatLeft());
+            int amount = Math.min(30, carcass.getMeatLeft());
             carcass.eaten(amount);
             energy += amount;
         }
@@ -177,7 +180,8 @@ public class Wolf extends Predator {
         return 0;
     }
 
-    /** Get the meat value provided by the wolf when it dies.
+    /**
+     * Get the meat value provided by the wolf when it dies.
      *
      * @return the meat value
      */
@@ -187,7 +191,19 @@ public class Wolf extends Predator {
         return 50;
     }
 
+   /* @Override
+    protected boolean isHungry() {
+        return getEnergy() < 75;
+    }
+*/
     // ----------- REPRODUCTION -----------
+
+    @Override
+    public void reproduce(World world) {
+        if (den == null) return;
+        if (pack.getMembers().size() > 10) return;
+        super.reproduce(world);
+    }
 
     /** Create a child wolf in the specified location.
      *
@@ -198,7 +214,9 @@ public class Wolf extends Predator {
 
     @Override
     protected Animal createChild(World world, Location childLoc) {
-        return new Wolf(pack);
+        Wolf child = new Wolf(pack);
+        child.setDen(this.den);
+        return child;
     }
 
     /** Get the reproduction location for the wolf, prioritizing its den.
@@ -207,20 +225,27 @@ public class Wolf extends Predator {
      * @return the location for reproduction, or null if none found
      */
 
+
     @Override
     protected Location getReproductionLocation(World world) {
-        if (den != null) {
-            Location denLocation = world.getLocation(den);
-            Set<Location> emptyAround = world.getEmptySurroundingTiles(denLocation);
+        if (den == null) return null;
 
-            if (world.isTileEmpty(denLocation)) {
-                return denLocation;
-            } else if (!emptyAround.isEmpty()) {
-                return emptyAround.iterator().next();
-            }
+        Location denLocation;
+        try {
+            denLocation = world.getLocation(den);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
+        if (denLocation == null) return null;
+
+        if (world.isTileEmpty(denLocation)) return denLocation;
+
+        Set<Location> emptyAround = world.getEmptySurroundingTiles(denLocation);
+        if (!emptyAround.isEmpty()) return emptyAround.iterator().next();
+
         return null;
     }
+
 
 
     // ----------- PACK/DEN -----------
@@ -274,11 +299,22 @@ public class Wolf extends Predator {
 
         if (den != null) return;
 
-        // find an empty neighbourtile to build upon
+        // find en nabo-tile der er tom og uden non-blocking
         var empty = world.getEmptySurroundingTiles(wolfLoc);
         if (empty.isEmpty()) return;
 
-        Location denLoc = empty.iterator().next();
+        Location denLoc = null;
+        for (Location loc : empty) {
+            // tjek om der er non-blocking på tile
+            Object nb = world.getNonBlocking(loc);
+            if (nb == null) {
+                denLoc = loc;
+                break;
+            }
+        }
+
+        if (denLoc == null) return; // ingen egnet tile fundet
+
         den = new Den();
         world.setTile(denLoc, den);
         den.addWolf(this);

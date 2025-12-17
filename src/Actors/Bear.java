@@ -51,14 +51,14 @@ public class Bear extends Predator {
         Location bearLocation = world.getLocation(this);
         if (!isInsideTerritory(bearLocation)) {
             moveTowardTerritory(world);
+        } else if (isHungry()) {
+            hunt(world);
+
         } else {
-            if (isHungry()) {
-                hunt(world);
-            } else {
-                moveRandomly(world);
-            }
+            moveRandomly(world);
         }
     }
+
 
     /**
      * Moves the bear one step toward the center of its territory.
@@ -110,7 +110,17 @@ public class Bear extends Predator {
      */
     @Override
     public void hunt(World world) {
+
         Location myLoc = world.getLocation(this);
+
+        for (Location loc : world.getSurroundingTiles(myLoc)) {
+            Object o = world.getTile(loc);
+            if (o instanceof Herbivore h) {
+                kill(world, h);
+                return;
+            }
+        }
+
         Set<Location> area = getHuntingArea(world);  // dit territorie
 
         Location enemyLoc = findClosestEnemyPredator(world, area, myLoc);
@@ -119,18 +129,16 @@ public class Bear extends Predator {
             return;
         }
 
-        if (isHungry()) {
-            Location carcassLoc = findClosestCarcass(world, area, myLoc);
-            if (carcassLoc != null) {
-                engageTarget(world, carcassLoc);
-                return;
-            }
+        Location carcassLoc = findClosestCarcass(world, area, myLoc);
+        if (carcassLoc != null) {
+            engageTarget(world, carcassLoc);
+            return;
+        }
 
-            Location bushLoc = findClosestBushWithBerries(world, area, myLoc);
-            if (bushLoc != null) {
-                engageTarget(world, bushLoc);
-                return;
-            }
+        Location bushLoc = findClosestBushWithBerries(world, area, myLoc);
+        if (bushLoc != null) {
+            engageTarget(world, bushLoc);
+            return;
         }
 
         Location preyLoc = findClosestPrey(world, area, myLoc);
@@ -149,19 +157,34 @@ public class Bear extends Predator {
      * @return the location of the closest bush with berries, or null if none found
      */
     private Location findClosestBushWithBerries(World world, Set<Location> area, Location from) {
-        return findClosestMatching(world, area, from, o ->
-                o instanceof Bush bush && bush.hasBerries()
-        );
+        Location closest = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        for (Location loc : area) {
+            Object obj = world.getNonBlocking(loc);
+            if (obj instanceof Bush bush) {
+                if (bush.hasBerries()) {
+                    int d = distance(from, loc);
+                    if (d < bestDistance) {
+                        bestDistance = d;
+                        closest = loc;
+                    }
+                }
+            }
+        }
+        return closest;
     }
 
     /** Checks if the bear can eat a given object.
      *
      * @param object the object to check
-     * @return true if the object is a Carcass or Bush, false otherwise
+     * @return true if the object is a Carcass or Bush with berries, false otherwise
      */
     @Override
     public boolean canEat(Object object) {
-        return object instanceof Carcass || object instanceof Bush;
+        if (object instanceof Carcass) return true;
+        if (object instanceof Bush bush) return bush.hasBerries();
+        return false;
     }
 
     /**
@@ -174,13 +197,14 @@ public class Bear extends Predator {
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
+        Object nb = world.getNonBlocking(targetLoc);
 
         if (o instanceof Carcass carcass) {
             int amount = Math.min(30, carcass.getMeatLeft());
             carcass.eaten(amount);
             energy += amount;
 
-        } else if (o instanceof Bush bush) {
+        } else if (nb instanceof Bush bush) {
             if (bush.hasBerries()) {
                 int berries = bush.getBerryCount();
                 bush.berriesEaten();
@@ -214,6 +238,34 @@ public class Bear extends Predator {
     }
 
     // ----------- REPRODUCTION -----------
+
+    @Override
+    public void reproduce(World world) {
+        Location myLoc = world.getLocation(this);
+        if (myLoc == null) return;
+
+        Set<Location> territoryTiles = getHuntingArea(world);
+
+        Bear mate = null;
+        for (Location loc : territoryTiles) {
+            Object obj = world.getTile(loc);
+            if (obj instanceof Bear otherBear && otherBear != this && !otherBear.isChild()) {
+                mate = otherBear;
+                break;
+            }
+        }
+
+        if (mate != null) {
+            super.reproduce(world);
+            // opdater begge bjørnes "amountOfKids"
+            this.incrementKids();
+            mate.incrementKids();
+        }
+    }
+
+    private void incrementKids() {
+        amountOfKids++;
+    }
 
     /**
      * Creates a new bear child at the specified location.
@@ -283,12 +335,8 @@ public class Bear extends Predator {
      */
     @Override
     public boolean isEnemyPredator(Animal other) {
-        if (!(other instanceof Predator)) return false;
         if (other instanceof Wolf) {
             return true;
-        }
-        if (other instanceof Bear otherBear) {
-            return otherBear != this;
         }
         return false;
     }

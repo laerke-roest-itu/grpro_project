@@ -57,8 +57,8 @@ public class Rabbit extends Herbivore {
 
         if (burrow == null) {
             double r = random.nextDouble();
-            if (r < 0.25) digBurrow(world);
-            else if (r < 0.50) claimBurrow(world);
+            if (r < 0.10) digBurrow(world);
+            else claimBurrow(world);
         }
     }
 
@@ -70,7 +70,7 @@ public class Rabbit extends Herbivore {
     public void nightBehaviour(World world) {
         if (burrow != null) {
             List<Rabbit> loveRabbits = burrow.getRabbits();
-            if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
+            if (loveRabbits.size() >= 2) {
                 reproduce(world);
             }
             sleep(world);
@@ -193,10 +193,17 @@ public class Rabbit extends Herbivore {
      * @return the meat value
      */
     protected int getMeatValue() {
-        return 20;
+        return 30;
     }
 
     // ----------- REPRODUCTION -----------
+
+    @Override
+    public void reproduce(World world) {
+        if (burrow == null) return;
+        if (burrow.getRabbits().size() > 15) return;
+        super.reproduce(world);
+    }
 
     /**
      * Creates a child rabbit at the specified location in the world.
@@ -279,9 +286,18 @@ public class Rabbit extends Herbivore {
     public void claimBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
         Object obj = world.getNonBlocking(rabbitLocation);
-
         if (obj instanceof Burrow b) {
-            setBurrow(b);               // <-- instead of burrow = (Burrow) obj; ...
+            setBurrow(b);
+            return;
+        }
+
+        Set<Location> nearby = world.getSurroundingTiles(rabbitLocation);
+        for (Location loc : nearby) {
+            Object obj2 = world.getNonBlocking(loc);
+            if (obj2 instanceof Burrow b) {
+                setBurrow(b);
+                return;
+            }
         }
     }
 
@@ -304,7 +320,7 @@ public class Rabbit extends Herbivore {
 
     @Override
     public boolean isChild() {
-        return getAge() < 10;
+        return getAge() < 15;
     }
 
     @Override

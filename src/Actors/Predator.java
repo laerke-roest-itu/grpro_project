@@ -47,6 +47,16 @@ public abstract class Predator extends Animal {
      */
     protected void hunt(World world) {
         Location myLoc = world.getLocation(this);
+
+        Set<Location> neighbors = world.getSurroundingTiles(myLoc);
+        for (Location loc : neighbors) {
+            Object obj = world.getTile(loc);
+            if (obj instanceof Herbivore) {
+                kill(world, (Herbivore) obj);
+                return;
+            }
+        }
+
         Set<Location> area = getHuntingArea(world);
 
         Location enemyLoc = findClosestEnemyPredator(world, area, myLoc);
@@ -55,13 +65,12 @@ public abstract class Predator extends Animal {
             return;
         }
 
-        if (isHungry()) {
-            Location carcassLoc = findClosestCarcass(world, area, myLoc);
-            if (carcassLoc != null) {
-                engageTarget(world, carcassLoc);
-                return;
-            }
+        Location carcassLoc = findClosestCarcass(world, area, myLoc);
+        if (carcassLoc != null) {
+            engageTarget(world, carcassLoc);
+            return;
         }
+
 
         Location preyLoc = findClosestPrey(world, area, myLoc);
         if (preyLoc != null) {
@@ -69,9 +78,6 @@ public abstract class Predator extends Animal {
         }
     }
 
-    /**
-     *
-     */
     protected void engageTarget(World world, Location targetLoc) {
         Location myLoc = world.getLocation(this);
         Set<Location> neighbors = world.getSurroundingTiles(myLoc);
@@ -80,8 +86,8 @@ public abstract class Predator extends Animal {
             // we're next to target -> interact
             Object o = world.getTile(targetLoc);
 
-            if (o instanceof Rabbit rabbit) {
-                kill(world, rabbit);
+            if (o instanceof Herbivore prey) {
+                kill(world, prey);
             }
             if (o instanceof Predator predator && isEnemyPredator(predator)) {
                 fight(predator, world);
@@ -97,37 +103,6 @@ public abstract class Predator extends Animal {
         }
     }
 
-    /**
-     * Small help method to find the nearest prey
-     * @param world
-     * @param area
-     * @param from
-     * @param matcher
-     * @return
-     */
-
-    protected Location findClosestMatching(World world, Set<Location> area, Location from, Predicate<Object> matcher) {
-
-        Location best = null;
-        int bestDist = Integer.MAX_VALUE;
-
-        for (Location loc : area) {
-            Object o = world.getTile(loc);
-            if (o == null) continue;
-            if (o == this) continue;
-
-            // here we use the filter we've gotten
-            if (!matcher.test(o)) continue;
-
-            int d = distance(from, loc);
-            if (d < bestDist) {
-                bestDist = d;
-                best = loc;
-            }
-        }
-
-        return best;
-    }
 
     /**
      * Find the closest enemy predator within a specified area.
@@ -138,9 +113,22 @@ public abstract class Predator extends Animal {
      */
 
     protected Location findClosestEnemyPredator(World world, Set<Location> area, Location from) {
-        return findClosestMatching(world, area, from, o ->
-                o instanceof Predator p && isEnemyPredator(p)
-        );
+        Location closest = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        for (Location loc : area) {
+            Object obj = world.getTile(loc);
+            if (obj instanceof Predator predator) {
+                if (isEnemyPredator(predator)) {
+                    int d = distance(from, loc);
+                    if (d < bestDistance) {
+                        bestDistance = d;
+                        closest = loc;
+                    }
+                }
+            }
+        }
+        return closest;
     }
 
     /**
@@ -152,9 +140,20 @@ public abstract class Predator extends Animal {
      */
 
     protected Location findClosestCarcass(World world, Set<Location> area, Location from) {
-        return findClosestMatching(world, area, from, o ->
-                o instanceof Carcass
-        );
+        Location closest = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        for (Location loc : area) {
+            Object obj = world.getTile(loc);
+            if (obj instanceof Carcass) {
+                int d = distance(from, loc);
+                if (d < bestDistance) {
+                    bestDistance = d;
+                    closest = loc;
+                }
+            }
+        }
+        return closest;
     }
 
     /**
@@ -164,11 +163,22 @@ public abstract class Predator extends Animal {
      * @param from
      * @return
      */
-
     protected Location findClosestPrey(World world, Set<Location> area, Location from) {
-        return findClosestMatching(world, area, from, o ->
-                o instanceof Animal && !(o instanceof Predator)
-        );
+        Location closest = null;
+        int bestDistance = Integer.MAX_VALUE;
+
+        for (Location loc : area) {
+            Object obj = world.getTile(loc);
+            if (obj instanceof Animal && !(obj instanceof Predator)) {
+                int d = distance(from, loc);
+                if (d < bestDistance) {
+                    bestDistance = d;
+                    closest = loc;
+                }
+            }
+        }
+
+        return closest;
     }
 
     /**
@@ -217,8 +227,13 @@ public abstract class Predator extends Animal {
      * @param prey
      */
 
+    /** The predator kills its prey
+     *
+     * @param world is the world in which the prey dies
+     * @param prey is the animal that gets killed
+     */
     protected void kill(World world, Animal prey) {
-        prey.die(world); // if die() creates a Carcass, Predators can eat() it afterwards
+        prey.die(world);
     }
 
 }
