@@ -83,7 +83,7 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
-    private void trySpawnFungi() {
+    public void trySpawnFungi() {
         if (hasFungi) return; // hvis der allerede er en fungi, så gør intet
 
         // 5% chance per tick for at spawne en fungi
@@ -120,7 +120,7 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         return this.fungi;
     }
 
-    private int calculateFungiLifespan() {
+    public int calculateFungiLifespan() {
         return maxMeat * 2;
     }
 

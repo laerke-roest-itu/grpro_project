@@ -161,7 +161,7 @@ public class Wolf extends Predator {
         moveOneStepTowards(world, leaderLoc); // vælg energipris
     }
 
-    public void setMember(Pack pack) {
+    public void setPack(Pack pack) {
         this.pack = pack;
     }
 
@@ -171,28 +171,29 @@ public class Wolf extends Predator {
 
     public void buildDen(World world) {
         Location wolfLoc;
-
-        // BESKYTTELSE: prøv at hente lokation, men giv op hvis ulven ikke er i verden
         try {
             wolfLoc = world.getLocation(this);
         } catch (IllegalArgumentException e) {
-            return; // ulven findes ikke i verden → gør ingenting
+            return;
         }
-
         if (wolfLoc == null) return;
 
-        // Kun byg en hule hvis ulven ikke allerede har en
-        // og feltet er tomt (ingen blocking object)
-        if (den == null && world.isTileEmpty(wolfLoc)) {
-            den = new Den();
-            world.setTile(wolfLoc, den);
-            den.addWolf(this);
+        if (den != null) return;
 
-            if (pack != null && pack.getLeader() == this) {
-                pack.claimDen(den);
-            }
+        // find et tomt nabofelt at bygge på
+        var empty = world.getEmptySurroundingTiles(wolfLoc);
+        if (empty.isEmpty()) return;
+
+        Location denLoc = empty.iterator().next();
+        den = new Den();
+        world.setTile(denLoc, den);
+        den.addWolf(this);
+
+        if (pack != null && pack.getLeader() == this) {
+            pack.claimDen(den);
         }
     }
+
 
     public void setDen(Den den) {
         this.den = den;
@@ -236,6 +237,9 @@ public class Wolf extends Predator {
     }
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
+
+    public Den getDen() { return den; }
+
 
     @Override
     public DisplayInformation getInformation() {

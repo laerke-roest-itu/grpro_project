@@ -6,15 +6,17 @@ import java.awt.*;
 import java.util.Random;
 
 public class Grass extends Landscape {
+    //private final Random random;
 
     // normal brug i simulatoren
     public Grass() {
-        super();
+        this(new Random());
     }
 
     // test-brug: styr tilfældighed
     public Grass(Random random) {
-        super(random);
+        super();
+        this.random = random;
     }
 
     @Override

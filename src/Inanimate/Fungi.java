@@ -41,6 +41,17 @@ public class Fungi extends Landscape {
         carcass.infectWithFungi();
     }
 
+    @Override
+    protected int spreadChance() {
+        return 0;
+    }
+
+    @Override
+    public Landscape createNewInstance() {
+        return new Fungi(this.lifespan); // eller en standardværdi
+    }
+
+
     public Set<Location> getInfectionArea(World world) {
         int radius = 2;
         Location here = getFungiLocation(world);

@@ -94,7 +94,7 @@ public class Bear extends Predator {
     }
 
     @Override
-    protected void hunt(World world) {
+    public void hunt(World world) {
         Location myLoc = world.getLocation(this);
         Set<Location> area = getHuntingArea(world);  // dit territorie
 
@@ -210,7 +210,7 @@ public class Bear extends Predator {
         return world.getSurroundingTiles(territoryCenter, radius);
     }
 
-    private boolean isInsideTerritory(Location bearLocation) {
+    public boolean isInsideTerritory(Location bearLocation) {
         if (bearLocation == null) {return false;}
         int radius = getRadius();
         return distance(bearLocation, territoryCenter) <= radius;

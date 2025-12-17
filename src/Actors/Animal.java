@@ -16,7 +16,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected int maxAge;
     protected int energy;
     public boolean isAlive;
-    protected boolean isSleeping;
+    public boolean isSleeping;
     protected int amountOfKids;
     protected Object shelter;
     protected Random random;

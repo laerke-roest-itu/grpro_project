@@ -17,6 +17,16 @@ public class Burrow extends Landscape {
     private List<Rabbit> rabbits = new ArrayList<>();
 
     @Override
+    protected int spreadChance() {
+        return 0;
+    }
+
+    @Override
+    protected Landscape createNewInstance() {
+        return null;
+    }
+
+    @Override
     public void act(World world) {
         // Burrows do not perform any actions themselves.
         // Rabbits may interact with them, but the burrow is passive.

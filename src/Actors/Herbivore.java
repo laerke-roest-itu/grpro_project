@@ -15,7 +15,7 @@ public abstract class Herbivore extends Animal {
 
     @Override
     public void act(World world) {
-        if (!isAlive) return;
+        if (!isAlive || isSleeping) return;
 
         if (getAge() >= getMaxAge() || getEnergy() <= 0) {
             die(world);
@@ -23,10 +23,11 @@ public abstract class Herbivore extends Animal {
         }
 
         // skumring: gå mod shelter (home/burrow/etc.)
-        if (world.getCurrentTime() >= World.getDayDuration() - 3) {
+        if (world.getCurrentTime() >= World.getTotalDayDuration() - 3) {
             seekShelter(world);
             return;
         }
+
 
         // nat: subklasse bestemmer
         if (world.isNight()) {
@@ -77,9 +78,26 @@ public abstract class Herbivore extends Animal {
     }
 
     @Override
+    public void eat(World world, Location targetLoc) {
+        Object nb = world.getNonBlocking(targetLoc); // græs/busk ligger typisk som non-blocking
+        if (canEat(nb)) {
+            energy += getFoodEnergy(nb);
+
+            if (nb instanceof Grass) {
+                world.delete(nb);
+            } else if (nb instanceof Bush bush) {
+                bush.berriesEaten(); // hvis den kan spise bær
+            }
+        }
+    }
+
+    @Override
     protected int getFoodEnergy(Object object) {
+        if (object instanceof Grass) return 20;
+        if (object instanceof Bush bush && bush.hasBerries()) return bush.getBerryCount() * 2;
         return 0;
     }
+
 
     @Override
     protected int getMeatValue() {

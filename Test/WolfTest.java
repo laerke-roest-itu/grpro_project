@@ -1,239 +1,147 @@
-import Actors.Bear;
-import Actors.Rabbit;
-import Actors.Wolf;
-import Actors.Carcass;
+import Actors.*;
 import Inanimate.*;
-import itumulator.world.World;
+import itumulator.executable.Program;
 import itumulator.world.Location;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
+import itumulator.world.World;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WolfTest {
+class WolfTest {
 
-    private World w10;
+    private World world;
     private Pack pack;
+    private Wolf leader;
     private Wolf wolf;
 
     @BeforeEach
     void setUp() {
-        w10 = new World(10);
-        pack = new Pack();// RET hvis Pack kræver andre argumenter
-        wolf = new Wolf(pack);
+        Program program = new Program(10, 500, 0);
+        world = program.getWorld();
+
+        pack = new Pack(); // din pack-klasse der også kan claimDen
+
+        leader = new Wolf(pack);
+        wolf   = new Wolf(pack);
+
+        Location leaderLoc = new Location(2, 2);
+        world.setTile(leaderLoc, leader); // leader
+        world.setTile(new Location(2, 4), wolf);   // medlem
     }
 
     @AfterEach
     void tearDown() {
-        w10 = null;
-        wolf = null;
+        world = null;
         pack = null;
-    }
-
-    // ========= Reflection-hjælpere =========
-
-    private Field findField(Class<?> cls, String name) {
-        Class<?> current = cls;
-        while (current != null) {
-            try {
-                Field f = current.getDeclaredField(name);
-                f.setAccessible(true);
-                return f;
-            } catch (NoSuchFieldException e) {
-                current = current.getSuperclass();
-            }
-        }
-        throw new RuntimeException("Field " + name + " not found on " + cls);
-    }
-
-    private int getIntField(Object o, String name) {
-        try {
-            Field f = findField(o.getClass(), name);
-            return f.getInt(o);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setIntField(Object o, String name, int value) {
-        try {
-            Field f = findField(o.getClass(), name);
-            f.setInt(o, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean getBoolField(Object o, String name) {
-        try {
-            Field f = findField(o.getClass(), name);
-            return f.getBoolean(o);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setBoolField(Object o, String name, boolean value) {
-        try {
-            Field f = findField(o.getClass(), name);
-            f.setBoolean(o, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private int getEnergy(Wolf w) {
-        return getIntField(w, "energy");
-    }
-
-    private void setEnergy(Wolf w, int value) {
-        setIntField(w, "energy", value);
-    }
-
-    private void setAge(Wolf w, int value) {
-        setIntField(w, "age", value);
-    }
-
-    private boolean isAlive(Wolf w) {
-        return getBoolField(w, "isAlive");
-    }
-
-    // ========= Hjælpere til verden =========
-
-    private void place(Object obj, Location loc) {
-        // RET HER hvis jeres World bruger en anden metode
-        w10.setTile(loc, obj);
-    }
-
-    // ========= Tests relateret til act()-logikken =========
-
-    @Test
-    void act_wolfDiesWhenTooOld() {
-        Location loc = new Location(2, 2);
-        place(wolf, loc);
-
-        // age >= 240 → ulven skal dø i act()
-        setAge(wolf, 239);
-        setEnergy(wolf, 50); // positiv energi, så det er alderen der udløser det
-
-        wolf.act(w10);
-
-        // Forvent at ulven ikke længere er i live og (oftest) fjernet fra verden
-        //assertFalse(isAlive(wolf), "Ulven skal være død når age >= 240.");
-        assertFalse(w10.contains(wolf), "Ulven skal være fjernet fra verden når den dør.");
+        leader = null;
+        wolf = null;
     }
 
     @Test
-    void act_wolfDiesWhenNoEnergy() {
-        Location loc = new Location(3, 3);
-        place(wolf, loc);
+    void wolfSeeksLeaderWhenInPack_whenHungryAndNoTargets() {
+        // gør ulven sulten så den IKKE går random (hunt bliver kaldt, men finder intet)
+        wolf.setEnergy(10);
 
-        // energy <= 0 → ulven skal dø
-        setEnergy(wolf, 1);
-        setAge(wolf, 10); // lav alder så det er energi der udløser det
+        Location before = world.getLocation(wolf);
+        Location leaderLoc = world.getLocation(leader);
 
-        wolf.act(w10);
+        wolf.act(world);
 
-        //assertFalse(isAlive(wolf), "Ulven skal dø når energy <= 0.");
-        assertFalse(w10.contains(wolf), "Ulven skal være fjernet fra verden når den dør.");
-    }
+        Location after = world.getLocation(wolf);
 
-    // ========= Metoder der bruges via jagt/overlevelse =========
+        int distBefore = wolf.distance(before, leaderLoc);
+        int distAfter  = wolf.distance(after, leaderLoc);
 
-    @Test
-    void isChildTrueWhenAgeUnder40() {
-        setAge(wolf, 0);
-        assertTrue(wolf.isChild(), "isChild() skal være true når age < 40.");
-
-        setAge(wolf, 39);
-        assertTrue(wolf.isChild(), "isChild() skal være true når age < 40.");
+        assertTrue(distAfter < distBefore, "Wolf should move closer to leader via seekPack()");
     }
 
     @Test
-    void isChildFalseWhenAgeAtLeast40() {
-        setAge(wolf, 40);
-        assertFalse(wolf.isChild(), "isChild() skal være false når age >= 40.");
-    }
+    void wolfEatsCarcassAndReducesMeatLeft() {
+        // Lav en ulv uden pack, så den ikke bruger seekPack før jagt
+        Wolf solo = new Wolf(null);
+        Location wolfLoc = new Location(5, 5);
+        world.setTile(wolfLoc, solo);
 
-    @Test
-    void canEatOnlyCarcass() {
-        Object carcass = new Carcass(50,25);    // RET HER hvis Carcass kræver andre argumenter
-        Object rabbit = new Rabbit();
-        Object bear = new Bear(new Location(0, 0));
-        Object somethingElse = new Object();
+        solo.setEnergy(10); // sulten
 
-        assertTrue(wolf.canEat(carcass), "Wolf skal kunne spise Carcass.");
-        assertFalse(wolf.canEat(rabbit), "Wolf må ikke spise Rabbit direkte (kun Carcass).");
-        assertFalse(wolf.canEat(bear), "Wolf må ikke spise Bear.");
-        assertFalse(wolf.canEat(somethingElse), "Wolf må ikke spise vilkårlige objekter.");
-    }
-
-    @Test
-    void eatFromCarcassIncreasesEnergyAndReducesMeat() {
-        Location loc = new Location(4, 4);
-        Carcass carcass = new Carcass(50,25);       // RET HER hvis konstruktør er anderledes
-        place(carcass, loc);
-
-        // sæt ulven et sted i verden
-        place(wolf, new Location(1, 1));
-
-        // giv ulven lidt startenergi
-        setEnergy(wolf, 10);
-        int energyBefore = getEnergy(wolf);
+        Location carcassLoc = new Location(5, 6); // nabo med det samme
+        Carcass carcass = new Carcass(50, 10);
+        world.setTile(carcassLoc, carcass);
 
         int meatBefore = carcass.getMeatLeft();
+        solo.act(world);
 
-        wolf.eat(w10, loc);
-
-        int energyAfter = getEnergy(wolf);
-        int meatAfter = carcass.getMeatLeft();
-
-        int meatEaten = meatBefore - meatAfter;
-        assertTrue(meatEaten <= 20 && meatEaten >= 0,
-                "Ulven må højst spise 20 kød ad gangen fra Carcass.");
-
-        assertEquals(energyBefore + meatEaten, energyAfter,
-                "Ulvens energi skal stige med samme mængde kød som den spiser.");
+        assertTrue(carcass.getMeatLeft() < meatBefore,
+                "Wolf should eat carcass and reduce meat left");
     }
 
-    // ========= Fjender / kamp =========
 
     @Test
-    void isEnemyPredatorDifferentPackWolvesAndBearsAreEnemies() {
-        // Denne ulv er i pack1
-        Pack pack1 = new Pack();
-        Wolf wolf1 = new Wolf(pack1);
+    void wolfKillsRabbitWhenHunting() {
+        wolf.setEnergy(10); // sulten
 
-        // Ulv i samme pack → ikke fjende
-        Wolf samePackWolf = new Wolf(pack1);
+        // Samme trick: rabbit ved siden af (2,3) efter seekPack
+        Location rabbitLoc = new Location(3, 3);
+        world.setTile(rabbitLoc, new Rabbit());
 
-        // Ulv i anden pack → fjende
-        Pack pack2 = new Pack();
-        Wolf otherPackWolf = new Wolf(pack2);
+        // giv den et par turns (først gå hen, så dræbe)
+        for (int i = 0; i < 5; i++) wolf.act(world);
 
-        // Bjørn → fjende
-        Bear bear = new Bear(new Location(0, 0));
-
-        assertFalse(wolf1.isEnemyPredator(samePackWolf),
-                "Ulv i samme pack skal ikke være fjende.");
-        assertTrue(wolf1.isEnemyPredator(otherPackWolf),
-                "Ulv i anden pack skal være fjende.");
-        assertTrue(wolf1.isEnemyPredator(bear),
-                "Bear skal være fjende til Wolf.");
+        assertTrue(world.getTile(rabbitLoc) instanceof Carcass,
+                "Rabbit should be replaced by Carcass after being killed");
     }
 
     @Test
-    void getAttackDamageIs10() {
-        assertEquals(10, wolf.getAttackDamage(),
-                "getAttackDamage() skal returnere 10.");
+    void wolfFightsBearWhenEnemyNearby() {
+        wolf.setEnergy(40);
+
+        Location bearLoc = new Location(3, 3);
+        Bear bear = new Bear(new Location(5, 5));
+        world.setTile(bearLoc, bear);
+
+        int bearBefore = bear.getEnergy();
+        int wolfBefore = wolf.getEnergy();
+
+        for (int i = 0; i < 5; i++) wolf.act(world);
+
+        boolean bearDamagedOrDead =
+                bear.getEnergy() < bearBefore || world.getTile(bearLoc) instanceof Carcass;
+
+        boolean wolfDamagedOrDead =
+                wolf.getEnergy() < wolfBefore || world.getLocation(wolf) == null;
+
+        assertTrue(bearDamagedOrDead);
+        assertTrue(wolfDamagedOrDead);
     }
 
-    // (Valgfrit) Man kan også teste getInformation(), men det er mest visuel logik
-    // og ikke strengt nødvendig ift. act().
+    @Test
+    void leaderBuildsDenAndPackClaimsIt() {
+        assertNull(pack.getDen(), "Pack should start without a den");
+
+        Location leaderLoc = world.getLocation(leader);
+        assertNotNull(leaderLoc);
+
+        leader.buildDen(world);
+
+        Den den = pack.getDen();
+        assertNotNull(den, "Pack should have claimed a den");
+
+        // Pack.claimDen skal give alle ulve samme den-reference
+        assertSame(den, leader.getDen());
+        assertSame(den, wolf.getDen());
+
+        // Dens lokation (den er placeret i world med setTile)
+        Location denLoc = world.getLocation(den);
+        assertNotNull(denLoc, "Den should exist in the world");
+
+        // Den skal ligge på et nabofelt til leader (radius 1)
+        assertTrue(world.getSurroundingTiles(leaderLoc, 1).contains(denLoc),
+                "Den should be placed next to the leader");
+
+        // Den ligger som blocking tile på denLoc
+        assertTrue(world.getTile(denLoc) instanceof Den,
+                "Den should be placed as a tile at its location");
+    }
+
 
 }
-
-

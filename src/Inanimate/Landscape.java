@@ -25,7 +25,7 @@ public abstract class Landscape implements NonBlocking, Actor, DynamicDisplayInf
 
 
     @Override
-    public final void act(World world) {
+    public void act(World world) {
         doSpread(world);
         afterAct(world);
     }
