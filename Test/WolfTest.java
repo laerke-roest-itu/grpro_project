@@ -38,10 +38,7 @@ class WolfTest {
     }
 
     @Test
-    void wolfSeeksLeaderWhenInPack_whenHungryAndNoTargets() {
-        // gør ulven sulten så den IKKE går random (hunt bliver kaldt, men finder intet)
-        wolf.setEnergy(10);
-
+    void wolfSeeksLeaderWhenInPack() {
         Location before = world.getLocation(wolf);
         Location leaderLoc = world.getLocation(leader);
 

@@ -12,8 +12,6 @@ public class Bush extends Landscape {
 
     private int berry = 0;
     private final int maxBerries = 100;
-    private final int berryGrowthInterval = 10;
-    private int ticksSinceLastGrowth = 0;
 
     /**
      * Constructor for normal use in the simulator.
@@ -32,6 +30,12 @@ public class Bush extends Landscape {
         this.random = random;
     }
 
+    @Override
+    public void act(World world) {
+        super.act(world);
+        produceBerries();
+    }
+
     /**
      * Returns the chance of the bush spreading.
      *
@@ -39,7 +43,7 @@ public class Bush extends Landscape {
      */
     @Override
     protected int spreadChance() { //spreadChance fra superklassen gives en værdi
-        return 3;
+        return 2;
     }
 
     /**
@@ -53,26 +57,11 @@ public class Bush extends Landscape {
     }
 
     /**
-     * Called after the bush acts, to handle berry growth.
-     *
-     * @param world the world in which the bush exists
-     * afterAct overriden to handle growth on a bush
-     */
-    @Override
-    protected void afterAct(World world) {
-        ticksSinceLastGrowth++;
-        if (ticksSinceLastGrowth == berryGrowthInterval) {
-            ticksSinceLastGrowth = 0;
-            produceBerries();
-        }
-    }
-
-    /**
      * Increases the number of berries on the bush by one, up to the maximum limit.
      */
     public void produceBerries(){
         if (berry < maxBerries) {
-            berry++;
+            berry+=5;
         }
     }
 

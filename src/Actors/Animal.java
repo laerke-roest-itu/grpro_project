@@ -279,7 +279,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
      * @param world The world in which the animal reproduces.
      */
     public void reproduce(World world) {
-        if (energy < 15 || (isChild())) return;
+        if (energy < 30 || (isChild()) || getAmountOfKids()>2) return;
         Location loc = getReproductionLocation(world);
         Animal child = createChild(world, loc);
         if (loc != null) {

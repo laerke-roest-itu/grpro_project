@@ -1,2 +1,4 @@
 10
-wolf 2
+wolf 2-4
+grass 4-6
+rabbit 4-6

@@ -57,7 +57,7 @@ class RabbitTest {
 
     private void makeAdult(Rabbit r) {
         // Rabbit.isChild() => age < 10, age++ sker kun når world.isDay()
-        forceDayAndAct(r, 12);
+        forceDayAndAct(r, 17);
         assertFalse(r.isChild(), "Rabbit should be adult for reproduction tests");
     }
 
@@ -67,7 +67,7 @@ class RabbitTest {
     void rabbitDigsBurrowDuringDay_whenNoBurrow() {
         // Erstat kanin med en der ALTID digger (nextDouble = 0.10 < 0.25)
         world.delete(rabbit);
-        rabbit = new Rabbit(new FixedRandom(0.10));
+        rabbit = new Rabbit(new FixedRandom(0.0));
         world.setTile(rabbitLoc, rabbit);
 
         // Én dag-act er ofte nok (den kan dog flytte først, men digger bagefter)
@@ -130,11 +130,9 @@ class RabbitTest {
         world.setTile(new Location(4, 4), leader);
         world.setTile(new Location(4, 6), other);
 
-        // samme burrow => burrow-listen får leader først, så other
         leader.setBurrow(burrow);
         other.setBurrow(burrow);
 
-        // gør dem voksne (age >= 10)
         makeAdult(leader);
         makeAdult(other);
 

@@ -97,36 +97,34 @@ public class Deer extends Herbivore {
     /** Deer dag: hold sammen med flokken (ellers random + spis) */
     @Override
     public void dayBehaviour(World world) {
-        super.dayBehaviour(world);
         if (herd != null) {
             Deer leader = herd.getLeader();
 
-            if (leader != null && leader != this) {
-                Location myLoc;
-                Location leaderLoc;
+            if (leader == this || this.isHungry()) {
+                super.dayBehaviour(world);
+            } else {
+                if (leader != null) {
+                    Location myLoc;
+                    Location leaderLoc;
 
-                try {
-                    myLoc = world.getLocation(this);
-                    leaderLoc = world.getLocation(leader);
-                } catch (IllegalArgumentException e) {
-                    return;
-                }
-
-                if (myLoc != null && leaderLoc != null) {
-                    int dist = distance(myLoc, leaderLoc);
-
-
-                    if (dist > 3) {
-                        moveOneStepTowards(world, leaderLoc);
+                    try {
+                        myLoc = world.getLocation(this);
+                        leaderLoc = world.getLocation(leader);
+                    } catch (IllegalArgumentException e) {
                         return;
+                    }
+
+                    if (myLoc != null && leaderLoc != null) {
+                        int dist = distance(myLoc, leaderLoc);
+
+
+                        if (dist > 2) {
+                            moveOneStepTowards(world, leaderLoc);
+                            return;
+                        }
                     }
                 }
             }
-        }
-
-        Location moveTo = moveRandomly(world);
-        if (moveTo != null && isHungry()) {
-            eat(world, moveTo);
         }
     }
 
@@ -134,18 +132,16 @@ public class Deer extends Herbivore {
     @Override
     public void nightBehaviour(World world) {
         super.nightBehaviour(world);
-        // if we have home -> seek shelter (home) during night as well (optional)
-        // or just sleep if you want
-        seekShelter(world);
-        // if you want "only sleep when reached location", you can check distance:
         Location myLoc;
         try { myLoc = world.getLocation(this); }
         catch (IllegalArgumentException e) { return; }
 
+        /*
         Location home = (herd == null) ? null : herd.getHome();
         if (myLoc != null && home != null && distance(myLoc, home) == 0) {
             sleep(world);
-        }
+        } */
+
     }
 
     @Override
