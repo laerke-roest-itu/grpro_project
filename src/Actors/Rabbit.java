@@ -12,15 +12,26 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Rabbit represents a herbivorous animal that can dig and live in burrows.
+ * It has behaviors for day and night, including eating grass,
+ * seeking shelter in burrows, and reproducing.
+ */
 public class Rabbit extends Herbivore {
     private Burrow burrow;
     private final Random random;
 
+    /** Constructor for Rabbit.
+     */
     public Rabbit() {
-        super(180); // kalder Actors.Animal's constructor
+        super(180);
         this.random = new Random();
     }
 
+    /** Constructor for Rabbit with specified Random instance. Used for testing.
+     *
+     * @param random the Random instance to use for randomness
+     */
     public Rabbit(Random random) {
         super(180);
         this.random = random;
@@ -28,39 +39,22 @@ public class Rabbit extends Herbivore {
 
     // ----------- ACT -----------
 
-    /*@Override
-    public void act(World world) {
-        super.act(world); // kører Herbivore-logikken (tick+dag+skumring)
-
-        // hvis den døde eller sover efter super: stop
-        if (!isAlive || isSleeping) return;
-
-        // kun burrow-ting i dag (ikke i skumring/nat)
-        if (world.isDay() && burrow == null) {
-            double r = random.nextDouble();
-            if (r < 0.25) digBurrow(world);
-            else if (r < 0.50) claimBurrow(world);
-        }
-
-        if (world.isNight()) {
-            if (burrow != null) {
-                List<Rabbit> loveRabbits = burrow.getRabbits();
-                if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
-                    reproduce(world);
-                }
-                sleep(world);
-            } else {
-                energy -= 5;
-            }
-        }
-    }*/
-
-    // --- DAG ---
     @Override
-    protected void dayBehaviour(World world) {
-        super.dayBehaviour(world); // move + eat hvis sulten
+    public void act(World world) {
+        if (!isAlive) return;
+        super.act(world);
+    }
 
-        // Burrow-ting kun i dag, og kun hvis vi ikke har et
+    /**
+     * Rabbit's "act" method, handling day/night behavior and life cycle.
+     * Rabbit calls superclass act method (as rabbit does not have an act-method)
+     * and adds burrow-related behavior during the day.
+     * @param world the world in which the rabbit exists
+     */
+    @Override
+    public void dayBehaviour(World world) {
+        super.dayBehaviour(world);
+
         if (burrow == null) {
             double r = random.nextDouble();
             if (r < 0.25) digBurrow(world);
@@ -68,21 +62,27 @@ public class Rabbit extends Herbivore {
         }
     }
 
-    // --- NAT ---
+    /**
+     * Rabbit's night behavior, including reproduction if in a burrow with others.
+     * @param world the world in which the rabbit exists
+     */
     @Override
-    protected void nightBehaviour(World world) {
+    public void nightBehaviour(World world) {
         if (burrow != null) {
-            // reproduktion hvis mindst 2 og jeg er "leder" i hulen
             List<Rabbit> loveRabbits = burrow.getRabbits();
             if (loveRabbits.size() >= 2 && isLeaderInBurrow()) {
                 reproduce(world);
             }
             sleep(world);
         } else {
-            energy -= 5; // ingen shelter
+            energy -= 5; // no shelter - lose energy from exposure
         }
     }
 
+    /** Rabbit seeks shelter in its burrow.
+     *
+     * @param world the world in which the rabbit exists
+     */
     @Override
     public void seekShelter(World world) {
         if (burrow == null) return;
@@ -98,9 +98,12 @@ public class Rabbit extends Herbivore {
         moveOneStepTowards(world, burrowLoc);
     }
 
-
     // ----------- LIFE -----------
 
+    /** Wakes up rabbit and tries placing it on top of the burrow.
+     * If that is not possible, place the rabbit on an adjacent tile.
+     * @param world The world in which the animal wakes up.
+     */
     @Override
     public void wakeUp(World world) {
         if (burrow == null) return;
@@ -113,15 +116,12 @@ public class Rabbit extends Herbivore {
         }
         if (burrowLoc == null) return;
 
-
-        // 1) prøv at stå på burrow-tile hvis den er fri
         if (world.isTileEmpty(burrowLoc)) {
             world.setTile(burrowLoc, this);
             isSleeping = false;
             return;
         }
 
-        // 2) ellers: find et tomt nabofelt
         Set<Location> empty = world.getEmptySurroundingTiles(burrowLoc);
         if (!empty.isEmpty()) {
             world.setTile(empty.iterator().next(), this);
@@ -129,44 +129,82 @@ public class Rabbit extends Herbivore {
         }
     }
 
-
+    /** Handles rabbits sleeplocation. If rabbit has a burrow it sleeps int burrow
+     * and is removed from the world
+     * @param world the world in which the herbivore exists
+     */
     @Override
     protected void handleSleepLocation(World world) {
         if (burrow != null) {
-            world.remove(this); // Actors.Rabbit sover I burrow
+            world.remove(this);
         }
     }
 
+    /** Energy cost for sleeping for rabbits.
+     *
+     * @return energy cost for sleeping
+     */
     @Override
     protected int getSleepEnergy() { return 25; }
 
     // ----------- EATING -----------
 
+    /**
+     * Rabbit eats grass at the target location in the world.
+     * Increases energy and removes the grass from the world.
+     *
+     * @param world the world in which the rabbit exists
+     * @param targetLoc the location of the grass to eat
+     */
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getNonBlocking(targetLoc);
         if (canEat(o)) {
             energy += getFoodEnergy(o);
-            world.delete(o); // græs forsvinder
+            world.delete(o);
         }
     }
 
+    /**
+     * Check if the rabbit can eat the given object.
+     *
+     * @param object the object to check
+     * @return true if the rabbit can eat the object, false otherwise
+     */
     @Override
     protected boolean canEat(Object object) {
         return object instanceof Grass;
     }
 
+    /**
+     * Get the food energy provided by the given object.
+     * In this case, eating grass provides 20 energy.
+     * @param object the object to get food energy from
+     * @return the food energy value
+     */
     @Override
     protected int getFoodEnergy(Object object) {
         return 20;
     }
 
+    /**
+     * Get the meat value provided by the rabbit when it dies.
+     *
+     * @return the meat value
+     */
     protected int getMeatValue() {
         return 20;
     }
 
     // ----------- REPRODUCTION -----------
 
+    /**
+     * Creates a child rabbit at the specified location in the world.
+     *
+     * @param world the world in which the child rabbit will be created
+     * @param childLoc the location where the child rabbit will be placed
+     * @return the newly created child rabbit
+     */
     @Override
     protected Animal createChild(World world, Location childLoc) {
         Rabbit child = new Rabbit();
@@ -174,6 +212,12 @@ public class Rabbit extends Herbivore {
         return child;
     }
 
+    /**
+     * Determines the location for reproduction, prioritizing the burrow and its surroundings.
+     *
+     * @param world the world in which the rabbit exists
+     * @return the location for reproduction, or null if no suitable location is found
+     */
     @Override
     protected Location getReproductionLocation(World world) {
         if (burrow == null) return null;
@@ -182,17 +226,15 @@ public class Rabbit extends Herbivore {
         try {
             burrowLocation = world.getLocation(burrow);
         } catch (IllegalArgumentException e) {
-            return null; // burrow findes ikke i verden længere
+            return null;
         }
 
         if (burrowLocation == null) return null;
 
-        // først: prøv selve burrow-feltet
         if (world.isTileEmpty(burrowLocation)) {
             return burrowLocation;
         }
 
-        // ellers: find et tomt nabofelt
         Set<Location> emptyTilesAroundBurrow = world.getEmptySurroundingTiles(burrowLocation);
         if (!emptyTilesAroundBurrow.isEmpty()) {
             return emptyTilesAroundBurrow.iterator().next();
@@ -204,17 +246,23 @@ public class Rabbit extends Herbivore {
 
     // ----------- BURROW -----------
 
+    /** Rabbit attempts to dig a burrow at its current location in the world.
+     * If the location is occupied by grass or fungi, it removes them first.
+     * If the location is already occupied by a burrow, it claims that burrow.
+     *
+     * @param world the world in which the rabbit exists
+     */
     public void digBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
         Object obj = world.getNonBlocking(rabbitLocation);
 
-        if (obj instanceof Burrow b) {
-            setBurrow(b);   // valgfrit: claim eksisterende
+        if (obj instanceof Burrow) {
+            claimBurrow(world);
             return;
         }
 
         if (obj != null && !(obj instanceof Grass || obj instanceof Fungi)) {
-            return;         // noget andet non-blocking → grav ikke
+            return;
         }
 
         if (obj instanceof Grass || obj instanceof Fungi) {
@@ -224,6 +272,7 @@ public class Rabbit extends Herbivore {
         Burrow newBurrow = new Burrow();
         world.setTile(rabbitLocation, newBurrow);
         setBurrow(newBurrow);
+
     }
 
 
@@ -232,21 +281,19 @@ public class Rabbit extends Herbivore {
         Object obj = world.getNonBlocking(rabbitLocation);
 
         if (obj instanceof Burrow b) {
-            setBurrow(b);               // <-- i stedet for burrow = (Burrow) obj; ...
+            setBurrow(b);               // <-- instead of burrow = (Burrow) obj; ...
         }
     }
-
 
     public Burrow getBurrow() {return burrow;}
 
     public void setBurrow(Burrow burrow) {
         this.burrow = burrow;
-        this.shelter = burrow;          // <-- vigtig
+        this.shelter = burrow;          // <-- important to set shelter as well
         if (burrow != null) {
             burrow.addRabbit(this);
         }
     }
-
 
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
@@ -264,15 +311,15 @@ public class Rabbit extends Herbivore {
     public DisplayInformation getInformation() {
         if (isChild()) { //
             if (isSleeping) {
-                return new DisplayInformation(Color.GRAY, "rabbit-small-sleeping");
+                return new DisplayInformation(Color.WHITE, "rabbit-small-sleeping");
             } else {
-                return new DisplayInformation(Color.GRAY, "rabbit-small"); // billede af kaninunge
+                return new DisplayInformation(Color.WHITE, "rabbit-small"); // billede af kaninunge
             }
         } else {
             if (isSleeping) {
-                return new DisplayInformation(Color.DARK_GRAY, "rabbit-sleeping");
+                return new DisplayInformation(Color.LIGHT_GRAY, "rabbit-sleeping");
             } else {
-                return new DisplayInformation(Color.DARK_GRAY, "rabbit-large"); // billede af voksen kanin
+                return new DisplayInformation(Color.LIGHT_GRAY, "rabbit-large"); // billede af voksen kanin
             }
         }
     }

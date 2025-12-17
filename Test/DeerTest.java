@@ -1,7 +1,6 @@
 import Actors.Bear;
 import Actors.Deer;
 import Inanimate.Grass;
-import java.util.Set;
 import Inanimate.Herd;
 import itumulator.executable.Program;
 import itumulator.world.Location;
@@ -38,7 +37,7 @@ class DeerTest {
         world.setTile(leaderLoc, leader);
         world.setTile(memberLoc, member);
 
-        // start i dag
+        // start at Day
         world.setDay();
     }
 
@@ -80,39 +79,46 @@ class DeerTest {
 
     @Test
     void deerFleesWhenPredatorIsNearby() {
-        // predator tæt på member (radius 2)
-        Location predatorLoc = new Location(3, 7); // tæt på (2,8)
+        // predator close to member (radius 2)
+        Location predatorLoc = new Location(3, 7); // close to (2,8)
         Bear predator = new Bear(new Location(10, 10));
         world.setTile(predatorLoc, predator);
 
         int energyBefore = member.getEnergy();
         Location before = world.getLocation(member);
 
-        member.act(world); // bør flee + energy -= 5
+        member.act(world); // should flee + energy -= 5
 
         Location after = world.getLocation(member);
 
         assertNotEquals(before, after, "Deer should move when fleeing");
         assertTrue(member.getEnergy() < energyBefore, "Deer should lose energy when fleeing");
 
-        // den burde komme længere væk fra predator (typisk)
+        // should move further away from Predator (typisk)
         int dBefore = member.distance(before, predatorLoc);
         int dAfter  = member.distance(after, predatorLoc);
         assertTrue(dAfter >= dBefore, "Deer should not move closer to predator when fleeing");
     }
 
+    /** Test that a deer seeks shelter at dusk (totalDayDuration - 3) by moving toward its herd's home location.
+     */
+
     @Test
     void deerSeeksShelterAtDusk() {
-        // sørg for at home findes
+        // make sure herd home is set
+
         leader.act(world);
 
-        // flyt member væk fra home, så den kan søge shelter
+
+        /*
+        // moves member far from home, so it has to move toward it
         world.delete(member);
         member = new Deer(herd);
         Location far = new Location(10, 10);
         world.setTile(far, member);
+        */
 
-        // sæt tiden til "skumring": totalDayDuration - 3
+        // set time to "Dusk": totalDayDuration - 3
         world.setCurrentTime(World.getTotalDayDuration() - 3);
 
         Location before = world.getLocation(member);
@@ -122,6 +128,9 @@ class DeerTest {
         assertNotEquals(before, after, "Deer should move toward home at dusk");
     }
 
+    /** Test that a deer eats grass and gains energy during the day when hungry.
+     */
+
     @Test
     void deerEatsGrassAndGainsEnergy() {
         world.setDay();
@@ -130,9 +139,9 @@ class DeerTest {
         Location start = new Location(6, 6);
         world.setTile(start, solo);
 
-        solo.setEnergy(10); // sulten
+        solo.setEnergy(10); // Deer is forced to be hungry
 
-        // læg græs på alle tomme nabofelter
+        // plant grass on surrounding tiles
         for (Location n : world.getSurroundingTiles(start, 1)) {
             if (world.isTileEmpty(n) && !world.containsNonBlocking(n)) {
                 world.setTile(n, new Grass());

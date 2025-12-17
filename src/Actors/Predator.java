@@ -6,34 +6,55 @@ import java.util.function.Predicate;
 
 import java.util.Set;
 
+/**
+ * Predator is an abstract class representing carnivorous animals that hunt other animals.
+ * It extends the Animal class and provides a general hunting algorithm.
+ */
 public abstract class Predator extends Animal {
 
+    /**
+     * Constructor for Predator.
+     *
+     * @param maxAge the maximum age of the predator
+     */
     protected Predator(int maxAge) {
         super(maxAge);
     }
-    // 1) Hvilket område jager dette rovdyr i?
-    //    Bjørn: territoriet. Ulv: felter omkring ulven (radius 2).
+
+    /** Returns the hunting area of the predator.
+     *
+     * @param world hswo
+     * @return the set of locations defining the hunting area
+     */
     protected abstract Set<Location> getHuntingArea(World world);
 
-    // 2) Hvad koster det i energi at gå ét skridt når vi jager?
+    /** Returns the movement cost for hunting.
+     *
+     * @return the movement cost as an integer
+     */
     protected abstract int getHuntMoveCost();
 
-    // 3) Hvilke dyr er "fjender" vi kan slås med?
+    /** Determines if another animal is an enemy predator.
+     *
+     * @param other the other animal to check
+     * @return true if the other animal is an enemy predator, false otherwise
+     */
     protected abstract boolean isEnemyPredator(Animal other);
 
-    // GENEREL JAGT-ALGORITME
+    /** The hunting behavior of the predator.
+     *
+     * @param world the world in which the predator exists
+     */
     protected void hunt(World world) {
         Location myLoc = world.getLocation(this);
         Set<Location> area = getHuntingArea(world);
 
-        // 1) PRIORITET: fjendtligt rovdyr
         Location enemyLoc = findClosestEnemyPredator(world, area, myLoc);
         if (enemyLoc != null) {
             engageTarget(world, enemyLoc);
             return;
         }
 
-        // 2) PRIORITET: ådsel, men kun hvis vi er sultne
         if (isHungry()) {
             Location carcassLoc = findClosestCarcass(world, area, myLoc);
             if (carcassLoc != null) {
@@ -42,20 +63,21 @@ public abstract class Predator extends Animal {
             }
         }
 
-        // 3) PRIORITET: levende bytte
         Location preyLoc = findClosestPrey(world, area, myLoc);
         if (preyLoc != null) {
             engageTarget(world, preyLoc);
         }
-        // ellers: ingen mål → gør ingenting denne tur
     }
 
+    /**
+     *
+     */
     protected void engageTarget(World world, Location targetLoc) {
         Location myLoc = world.getLocation(this);
         Set<Location> neighbors = world.getSurroundingTiles(myLoc);
 
         if (neighbors.contains(targetLoc)) {
-            // vi står ved siden af målet → interager
+            // we're next to target -> interact
             Object o = world.getTile(targetLoc);
 
             if (o instanceof Rabbit rabbit) {
@@ -63,20 +85,27 @@ public abstract class Predator extends Animal {
             }
             if (o instanceof Predator predator && isEnemyPredator(predator)) {
                 fight(predator, world);
-                // hvis fjenden døde i kampen, kan vi evt. spise ådslet i en senere tur
+                // if enemy died during fight, we can possibly eat the Carcass during a later tick
                 return;
             }
 
-            // 2) ellers: det er noget vi kan spise (Carcass, Rabbit, osv.)
+            // 2) or: there's something we can eat (Carcass, Rabbit, osv.)
             eat(world, targetLoc);
         } else {
-            // ellers: bevæg os ét skridt tættere på målet
+            // or: move one step closer to target
             moveOneStepTowards(world, targetLoc, getHuntMoveCost());
         }
     }
 
+    /**
+     * Small help method to find the nearest prey
+     * @param world
+     * @param area
+     * @param from
+     * @param matcher
+     * @return
+     */
 
-    // lille hjælpe-metode til at finde nærmeste bytte
     protected Location findClosestMatching(World world, Set<Location> area, Location from, Predicate<Object> matcher) {
 
         Location best = null;
@@ -87,7 +116,7 @@ public abstract class Predator extends Animal {
             if (o == null) continue;
             if (o == this) continue;
 
-            // her bruger vi det filter vi har fået
+            // here we use the filter we've gotten
             if (!matcher.test(o)) continue;
 
             int d = distance(from, loc);
@@ -100,11 +129,27 @@ public abstract class Predator extends Animal {
         return best;
     }
 
+    /**
+     * Find the closest enemy predator within a specified area.
+     * @param world
+     * @param area
+     * @param from
+     * @return
+     */
+
     protected Location findClosestEnemyPredator(World world, Set<Location> area, Location from) {
         return findClosestMatching(world, area, from, o ->
                 o instanceof Predator p && isEnemyPredator(p)
         );
     }
+
+    /**
+     * Find the closest carcass within a specified area.
+     * @param world
+     * @param area
+     * @param from
+     * @return
+     */
 
     protected Location findClosestCarcass(World world, Set<Location> area, Location from) {
         return findClosestMatching(world, area, from, o ->
@@ -112,12 +157,25 @@ public abstract class Predator extends Animal {
         );
     }
 
+    /**
+     * Find the closest prey within a specified area.
+     * @param world
+     * @param area
+     * @param from
+     * @return
+     */
+
     protected Location findClosestPrey(World world, Set<Location> area, Location from) {
         return findClosestMatching(world, area, from, o ->
                 o instanceof Animal && !(o instanceof Predator)
         );
     }
 
+    /**
+     * Engage in a fight with another predator.
+     * @param opponent the opposing predator.
+     * @param world the world in which the fight takes place.
+     */
 
     protected void fight(Predator opponent, World world) {
         int myDamage      = this.getAttackDamageAgainst(opponent);
@@ -134,18 +192,33 @@ public abstract class Predator extends Animal {
         }
     }
 
+    /**
+     * Get the base attack damage of the predator.
+     * @return
+     */
 
-    protected abstract int getAttackDamage();         // grund-damage
+    protected abstract int getAttackDamage();         // base-damage
+
+    /**
+     * Get the attack damage against a specific target.
+     * @param target
+     * @return
+     */
 
     public int getAttackDamageAgainst(Animal target) {
-        // standard: samme mod alle
+        // standard: same damage to all targets
         return getAttackDamage();
     }
 
+    /**
+     *  Kill the specified prey animal in the world. And insure if it dies and creates a Carcass,
+     *  the Predator can eat it afterwards.
+     * @param world
+     * @param prey
+     */
 
-    // KILL-ABSTRAKTION
     protected void kill(World world, Animal prey) {
-        prey.die(world); // hvis die() laver Carcass, kan rovdyr spise den bagefter
+        prey.die(world); // if die() creates a Carcass, Predators can eat() it afterwards
     }
 
 }

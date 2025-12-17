@@ -10,6 +10,11 @@ import itumulator.world.World;
 import java.awt.*;
 import java.util.Random;
 
+/**
+ * Carcass represents the remains of a dead animal in the simulation.
+ * It contains meat that can be eaten by other actors and can rot over time.
+ * If it has fungi, it will rot faster and may spawn fungi when it decays completely.
+ */
 public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private int meatLeft;
     private int maxMeat;
@@ -18,7 +23,14 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private Random random;
     private Fungi fungi; // til test
 
-    // HOVEDKONSTRUKTØR
+    /**
+     * Main constructor allowing control over all parameters.
+     *
+     * @param meatLeft  the amount of meat left on the carcass
+     * @param rotTimer  the time until the carcass rots completely
+     * @param hasFungi  whether the carcass is infected with fungi
+     * @param random    the Random instance to use for randomness
+     */
     public Carcass(int meatLeft, int rotTimer, boolean hasFungi, Random random) {
         this.meatLeft = meatLeft;
         this.rotTimer = rotTimer;
@@ -27,25 +39,43 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         this.random = random;
     }
 
-    // normal brug
+    /**  * Constructor for normal use without fungi.
+     *
+     * @param meatLeft the amount of meat left on the carcass
+     * @param rotTimer the time until the carcass rots completely
+     */
     public Carcass(int meatLeft, int rotTimer) {
         this(meatLeft, rotTimer, false, new Random());
     }
 
-    // carcass med svamp (fx fra inputfil)
+    /**  * Constructor for normal use with option for fungi.
+     *
+     * @param meatLeft the amount of meat left on the carcass
+     * @param rotTimer the time until the carcass rots completely
+     * @param hasFungi whether the carcass is infected with fungi
+     */
     public Carcass(int meatLeft, int rotTimer, boolean hasFungi) {
         this(meatLeft, rotTimer, hasFungi, new Random());
     }
 
-    // konstruktør til tests
+    /**  * Constructor for test use, allowing control over randomness.
+     *
+     * @param random
+     */
     public Carcass(Random random) {
         this(10, 10, false, random); // testværdier
     }
 
+    /**
+     * The act method is called each tick to update the state of the carcass.
+     * It decreases the rot timer, attempts to spawn fungi, and handles decay.
+     *
+     * @param world the world in which the carcass exists
+     */
     @Override
     public void act(World world) {
         if (hasFungi) {
-            rotTimer--; // hvis der er svampe, så forrådner ådslet hurtigere
+            rotTimer--;
         }
         rotTimer--;
         trySpawnFungi();
@@ -53,40 +83,34 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         if (rotTimer <= 0 || meatLeft <= 0) {
             Location myLoc = world.getLocation(this);
 
-            // gemmer om der var svamp, før vi sletter ådslet
             boolean spawnFungi = hasFungi;
 
-            // ådslet forsvinder altid
             world.delete(this);
 
-            // hvis ingen svamp → færdig
-            if (!spawnFungi || myLoc == null) {
+            if (!spawnFungi /*|| myLoc == null*/) {
                 return;
             }
 
-            // tjek hvad der står som non-blocking på feltet
             Object nb = world.getNonBlocking(myLoc);
 
             if (nb == null) {
-                // ingen non-blocking → bare placer svamp
                 world.setTile(myLoc, new Fungi(calculateFungiLifespan()));
 
             } else if (nb instanceof Grass) {
-                // må gerne overskrive grass
                 world.delete(nb);
                 world.setTile(myLoc, new Fungi(calculateFungiLifespan()));
 
             } else {
-                // fx Burrow eller noget andet non-blocking → gør ingenting
-                // (ingen svamp på kortet, men logikken er stadig ok)
+                // cannot spawn fungi on Bush, Burrow or Den
             }
         }
     }
 
+    /**  * Attempts to spawn fungi on the carcass with a certain probability.
+     */
     public void trySpawnFungi() {
-        if (hasFungi) return; // hvis der allerede er en fungi, så gør intet
+        if (hasFungi) return;
 
-        // 5% chance per tick for at spawne en fungi
         double chance = 0.05;
 
         if (random.nextDouble() < chance) {
@@ -94,13 +118,19 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
+    /**  * Infects the carcass with fungi if it is not already infected.
+     */
     public void infectWithFungi() {
         if (hasFungi) {
-            return; // allerede inficeret
+            return;
         }
         hasFungi = true;
     }
 
+    /**  * Reduces the amount of meat left on the carcass by the specified amount.
+     *
+     * @param amount the amount of meat to be eaten
+     */
     public void eaten(int amount) {
         meatLeft -= amount;
         if (meatLeft <= 0) {
@@ -108,28 +138,32 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
+    /**  * Gets the amount of meat left on the carcass.
+     *
+     * @return the amount of meat left
+     */
     public int getMeatLeft() {
         return meatLeft;
     }
 
-    public void setFungi(Fungi f) {
-        this.fungi = f;
-    }
-
-    public Fungi getFungi() {
-        return this.fungi;
-    }
-
+    /**  * Calculates the lifespan of fungi spawned from this carcass.
+     *
+     * @return the lifespan of the fungi
+     */
     public int calculateFungiLifespan() {
         return maxMeat * 2;
     }
 
+    /**  * Provides display information for the carcass based on the amount of meat left.
+     *
+     * @return the display information for the carcass
+     */
     @Override
     public DisplayInformation getInformation() {
         if (getMeatLeft() >= 50) {
-            return new DisplayInformation(Color.GRAY, "carcass");
+            return new DisplayInformation(Color.BLACK, "carcass");
         } else if (getMeatLeft() >= 0 && getMeatLeft() < 50) {
-            return new DisplayInformation(Color.GRAY, "carcass-small");
+            return new DisplayInformation(Color.BLACK, "carcass-small");
         } else {
             return null;
         }

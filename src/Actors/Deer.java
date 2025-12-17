@@ -7,10 +7,20 @@ import itumulator.world.World;
 
 import java.awt.*;
 import java.util.Set;
+
+/**
+ * Deer represents a herbivorous animal that lives in herds.
+ * It has behaviors for fleeing from predators and staying with its herd.
+ */
 public class Deer extends Herbivore {
+    private Location territoryCenter;
     private Herd herd;
     private boolean isFleeing;
 
+    /** Constructor for Deer for test.
+     *
+     * @param herd the herd to which the deer belongs
+     */
     public Deer(Herd herd) {
         super(300);
         this.herd = herd;
@@ -21,7 +31,27 @@ public class Deer extends Herbivore {
         }
     }
 
-    // shelter = pack home (Location), så vi override'r
+    /** Constructor for Deer with specified territory center.
+     *
+     * @param herd the herd to which the deer belongs
+     * @param territoryCenter the center location of the deer's territory
+     */
+    public Deer(Herd herd, Location territoryCenter) {
+        super(300);
+        this.herd = herd;
+        this.isFleeing = false;
+        this.territoryCenter = territoryCenter;
+        this.shelter = territoryCenter;
+
+        if (herd != null) {
+            herd.addMember(this);
+        }
+    }
+
+    /** Seek shelter at the herd's home location.
+     *
+     * @param world the world in which the deer exists
+     */
     @Override
     public void seekShelter(World world) {
         if (herd == null) return;
@@ -32,9 +62,12 @@ public class Deer extends Herbivore {
 
     // ----------- ACT -----------
 
+    /** Deer act: flee from predators, else normal herbivore behavior
+     *
+     * @param world the world in which the deer acts
+     */
     @Override
     public void act(World world) {
-        // vigtig sikkerhed (undgår "Object does not exist in the world")
         Location myLoc;
         try {
             myLoc = world.getLocation(this);
@@ -43,45 +76,28 @@ public class Deer extends Herbivore {
         }
         if (myLoc == null) return;
 
-        // hvis jeg er leader og pack.home ikke er sat endnu => sæt den én gang
+        if (!isAlive) return;
+
         if (herd != null && herd.getHome() == null && herd.getLeader() == this) {
-            herd.setHome(myLoc); // leaderens startposition
+            herd.setHome(myLoc);
         }
 
-        // rovdyr i nærheden?
         Location predatorLoc = findNearbyPredator(world, myLoc, 2);
         if (predatorLoc != null) {
             isFleeing = true;
             flee(world, myLoc, predatorLoc);
             alertNearbyDeer(world, myLoc, predatorLoc, 2);
-            return; // flygt bruger hele turen
+            return;
         }
 
         isFleeing = false;
-        // normal herbivore adfærd (move + eat + shelter logic)
         super.act(world);
     }
 
-    /*private void seekPack(World world) {
-        if (pack == null) return;
-
-        Deer leader = pack.getLeader();
-        if (leader == null || leader == this) return;
-
-        Location leaderLoc;
-        try {
-            leaderLoc = world.getLocation(leader);
-        } catch (IllegalArgumentException e) {
-            return;
-        }
-        if (leaderLoc == null) return;
-
-        moveOneStepTowards(world, leaderLoc);
-    }*/
-
     /** Deer dag: hold sammen med flokken (ellers random + spis) */
     @Override
-    protected void dayBehaviour(World world) {
+    public void dayBehaviour(World world) {
+        super.dayBehaviour(world);
         if (herd != null) {
             Deer leader = herd.getLeader();
 
@@ -99,31 +115,29 @@ public class Deer extends Herbivore {
                 if (myLoc != null && leaderLoc != null) {
                     int dist = distance(myLoc, leaderLoc);
 
-                    // Hvis for langt væk → saml flokken
+
                     if (dist > 3) {
                         moveOneStepTowards(world, leaderLoc);
-                        return; // brug hele turen på at følge lederen
+                        return;
                     }
                 }
             }
         }
 
-        // Ellers: normal planteæder-adfærd
         Location moveTo = moveRandomly(world);
         if (moveTo != null && isHungry()) {
             eat(world, moveTo);
         }
     }
 
-
-
-    /** Deer nat: gå mod home og sov når man er fremme */
+    /** Deer night: go towards home and sleep when reached location*/
     @Override
-    protected void nightBehaviour(World world) {
-        // hvis vi har home -> søg shelter (home) i natten også (valgfrit)
-        // eller bare sov hvis du vil
+    public void nightBehaviour(World world) {
+        super.nightBehaviour(world);
+        // if we have home -> seek shelter (home) during night as well (optional)
+        // or just sleep if you want
         seekShelter(world);
-        // hvis du vil "kun sove når fremme", kan du tjekke distance:
+        // if you want "only sleep when reached location", you can check distance:
         Location myLoc;
         try { myLoc = world.getLocation(this); }
         catch (IllegalArgumentException e) { return; }
@@ -134,8 +148,35 @@ public class Deer extends Herbivore {
         }
     }
 
+    @Override
+    protected void handleSleepLocation(World world) {
+        Location deerLoc = world.getLocation(this);
+
+        if (deerLoc.equals(territoryCenter) || distance(deerLoc, territoryCenter) <= 1) {
+            isSleeping = true;
+            energy += 50;
+        } else {
+            if (world.isTileEmpty(territoryCenter)) {
+                moveOneStepTowards(world, territoryCenter);
+            } else {
+                Set<Location> neighbors = world.getEmptySurroundingTiles(territoryCenter);
+                if (!neighbors.isEmpty()) {
+                    Location spot = neighbors.iterator().next();
+                    moveOneStepTowards(world, spot);
+                }
+            }
+        }
+    }
+
     // ----------- FLEEING -----------
 
+    /** Find nearby predator within a given radius.
+     *
+     * @param world the world to search in
+     * @param from the location to search from
+     * @param radius the search radius
+     * @return the location of a nearby predator, or null if none found
+     */
     private Location findNearbyPredator(World world, Location from, int radius) {
         for (Location loc : world.getSurroundingTiles(from, radius)) {
             Object o = world.getTile(loc);
@@ -146,6 +187,12 @@ public class Deer extends Herbivore {
         return null;
     }
 
+    /** Flee from a predator by moving to the farthest empty tile.
+     *
+     * @param world the world in which the deer exists
+     * @param myLoc the current location of the deer
+     * @param predatorLoc the location of the predator
+     */
     private void flee(World world, Location myLoc, Location predatorLoc) {
         Set<Location> empty = world.getEmptySurroundingTiles(myLoc);
         if (empty.isEmpty()) return;
@@ -167,6 +214,13 @@ public class Deer extends Herbivore {
         }
     }
 
+    /** Alert nearby deer to flee as well.
+     *
+     * @param world the world in which the deer exists
+     * @param myLoc the current location of this deer
+     * @param predatorLoc the location of the predator
+     * @param radius the radius to alert other deer
+     */
     private void alertNearbyDeer(World world, Location myLoc, Location predatorLoc, int radius) {
         for (Location loc : world.getSurroundingTiles(myLoc, radius)) {
             Object o = world.getTile(loc);
@@ -188,19 +242,19 @@ public class Deer extends Herbivore {
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
-    public void setPack(Herd herd) {
-        this.herd = herd;
-    }
-
-    public Herd getHerd() {
-        return herd;
-    }
-
+    /** Get the meat value provided by the deer when it dies.
+     *
+     * @return the meat value
+     */
     @Override
     protected int getMeatValue() {
-        return 70; // eksempel
+        return 70;
     }
 
+    /** Get display information for the deer based on its state.
+     *
+     * @return display information including color and image
+     */
     @Override
     public DisplayInformation getInformation() {
         if (isChild()) {
