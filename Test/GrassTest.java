@@ -22,6 +22,11 @@ class GrassTest {
         w10 = null;
     }
 
+    /** Test that Bush spreads with correct probability - as the spreading probability per tick is 5% for bush
+     * (should spread to a neighbouring tile approx. 5% of the time over 100 trials)
+     * we have a higher than 5 assertvalue to ensure a margin for error).
+     */
+
     @Test
     public void GrassIsSpreadingWithCorrectProbability() {
         int count = 0;
@@ -51,6 +56,9 @@ class GrassTest {
         assertTrue( count <= 12);
     }
 
+    /** Test that Grass spreads to all neighbouring tiles when Random is forced to always spread.
+     */
+
     @Test
     public void GrassIsSpreadingToAllNeighbouringTiles() {
         Random alwaysSpread = new Random() {
@@ -67,9 +75,8 @@ class GrassTest {
         w10.setCurrentLocation(l);
         w10.setTile(l, g);
 
-        g.act(w10);
+        g.spread(w10);
 
-        // assert: der er græs på ALLE nabofelter
         for (Location n : neighbours) {
             assertTrue(w10.containsNonBlocking(n));
             assertInstanceOf(Grass.class, w10.getNonBlocking(n));

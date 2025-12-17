@@ -13,7 +13,7 @@ import java.util.Set;
  * which are used by the Simulator itself.
  * World contains a landscape / 'map' (a three-dimensional array) wherein
  * objects
- * can be placed. The world class / object provides abstractions for
+ * can be placed. The World class / object provides abstractions for
  * manipulating this.
  * Furthermore, World can contain objects not currently existing on the map,
  * e.g., when objects are not visible. This is primarily used by the simulator

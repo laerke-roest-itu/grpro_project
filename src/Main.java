@@ -9,11 +9,18 @@ import java.io.InputStream;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * Main class for the ITUmulator simulation program.
+ * It reads an input file to set up the world with various objects and starts the simulation.
+ *
+ * A ClassLoader is used to load the input file from the resources, instead of a FileReader to keep the project self-contained.
+ */
+
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         InputStream is = Main.class
                 .getClassLoader()
-                .getResourceAsStream("input_files/tf4-MAX_Integer.txt");
+                .getResourceAsStream("input_files/tf4-MAX-test.txt");
 
         if (is == null) {
             throw new FileNotFoundException("Inputfil ikke fundet");
@@ -22,24 +29,24 @@ public class Main {
         Scanner scanner = new Scanner(is);
 
 
-        // Random bruges senere til både antal (ved min-max) og tilfældige positioner
+        // Random used in later in both amount (in min-max) or random positions of actors
         Random random = new Random();
 
-        // Første tal i filen: verdens størrelse N
+        // First number in the file; size of the World N
         int size = scanner.nextInt();
 
-        // Konstante parametre til programmet (kan justeres efter behov)
+        // Constant parameters for the program (adjustable as needed) initialized starting values.
         int delay = 1000;
         int display_size = 800;
 
         Location territoryCenter = null;
 
-        // Opret ITUmulator-programmet med den læste størrelse
+        // Create ITUmulator-program with the read size
         Program program = new Program(size, display_size, delay);
-        // Hent verden (World) ud af programmet – det er her vi placerer objekter
+        // Get world (World) out of the program - this is where we place objects
         World world = program.getWorld();
 
-        // Læs resten af filen linje for linje (egentlig token for token)
+        // read the rest of the file line by line (really token by token)
         while (scanner.hasNext()) {
 
             String type = scanner.next();
@@ -48,7 +55,7 @@ public class Main {
             int count;
 
             // ─────────────────────────────────────
-            // 1) ANTAL (fast eller min-max)
+            // 1) AMOUNT (static or min-max)
             // ─────────────────────────────────────
             if (amount.contains("-")) {
                 String[] parts = amount.split("-");
@@ -66,22 +73,26 @@ public class Main {
                     String[] p = coords.split(",");
                     territoryCenter = new Location(Integer.parseInt(p[0]), Integer.parseInt(p[1]));
                 } else if (territoryCenter == null) {
-                    // hvis ingen center er sat endnu, vælg et tilfældigt
+                    // if no center is put, choose randomly
                     territoryCenter = new Location(random.nextInt(size), random.nextInt(size));
                 }
             }
 
+            if (type.equals("deer")) {
+                territoryCenter = new Location(random.nextInt(size), random.nextInt(size));
+            }
+
             // ─────────────────────────────────────
-            // 2) EKSTRA FLAGS PR. LINJE
+            // 2) EXTRA FLAGS PER LINE
             // ─────────────────────────────────────
             boolean carcassHasFungi = false;
 
             if (type.equals("carcass") && scanner.hasNext("fungi")) {
-                scanner.next();           // spis token "fungi"
+                scanner.next();           // eat token "fungi"
                 carcassHasFungi = true;
             }
 
-            // ÉN pack pr. linje
+            // ONE pack pr. linje
             Pack wolfPack = null;
             Herd deerHerd = null;
 
@@ -93,7 +104,7 @@ public class Main {
             }
 
             // ─────────────────────────────────────
-            // 3) SPAWN count OBJEKTER
+            // 3) SPAWN count OBJECTS
             // ─────────────────────────────────────
             for (int i = 0; i < count; i++) {
 
@@ -136,36 +147,24 @@ public class Main {
                     }
 
                     case "deer" -> {
-                        Deer deer = new Deer(deerHerd);
+                        Deer deer = new Deer(deerHerd, territoryCenter);
                         world.setTile(l, deer);
 
-                        // første hjort = leader → home
+                        // first deer = leader → home
                         if (i == 0) deerHerd.setHome(l);
                     }
 
                     default -> {
-                        // ukendt type i inputfilen → ignorer eller print
+                        // unknown type in inputfile → ignore or print
                         System.out.println("Ukendt type: " + type);
                     }
                 }
             }
         }
 
-        //int size = 5;
-            //Program p = new Program(size, 800, 75);
-
-            //World w = p.getWorld();
-
-            // w.setTile(new Location(0, 0), new <MyClass>());
-
-            // p.setDisplayInformation(<MyClass>.class, new DisplayInformation(<Color>, "<ImageName>"));
-
-            //p.show();
-
-
         scanner.close();
 
-// Start simulationen (GUI)
+// Start simulation (GUI)
         program.show();
             for (int i = 0; i < 200; i++) {
             program.simulate();

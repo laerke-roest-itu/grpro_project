@@ -2,16 +2,15 @@ package Inanimate;
 
 import Actors.Carcass;
 import itumulator.executable.DisplayInformation;
-import itumulator.executable.DynamicDisplayInformationProvider;
-import itumulator.simulator.Actor;
 import itumulator.world.Location;
-import itumulator.world.NonBlocking;
 import itumulator.world.World;
-import java.util.Random;
-
 import java.awt.*;
 import java.util.Set;
 
+/**
+ * Fungi represents a fungal growth in the world that can infect nearby carcasses.
+ * It has a limited lifespan and will spread its infection to carcasses within a certain radius.
+ */
 public class Fungi extends Landscape {
     private int lifespan;
 
@@ -19,11 +18,16 @@ public class Fungi extends Landscape {
         this.lifespan = lifespan;
     }
 
+    /**
+     * Each act cycle decreases the lifespan of the fungi.
+     * If the lifespan reaches zero, the fungi is removed from the world.
+     * The fungi attempt to infect nearby carcasses within its infection radius.
+     */
     @Override
     public void act(World world) {
         lifespan--;
         if (lifespan <= 0) {
-            world.delete(this); // svampen dør
+            world.delete(this);
             return;
         }
 
@@ -32,26 +36,42 @@ public class Fungi extends Landscape {
         for (Location tileInRadius : tilesInInfectionRadius) {
             Object o = world.getTile(tileInRadius);
             if (o instanceof Carcass carcass) {
-                infectNearbyCarcass(tileInRadius, world, carcass);
+                infectNearbyCarcass(carcass);
             }
         }
     }
 
-    public void infectNearbyCarcass(Location loc, World world, Carcass carcass) {
+    /**
+     * Infects the given carcass with fungi.
+     *
+     * @param carcass the carcass to infect
+     */
+    public void infectNearbyCarcass(Carcass carcass) {
         carcass.infectWithFungi();
     }
 
+    /**
+     * Fungi do not spread on their own, so spreadChance returns 0.
+     */
     @Override
     protected int spreadChance() {
         return 0;
     }
 
+    /**
+     * Fungi do not create new instances of themselves.
+     */
     @Override
     public Landscape createNewInstance() {
-        return new Fungi(this.lifespan); // eller en standardværdi
+        return null;
     }
 
-
+    /**
+     * Returns the set of locations within the infection radius of the fungi.
+     *
+     * @param world the world in which the fungi exist
+     * @return set of locations within the infection radius
+     */
     public Set<Location> getInfectionArea(World world) {
         int radius = 2;
         Location here = getFungiLocation(world);
@@ -59,20 +79,36 @@ public class Fungi extends Landscape {
         return world.getSurroundingTiles(here, radius);
     }
 
+    /**
+     * Returns the current location of the fungi in the world.
+     *
+     * @param world the world in which the fungi exist
+     * @return the location of the fungi
+     */
     public Location getFungiLocation(World world) {
         return world.getLocation(this);
     }
 
+    /**
+     * Returns the current lifespan of the fungi.
+     *
+     * @return the lifespan of the fungi
+     */
     public int getLifespan() {
         return lifespan;
     }
 
+    /**
+     * Provides display information for the fungi based on its lifespan.
+     *
+     * @return DisplayInformation with color and icon for the fungi
+     */
     @Override
     public DisplayInformation getInformation() {
         if (lifespan >= 30) {
-            return new DisplayInformation(Color.DARK_GRAY, "fungi");
+            return new DisplayInformation(Color.ORANGE, "fungi");
         } else {
-            return new DisplayInformation(Color.LIGHT_GRAY, "fungi-small");
+            return new DisplayInformation(Color.ORANGE, "fungi-small");
         }
     }
 

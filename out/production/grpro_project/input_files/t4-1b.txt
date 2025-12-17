@@ -1,0 +1,4 @@
+10
+deer 2
+grass 4
+bush 2
