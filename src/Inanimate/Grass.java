@@ -19,6 +19,7 @@ public class Grass extends Landscape {
      */
     public Grass(Random random) {
         super();
+        this.random = random;
     }
 
     /** Returns the chance of the grass spreading.
