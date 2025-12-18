@@ -1,4 +1,4 @@
-50
+12
 bear 3
 grass 10-15
 rabbit 5-7

@@ -102,7 +102,7 @@ public abstract class Herbivore extends Animal {
                     }
                 }
             }
-            if (nearest != null) break; // Found something in the smallest radius possible
+            if (nearest != null) break;
         }
         return nearest;
     }

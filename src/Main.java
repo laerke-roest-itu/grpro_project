@@ -22,7 +22,7 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
 
         InputStream is = Main.class.getClassLoader()
-                .getResourceAsStream("input_files/tf4-MAX-test.txt");
+                .getResourceAsStream("input_files/tf4-MAX_Integer.txt");
         if (is == null) throw new FileNotFoundException("Inputfil ikke fundet");
 
         Scanner sc = new Scanner(is);
