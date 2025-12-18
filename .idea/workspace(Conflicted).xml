@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dd8cc120-e46e-4943-b239-a4fece36adb6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Test/BushTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/BushTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/CarcassTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/CarcassTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/DeerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/DeerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/FungiTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/FungiTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/GrassTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/GrassTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/RabbitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/RabbitTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/WolfTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/WolfTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Animal.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Animal.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Bear.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Bear.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Carcass.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Carcass.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Deer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Deer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Herbivore.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Herbivore.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Predator.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Predator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Rabbit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Rabbit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Actors/Wolf.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Actors/Wolf.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Burrow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Burrow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Fungi.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Fungi.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Group.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Group.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Landscape.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Inanimate/Landscape.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/input_files/_deer.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/input_files/_deer.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/grpro_project/input_files/tf4-MAX-test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/grpro_project/input_files/tf4-MAX-test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/BearTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/BearTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/BushTest$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/BushTest$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/BushTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/BushTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/CarcassTest$FixedRandom.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/CarcassTest$FixedRandom.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/CarcassTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/CarcassTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/DeerTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/DeerTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/FungiTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/FungiTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/grpro_project/WolfTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/grpro_project/WolfTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/input_files/_deer.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/input_files/_deer.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/input_files/tf4-MAX-test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/resources/input_files/tf4-MAX-test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Animal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Animal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Bear.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Bear.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Carcass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Carcass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Deer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Deer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Herbivore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Herbivore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Predator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Predator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Rabbit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Rabbit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Actors/Wolf.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Actors/Wolf.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Inanimate/Burrow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Inanimate/Burrow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Inanimate/Bush.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Inanimate/Bush.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Inanimate/Fungi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Inanimate/Fungi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Inanimate/Group.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Inanimate/Group.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Inanimate/Landscape.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Inanimate/Landscape.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+    </list>
+    <list id="4319d675-7482-48ac-a8fd-189b31179a8e" name="Changes by asbjo" comment="">
+      <change beforePath="$PROJECT_DIR$/Test/BearTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/BearTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/BushTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/BushTest.java" afterDir="false" />
+    </list>
+    <list id="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" name="Changes by jttae" comment="">
+      <change beforePath="$PROJECT_DIR$/Test/BushTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/Test/BushTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="258" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/Test/BushTest.java">
+      <ranges>
+        <range start1="1" end1="1" start2="1" end2="2" changelist="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" />
+        <range start1="2" end1="2" start2="3" end2="4" changelist="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" />
+        <range start1="15" end1="15" start2="17" end2="30" changelist="4319d675-7482-48ac-a8fd-189b31179a8e" />
+        <range start1="124" end1="124" start2="139" end2="140" changelist="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" />
+        <range start1="130" end1="131" start2="146" end2="147" changelist="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" />
+        <range start1="133" end1="134" start2="149" end2="151" changelist="d2acd757-f1f5-4c05-bca4-36aa4fc8766c" />
+        <range start1="135" end1="136" start2="152" end2="152" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="137" end1="138" start2="153" end2="154" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="141" end1="144" start2="157" end2="160" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="150" end1="151" start2="166" end2="167" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="152" end1="152" start2="168" end2="169" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="153" end1="154" start2="170" end2="171" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="155" end1="157" start2="172" end2="173" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="158" end1="159" start2="174" end2="174" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+        <range start1="163" end1="165" start2="178" end2="180" changelist="dd8cc120-e46e-4943-b239-a4fece36adb6" />
+      </ranges>
+    </file>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="35v14zvsx8MKbtLYwUeKVopyiU7" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
+    "JUnit.BearTest.bearLosesEnergyWhenActing_and_movesTowardsTerritoryCenter.executor": "Run",
+    "JUnit.BearTest.executor": "Run",
+    "JUnit.BearTest2.executor": "Run",
+    "JUnit.BushTest.executor": "Run",
+    "JUnit.CarcassTest.executor": "Run",
+    "JUnit.DeerTest.deerDoesNotCrashWhenTerritoryCenterIsNull.executor": "Run",
+    "JUnit.DeerTest.deerEatsGrassAndGainsEnergy.executor": "Run",
+    "JUnit.DeerTest.deerEatsGrassAtDistance2.executor": "Run",
+    "JUnit.DeerTest.deerIsSleepingAtNight.executor": "Run",
+    "JUnit.DeerTest.deerSleepsEvenIfFarFromHomeAtNight.executor": "Run",
+    "JUnit.DeerTest.executor": "Run",
+    "JUnit.DeerTest.reproductionStressTest.executor": "Run",
+    "JUnit.DeerTest.soloDeerPopulationGrowth.executor": "Run",
+    "JUnit.FungiTest.executor": "Run",
+    "JUnit.FungiTest.testFungiHiddenInCarcass.executor": "Run",
+    "JUnit.FungiTest.testFungiInfectingNearbyCarcass.executor": "Run",
+    "JUnit.GrassTest.GrassIsSpreadingToAllNeighbouringTiles.executor": "Run",
+    "JUnit.GrassTest.executor": "Run",
+    "JUnit.RabbitTest.executor": "Run",
+    "JUnit.RabbitTest.rabbitShouldReproduceInBurrow.executor": "Run",
+    "JUnit.RabbitTest.rabbitShouldSeekBurrowAtDusk.executor": "Run",
+    "JUnit.WolfTest.executor": "Run",
+    "JUnit.WolfTest.packDoesNotDeadlockLeader.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "code-with-me-3",
+    "ignore.preview.features.used": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "/Users/laerkeroest/Onlime Sync/ITU/Projekter/grpro_project/src/Actors",
+    "last_opened_file_path": "/Users/laerkeroest/Onlime Sync/ITU/Projekter/grpro_project/resources/input_files",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="" />
+      <recent name="Den" />
+      <recent name="Pack" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/input_files" />
+      <recent name="$PROJECT_DIR$/resources/images" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="Actors" />
+      <recent name="Inanimate" />
+      <recent name="" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.RabbitTest">
+    <configuration name="CarcassTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="grpro_project" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="CarcassTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DeerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="grpro_project" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="DeerTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="FungiTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="grpro_project" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="FungiTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GrassTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="grpro_project" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="GrassTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RabbitTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="grpro_project" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="RabbitTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.RabbitTest" />
+        <item itemvalue="JUnit.GrassTest" />
+        <item itemvalue="JUnit.FungiTest" />
+        <item itemvalue="JUnit.DeerTest" />
+        <item itemvalue="JUnit.CarcassTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-cffe25b9f5b3-intellij.indexing.shared.core-IU-253.28294.334" />
+        <option value="bundled-js-predefined-d6986cc7102b-c7e53b3be11b-JavaScript-IU-253.28294.334" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dd8cc120-e46e-4943-b239-a4fece36adb6" name="Changes" comment="" />
+      <created>1763975543720</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1763975543720</updated>
+      <workItem from="1763975552693" duration="434000" />
+      <workItem from="1763976130544" duration="28665000" />
+      <workItem from="1764067305520" duration="4321000" />
+      <workItem from="1764073039082" duration="3529000" />
+      <workItem from="1764077409876" duration="372000" />
+      <workItem from="1764078322210" duration="1842000" />
+      <workItem from="1764241319866" duration="12892000" />
+      <workItem from="1764315223523" duration="8858000" />
+      <workItem from="1764589151535" duration="104000" />
+      <workItem from="1764589258385" duration="19527000" />
+      <workItem from="1764786301878" duration="7646000" />
+      <workItem from="1764838164905" duration="14280000" />
+      <workItem from="1764860617546" duration="2202000" />
+      <workItem from="1764875390552" duration="68000" />
+      <workItem from="1764875701596" duration="1927000" />
+      <workItem from="1765185825607" duration="52000" />
+      <workItem from="1765185974619" duration="6431000" />
+      <workItem from="1765192571237" duration="237000" />
+      <workItem from="1765192822553" duration="188000" />
+      <workItem from="1765193019222" duration="1026000" />
+      <workItem from="1765194051816" duration="2289000" />
+      <workItem from="1765196353331" duration="7029000" />
+      <workItem from="1765269721352" duration="12193000" />
+      <workItem from="1765533284001" duration="6213000" />
+      <workItem from="1765540635485" duration="9033000" />
+      <workItem from="1765705646899" duration="628000" />
+      <workItem from="1765706291385" duration="12081000" />
+      <workItem from="1765725361461" duration="49000" />
+      <workItem from="1765792527816" duration="10363000" />
+      <workItem from="1765963082631" duration="20599000" />
+      <workItem from="1765983893712" duration="698000" />
+      <workItem from="1765985656235" duration="17647000" />
+      <workItem from="1766049381654" duration="6946000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="f4ba7132-8924-477c-93a1-542c072f84af" value="TOOL_WINDOW" />
+        <entry key="36001369-d809-4a8d-a281-37e0134c6b89" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="36001369-d809-4a8d-a281-37e0134c6b89">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="f4ba7132-8924-477c-93a1-542c072f84af">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/src/itumulator/simulator/Simulator.java</url>
+          <line>17</line>
+          <properties field="steps" class="itumulator.simulator.Simulator" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.IllegalArgumentException" package="java.lang" />
+          <option name="timeStamp" value="5" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

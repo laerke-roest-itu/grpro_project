@@ -9,24 +9,35 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The GrassTest class verifies the core behavioral logic of the {@link Grass} actor
+ * within a simulated {@link World}.
+ * The tests ensure that a Grass interacts correctly with its environment,
+ * specifically its ability to spread to adjacent tiles based on a defined probability.
+ */
 class GrassTest {
     World w10;
 
+    /**
+     * Sets up the world before each test.
+     */
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         w10 = new World(10);
     }
 
+    /**
+     * Cleans up the world after each test.
+     */
     @org.junit.jupiter.api.AfterEach
     void tearDown() {
         w10 = null;
     }
 
-    /** Test that Bush spreads with correct probability - as the spreading probability per tick is 5% for bush
+    /**
+     * Test that Grass spreads with correct probability.
      * (should spread to a neighbouring tile approx. 5% of the time over 100 trials)
-     * we have a higher than 5 assertvalue to ensure a margin for error).
      */
-
     @Test
     public void GrassIsSpreadingWithCorrectProbability() {
         int count = 0;
@@ -56,15 +67,15 @@ class GrassTest {
         assertTrue( count <= 12);
     }
 
-    /** Test that Grass spreads to all neighbouring tiles when Random is forced to always spread.
+    /**
+     * Test that Grass spreads to all neighbouring tiles when Random is forced to always spread.
      */
-
     @Test
     public void GrassIsSpreadingToAllNeighbouringTiles() {
         Random alwaysSpread = new Random() {
             @Override
             public int nextInt(int bound) {
-                return 0; // tvinger spredning
+                return 0;
             }
         };
 

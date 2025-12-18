@@ -9,11 +9,29 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The BearTest class verifies the core behavioral logic of the {@link Bear} actor
+ * within a simulated {@link World}.
+ *
+ * The tests ensure that a Bear interacts correctly with its environment,
+ * including movement relative to its territory center, energy consumption
+ * during actions, and interactions with other entities such as
+ * {@link Carcass}, {@link Bush}, and {@link Wolf}.
+ *
+ * The class focuses on validating observable effects of the Bear's
+ * {@code act(World)} behavior rather than internal implementation details.
+ */
+
 class BearTest {
 
     World world;
     Bear bear;
     Location center;
+
+    /**
+     * The {@code @BeforeEach} and {@code @AfterEach} methods set up and tear down
+     * the world state used by each Bear test as part of the JUnit test lifecycle.
+     */
 
     @BeforeEach
     void setUp() {
@@ -31,6 +49,10 @@ class BearTest {
         bear = null;
     }
 
+    /**
+     * Test that a bear loses energy when acting and moves towards its assigned territory center
+     * if it is currently outside of it.
+     */
     @Test
     void bearLosesEnergyWhenActing_and_movesTowardsTerritoryCenter() {
         world.delete(bear);
@@ -46,6 +68,9 @@ class BearTest {
         assertTrue(bear.isInsideTerritory(world.getLocation(bear)));
     }
 
+    /**
+     * Test that a bear can eat from a carcass and gain energy.
+     */
     @Test
     void bearEatsCarcassAndGainsEnergy() {
         Location carcassLoc = new Location(5, 6);
@@ -58,6 +83,9 @@ class BearTest {
         assertTrue(bear.getEnergy() > 20);
     }
 
+    /**
+     * Test that a bear can eat berries from a bush and gain energy.
+     */
     @Test
     void bearEatsBushBerries() {
         Location bushLoc = new Location(6, 5);
@@ -73,6 +101,9 @@ class BearTest {
         assertTrue(bear.getEnergy() > 10);
     }
 
+    /**
+     * Test that a bear damages a wolf when they fight, decreasing the wolf's energy or killing it.
+     */
     @Test
     void bearFightsWolf() {
         Location wolfLoc = new Location(5, 6);

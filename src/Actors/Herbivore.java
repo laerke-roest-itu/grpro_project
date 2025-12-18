@@ -4,6 +4,7 @@ import Inanimate.*;
 import itumulator.executable.DisplayInformation;
 import itumulator.world.Location;
 import itumulator.world.World;
+import java.util.Set;
 
 /**
  * An abstract class representing a herbivorous animal.
@@ -21,36 +22,102 @@ public abstract class Herbivore extends Animal {
 
     // ----------- ACT -----------
 
-    /** Daytime - move randomly and eat if hungry
-     *
-     *@param world the world in which the herbivore exists
-     */
-    public void dayBehaviour(World world) {
-        Location moveTo = moveRandomly(world);
-        if (moveTo != null && isHungry()) {
-            eat(world, moveTo);
-        }
-    }
-
-    /** Nighttime - sleep if in shelter, else lose energy
+    /**
+     * Defines the behavior of the herbivore during the day.
+     * The herbivore moves randomly and eats if it is hungry and food is available on its tile or nearby.
      *
      * @param world the world in which the herbivore exists
      */
+    @Override
+    public void dayBehaviour(World world) {
+        Location myLoc = world.getLocation(this);
+        if (myLoc == null) return;
+
+        Object onTile = world.getNonBlocking(myLoc);
+        if (isHungry() && canEat(onTile)) {
+            eat(world, myLoc);
+        }
+
+        if (isHungry()) {
+            Location nearestFood = findNearestFood(world, myLoc, 2);
+            if (nearestFood != null) {
+                if (distance(myLoc, nearestFood) == 1 && world.isTileEmpty(nearestFood)) {
+                    world.move(this, nearestFood);
+                    energy -= 5;
+                    eat(world, nearestFood);
+                } else {
+                    moveOneStepTowards(world, nearestFood);
+                }
+                return;
+            }
+        }
+        moveRandomly(world);
+    }
+
+    /**
+     * Defines the behavior of the herbivore during the night.
+     * The herbivore sleeps if it is in or near its shelter, otherwise it loses energy.
+     *
+     * @param world the world in which the herbivore exists
+     */
+    @Override
     public void nightBehaviour(World world) {
-        if (hasShelter()) sleep(world);
-        else energy -= 5;
+        if (hasShelter()) {
+            Location myLoc = world.getLocation(this);
+            Location shelterLoc = null;
+            try {
+                shelterLoc = world.getLocation(shelter);
+            } catch (IllegalArgumentException e) {
+            }
+
+            if (myLoc != null && shelterLoc != null && distance(myLoc, shelterLoc) <= 1) {
+                sleep(world);
+            }
+        } else {
+            energy -= 5;
+        }
+    }
+
+    /**
+     * Finds the nearest food within the given radius.
+     *
+     * @param world  the world to search in
+     * @param myLoc  the current location of the herbivore
+     * @param radius the search radius
+     * @return the location of the nearest food, or null if none found
+     */
+    protected Location findNearestFood(World world, Location myLoc, int radius) {
+        Location nearest = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (int r = 1; r <= radius; r++) {
+            Set<Location> neighbors = world.getSurroundingTiles(myLoc, r);
+            for (Location n : neighbors) {
+                Object nb = world.getNonBlocking(n);
+                if (canEat(nb)) {
+                    int dist = distance(myLoc, n);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        nearest = n;
+                    }
+                }
+            }
+            if (nearest != null) break; // Found something in the smallest radius possible
+        }
+        return nearest;
     }
 
     // ----------- LIFE -----------
 
-    /** Check if the herbivore has shelter.
+    /**
+     * Checks if the herbivore has a shelter assigned.
      *
      * @return true if the herbivore has shelter, false otherwise
      */
     protected boolean hasShelter() { return shelter != null; }
 
-    /** Seek shelter by moving towards it.
-     *
+    /**
+     * Wakes up the herbivore. Empty as each herbivore overrides if needed.
      * @param world the world in which the herbivore exists
      */
     @Override
@@ -80,14 +147,14 @@ public abstract class Herbivore extends Animal {
      */
     @Override
     public void eat(World world, Location targetLoc) {
-        Object nb = world.getNonBlocking(targetLoc); // græs/busk ligger typisk som non-blocking
+        Object nb = world.getNonBlocking(targetLoc);
         if (canEat(nb)) {
             energy += getFoodEnergy(nb);
 
             if (nb instanceof Grass) {
                 world.delete(nb);
             } else if (nb instanceof Bush bush) {
-                bush.berriesEaten(); // hvis den kan spise bær
+                bush.berriesEaten();
             }
         }
     }

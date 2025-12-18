@@ -1,7 +1,7 @@
-10
-bear 1
-grass 1
-rabbit 1
-wolf 1
-deer 1
-bush 1
+12
+bear 2
+grass 4
+rabbit 5-10
+wolf 2
+deer 4
+bush 4

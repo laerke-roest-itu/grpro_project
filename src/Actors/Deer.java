@@ -17,7 +17,8 @@ public class Deer extends Herbivore {
     private Herd herd;
     private boolean isFleeing;
 
-    /** Constructor for Deer for test.
+    /**
+     * Constructor for Deer for test.
      *
      * @param herd the herd to which the deer belongs
      */
@@ -31,7 +32,8 @@ public class Deer extends Herbivore {
         }
     }
 
-    /** Constructor for Deer with specified territory center.
+    /**
+     * Constructor for Deer with specified territory center.
      *
      * @param herd the herd to which the deer belongs
      * @param territoryCenter the center location of the deer's territory
@@ -48,7 +50,8 @@ public class Deer extends Herbivore {
         }
     }
 
-    /** Seek shelter at the herd's home location.
+    /**
+     * Seek shelter at the herd's home location.
      *
      * @param world the world in which the deer exists
      */
@@ -62,12 +65,28 @@ public class Deer extends Herbivore {
 
     // ----------- ACT -----------
 
-    /** Deer act: flee from predators, else normal herbivore behavior
+    /**
+     * Deer act: flee from predators, else normal herbivore behavior
      *
      * @param world the world in which the deer acts
      */
     @Override
     public void act(World world) {
+        if (!isAlive) return;
+
+        if (getAge() >= getMaxAge() || getEnergy() <= 0) {
+            die(world);
+            return;
+        }
+
+        tickCommon();
+
+        if (world.isDay() && isSleeping) {
+            wakeUp(world);
+        }
+
+        if (isSleeping) return;
+
         Location myLoc;
         try {
             myLoc = world.getLocation(this);
@@ -76,7 +95,9 @@ public class Deer extends Herbivore {
         }
         if (myLoc == null) return;
 
-        if (!isAlive) return;
+        if (world.getCurrentTime() >= World.getTotalDayDuration() - 3) {
+            seekShelter(world);
+        }
 
         if (herd != null && herd.getHome() == null && herd.getLeader() == this) {
             herd.setHome(myLoc);
@@ -91,10 +112,23 @@ public class Deer extends Herbivore {
         }
 
         isFleeing = false;
-        super.act(world);
+
+        if (world.isNight()) {
+            nightBehaviour(world);
+            return;
+        }
+
+        if (world.isDay()) {
+            dayBehaviour(world);
+        }
     }
 
-    /** Deer dag: hold sammen med flokken (ellers random + spis) */
+    /**
+     * Determines the deer's behavior during the day.
+     * The deer will follow its herd leader or move randomly and eat.
+     *
+     * @param world the world in which the deer exists
+     */
     @Override
     public void dayBehaviour(World world) {
         if (herd != null) {
@@ -111,62 +145,96 @@ public class Deer extends Herbivore {
                         myLoc = world.getLocation(this);
                         leaderLoc = world.getLocation(leader);
                     } catch (IllegalArgumentException e) {
+                        super.dayBehaviour(world);
                         return;
                     }
 
                     if (myLoc != null && leaderLoc != null) {
                         int dist = distance(myLoc, leaderLoc);
 
-
                         if (dist > 2) {
                             moveOneStepTowards(world, leaderLoc);
-                            return;
+                        } else {
+                            super.dayBehaviour(world);
                         }
+                    } else {
+                        super.dayBehaviour(world);
                     }
+                } else {
+                    super.dayBehaviour(world);
                 }
             }
+        } else {
+            super.dayBehaviour(world);
         }
     }
 
-    /** Deer night: go towards home and sleep when reached location*/
+    /**
+     * Determines the deer's behavior at night.
+     * The deer will sleep and may reproduce if part of a herd.
+     *
+     * @param world the world in which the deer exists
+     */
     @Override
     public void nightBehaviour(World world) {
-        super.nightBehaviour(world);
-        Location myLoc;
-        try { myLoc = world.getLocation(this); }
-        catch (IllegalArgumentException e) { return; }
+        sleep(world);
+        if (herd != null && herd.getMembers().size() >= 2) {
+            reproduce(world);
+        }
+    }
 
-        /*
-        Location home = (herd == null) ? null : herd.getHome();
-        if (myLoc != null && home != null && distance(myLoc, home) == 0) {
-            sleep(world);
-        } */
+    /**
+     * Determines the reproduction behavior for deer.
+     * Deer only reproduce if the herd size is not exceeded.
+     *
+     * @param world the world in which the deer exists
+     */
+    @Override
+    public void reproduce(World world) {
+        if (herd != null && herd.getMembers().size() >= 10) return;
 
+        super.reproduce(world);
     }
 
     @Override
-    protected void handleSleepLocation(World world) {
-        Location deerLoc = world.getLocation(this);
+    protected Animal createChild(World world, Location childLoc) {
+        return new Deer(herd);
+    }
 
-        if (deerLoc.equals(territoryCenter) || distance(deerLoc, territoryCenter) <= 1) {
-            isSleeping = true;
-            energy += 50;
-        } else {
-            if (world.isTileEmpty(territoryCenter)) {
-                moveOneStepTowards(world, territoryCenter);
-            } else {
-                Set<Location> neighbors = world.getEmptySurroundingTiles(territoryCenter);
-                if (!neighbors.isEmpty()) {
-                    Location spot = neighbors.iterator().next();
-                    moveOneStepTowards(world, spot);
-                }
-            }
-        }
+    @Override
+    protected Location getReproductionLocation(World world) {
+        Location myLoc = world.getLocation(this);
+        if (myLoc == null) return null;
+
+        Set<Location> emptyAround = world.getEmptySurroundingTiles(myLoc);
+        if (!emptyAround.isEmpty()) return emptyAround.iterator().next();
+
+        return null;
+    }
+
+    /**
+     * Checks if the deer is a child (age < 30).
+     *
+     * @return true if the deer is a child, false otherwise
+     */
+    @Override
+    public boolean isChild() {
+        return getAge() < 30;
+    }
+
+    /**
+     * Handles the deer's sleep location. Deer do not use specific shelters like burrows.
+     *
+     * @param world the world in which the deer exists
+     */
+    @Override
+    protected void handleSleepLocation(World world) {
     }
 
     // ----------- FLEEING -----------
 
-    /** Find nearby predator within a given radius.
+    /**
+     * Find nearby predator within a given radius.
      *
      * @param world the world to search in
      * @param from the location to search from
@@ -183,7 +251,8 @@ public class Deer extends Herbivore {
         return null;
     }
 
-    /** Flee from a predator by moving to the farthest empty tile.
+    /**
+     * Flee from a predator by moving to the farthest empty tile.
      *
      * @param world the world in which the deer exists
      * @param myLoc the current location of the deer
@@ -210,7 +279,8 @@ public class Deer extends Herbivore {
         }
     }
 
-    /** Alert nearby deer to flee as well.
+    /**
+     * Alert nearby deer to flee as well.
      *
      * @param world the world in which the deer exists
      * @param myLoc the current location of this deer
@@ -238,7 +308,8 @@ public class Deer extends Herbivore {
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
-    /** Get the meat value provided by the deer when it dies.
+    /**
+     * Get the meat value provided by the deer when it dies.
      *
      * @return the meat value
      */
@@ -247,7 +318,8 @@ public class Deer extends Herbivore {
         return 70;
     }
 
-    /** Get display information for the deer based on its state.
+    /**
+     * Get display information for the deer based on its age, sleeping, and fleeing states.
      *
      * @return display information including color and image
      */
@@ -259,7 +331,7 @@ public class Deer extends Herbivore {
             } else if (isFleeing) {
                 return new DisplayInformation(Color.LIGHT_GRAY, "deer-small-afraid");
             } else {
-                return new DisplayInformation(Color.GRAY, "deer-small"); // billede af hjorteunge
+                return new DisplayInformation(Color.GRAY, "deer-small");
             }
         } else {
             if (isSleeping) {
@@ -267,7 +339,7 @@ public class Deer extends Herbivore {
             } else if (isFleeing) {
                 return new DisplayInformation(Color.LIGHT_GRAY, "deer-afraid");
             } else {
-                return new DisplayInformation(Color.DARK_GRAY, "deer"); // billede af voksen hjort
+                return new DisplayInformation(Color.DARK_GRAY, "deer");
             }
         }
     }

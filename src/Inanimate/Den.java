@@ -32,11 +32,14 @@ public class Den extends Landscape {
     }
 
     /**
-     * Dens do not perform any actions themselves.
-     * Wolves may interact with them, but the den is passive.
+     * Updates the den's state each simulation step.
+     * Dens are passive and do not perform any actions.
+     *
+     * @param world the world in which the den exists
      */
     @Override
-    public void act(World world) {}
+    public void act(World world) {
+    }
 
     /**
      * Adds a wolf to the den's list of residents.

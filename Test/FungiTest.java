@@ -7,6 +7,13 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The FungiTest class verifies the core behavioral logic of the {@link Fungi} actor
+ * within a simulated {@link World}.
+ * The tests ensure that a Fungi interacts correctly with its environment,
+ * including decreasing lifespan per tick, deleting itself when lifespan reaches zero,
+ * and infecting {@link Carcass} objects within its infection radius.
+ */
 class FungiTest {
 
     private Program program;
@@ -15,6 +22,9 @@ class FungiTest {
     private Fungi fungi;
     private Location fungiLoc;
 
+    /**
+     * Sets up the world and test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         program = new Program(12, 500, 0);
@@ -24,10 +34,13 @@ class FungiTest {
         world.setCurrentTime(0);
 
         fungiLoc = new Location(5, 5);
-        fungi = new Fungi(3); // lille lifespan så vi kan teste death hurtigt
+        fungi = new Fungi(3);
         world.setTile(fungiLoc, fungi);
     }
 
+    /**
+     * Cleans up the test environment after each test.
+     */
     @AfterEach
     void tearDown() {
         program = null;
@@ -35,6 +48,9 @@ class FungiTest {
         fungi = null;
     }
 
+    /**
+     * Test that fungi lifespan decreases each time it acts.
+     */
     @Test
     void fungiLifespanDecreasesEachAct() {
         int before = fungi.getLifespan();
@@ -42,33 +58,29 @@ class FungiTest {
         assertEquals(before - 1, fungi.getLifespan());
     }
 
+    /**
+     * Test that fungi deletes itself when its lifespan reaches zero.
+     */
     @Test
     void fungiDeletesItselfWhenLifespanHitsZero() {
-        // lifespan = 3 -> efter 3 acts bør den være slettet
-        fungi.act(world); // 2
-        fungi.act(world); // 1
-        fungi.act(world); // 0 => delete
+        fungi.act(world);
+        fungi.act(world);
+        fungi.act(world);
 
         assertFalse(world.contains(fungi), "Fungi should be deleted from world when lifespan <= 0");
     }
 
+    /**
+     * Test that fungi can infect a carcass within its infection radius.
+     */
     @Test
     void fungiInfectsCarcassWithinRadiusTwo() {
-        // Carcass indenfor radius 2 fra (5,5): fx (7,5) har distance 2
         Location carcassLoc = new Location(7, 5);
-        Carcass carcass = new Carcass(50, 10); // starter uden fungi
+        Carcass carcass = new Carcass(50, 10);
         world.setTile(carcassLoc, carcass);
 
-        // Før: rotTimer falder normalt 1 pr tick.
-        // Efter infektion: rotTimer falder 2 pr tick (pga. if(hasFungi) rotTimer--; + rotTimer--;)
-        // Vi kan ikke læse rotTimer direkte, så vi må teste via "hvor hurtigt den forsvinder".
+        fungi.act(world);
 
-        // Hvis den IKKE blev inficeret, burde den leve ~10 acts før delete.
-        // Hvis den BLEV inficeret hurtigt, burde den dø tidligere (~5 acts).
-        // Vi kører: fungi.act én gang (infektion), og derefter carcass.act gentagne gange.
-        fungi.act(world); // infektion sker her
-
-        // kør carcass frem til den forsvinder, men med en max-sikring
         int ticks = 0;
         while (world.contains(carcass) && ticks < 10) {
             carcass.act(world);
@@ -81,6 +93,9 @@ class FungiTest {
                 "Carcass should rot faster when infected (expected around 5 ticks, got " + ticks + ")");
     }
 
+    /**
+     * Test that fungi does not infect a carcass outside its infection radius.
+     */
     @Test
     void fungiDoesNotInfectCarcassOutsideRadiusTwo() {
         // fungi på (5,5)

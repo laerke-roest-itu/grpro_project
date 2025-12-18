@@ -90,7 +90,6 @@ public abstract class Group<T extends Animal>
      */
     @Override
     public void act(World world) {
-        // Pack gør ikke noget selv (men skal eksistere i verden)
     }
 
 }

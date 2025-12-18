@@ -40,12 +40,25 @@ public class Bear extends Predator {
         super.act(world);
     }
 
+    /**
+     * Determines the bear's behavior at night.
+     * The bear will attempt to reproduce and then sleep.
+     *
+     * @param world the world in which the bear exists
+     */
     @Override
     public void nightBehaviour(World world) {
         reproduce(world);
         sleep(world);
     }
 
+    /**
+     * Determines the bear's behavior during the day.
+     * The bear moves toward its territory if outside, hunts if hungry,
+     * or moves randomly within its territory.
+     *
+     * @param world the world in which the bear exists
+     */
     @Override
     public void dayBehaviour(World world) {
         Location bearLocation = world.getLocation(this);
@@ -76,7 +89,7 @@ public class Bear extends Predator {
      * The bear will sleep at its territory center if it is there or very close,
      * otherwise it will attempt to move toward the center.
      *
-     * @param world the world in which the bear sleeps
+     * @param world the world in which the bear exists
      */
     @Override
     protected void handleSleepLocation(World world) {
@@ -121,7 +134,7 @@ public class Bear extends Predator {
             }
         }
 
-        Set<Location> area = getHuntingArea(world);  // dit territorie
+        Set<Location> area = getHuntingArea(world);
 
         Location enemyLoc = findClosestEnemyPredator(world, area, myLoc);
         if (enemyLoc != null) {
@@ -149,7 +162,8 @@ public class Bear extends Predator {
 
     // ----------- EATING -----------
 
-    /** Finds the closest bush with berries within a specified area.
+    /**
+     * Finds the closest bush with berries within a specified area.
      *
      * @param world the world in which to search
      * @param area the set of locations defining the search area
@@ -175,7 +189,8 @@ public class Bear extends Predator {
         return closest;
     }
 
-    /** Checks if the bear can eat a given object.
+    /**
+     * Checks if the bear can eat a given object.
      *
      * @param object the object to check
      * @return true if the object is a Carcass or Bush with berries, false otherwise
@@ -229,16 +244,24 @@ public class Bear extends Predator {
         return 0;
     }
 
-    /** Returns the meat value of the bear when it dies.
+    /**
+     * Determines the meat value of the bear when it dies.
      *
-     * @return the meat value
+     * @return the meat value as an integer
      */
+    @Override
     protected int getMeatValue() {
         return 100;
     }
 
     // ----------- REPRODUCTION -----------
 
+    /**
+     * Overrides the reproduction process for bears.
+     * Bears hunt for a mate within their territory and increment their offspring count if successful.
+     *
+     * @param world the world in which the bear exists
+     */
     @Override
     public void reproduce(World world) {
         Location myLoc = world.getLocation(this);
@@ -257,12 +280,14 @@ public class Bear extends Predator {
 
         if (mate != null) {
             super.reproduce(world);
-            // opdater begge bjørnes "amountOfKids"
             this.incrementKids();
             mate.incrementKids();
         }
     }
 
+    /**
+     * Increases the count of offspring the bear has produced.
+     */
     private void incrementKids() {
         amountOfKids++;
     }
@@ -276,7 +301,7 @@ public class Bear extends Predator {
      */
     @Override
     protected Animal createChild(World world, Location childLoc) {
-        return new Bear(territoryCenter); // opretter en ny bjørn med sit territorie
+        return new Bear(territoryCenter);
     }
 
     /**
@@ -317,7 +342,8 @@ public class Bear extends Predator {
 
     // ----------- TERRITORY & FIGHT -----------
 
-    /** Checks if a given location is inside the bear's territory.
+    /**
+     * Checks if a given location is inside the bear's territory.
      *
      * @param bearLocation the location to check
      * @return true if the location is inside the territory, false otherwise
@@ -328,7 +354,8 @@ public class Bear extends Predator {
         return distance(bearLocation, territoryCenter) <= radius;
     }
 
-    /** Determines if another animal is an enemy predator.
+    /**
+     * Determines if another animal is an enemy predator.
      *
      * @param other the other animal to evaluate
      * @return true if the other animal is an enemy predator, false otherwise
@@ -343,7 +370,8 @@ public class Bear extends Predator {
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
-    /** Returns the attack damage of the bear.
+    /**
+     * Returns the attack damage of the bear.
      *
      * @return the attack damage value
      */
@@ -352,7 +380,8 @@ public class Bear extends Predator {
         return 25;
     }
 
-    /** Returns the movement cost for hunting.
+    /**
+     * Returns the movement cost for hunting.
      *
      * @return the hunt move cost
      */
@@ -361,7 +390,8 @@ public class Bear extends Predator {
         return 8;
     }
 
-    /** Returns the hunting area of the bear, which is its territory.
+    /**
+     * Returns the hunting area of the bear, which is its territory.
      *
      * @param world the world in which the bear hunts
      * @return the set of locations defining the hunting area
@@ -371,7 +401,8 @@ public class Bear extends Predator {
         return getTerritoryTiles(world);
     }
 
-    /** Returns the radius of the bear's territory.
+    /**
+     * Returns the radius of the bear's territory.
      *
      * @return the territory radius
      */
@@ -379,7 +410,8 @@ public class Bear extends Predator {
         return 3;
     }
 
-    /** Returns the set of tiles that make up the bear's territory.
+    /**
+     * Returns the set of tiles that make up the bear's territory.
      *
      * @param world the world in which the territory exists
      * @return the set of territory locations
