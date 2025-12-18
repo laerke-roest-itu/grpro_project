@@ -267,8 +267,6 @@ public class Wolf extends Predator {
         return null;
     }
 
-
-
     // ----------- PACK/DEN -----------
 
     /**
@@ -326,6 +324,10 @@ public class Wolf extends Predator {
         this.shelter = den;
     }
 
+    /**
+     * Gets the den for the wolf.
+     * @return the den of the wolf
+     */
     public Den getDen() { return den; }
 
     /**
@@ -386,7 +388,6 @@ public class Wolf extends Predator {
     }
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
-
 
     /**
      * Provides display information for the wolf based on its age and sleeping state.

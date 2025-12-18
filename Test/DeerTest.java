@@ -200,7 +200,7 @@ class DeerTest {
     @Test
     void deerWakesUpInMorning() {
         world.setDay();
-        Deer solo = new Deer(null, new Location(5, 5));
+        Deer solo = new Deer(null);
         world.setTile(new Location(5, 5), solo);
 
         world.setNight();
@@ -220,7 +220,7 @@ class DeerTest {
     void deerDoesNotMoveWhileSleeping() {
         world.setDay();
         Location home = new Location(5, 5);
-        Deer solo = new Deer(null, home);
+        Deer solo = new Deer(null);
         world.setTile(home, solo);
 
         world.setNight();
@@ -242,9 +242,8 @@ class DeerTest {
     @Test
     void deerSleepsEvenIfFarFromHomeAtNight() {
         world.setDay();
-        Location home = new Location(0, 0);
         Location start = new Location(10, 10);
-        Deer solo = new Deer(null, home);
+        Deer solo = new Deer(null);
         world.setTile(start, solo);
 
         // It's night, but deer is far from home

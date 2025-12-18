@@ -13,12 +13,11 @@ import java.util.Set;
  * It has behaviors for fleeing from predators and staying with its herd.
  */
 public class Deer extends Herbivore {
-    private Location territoryCenter;
     private Herd herd;
     private boolean isFleeing;
 
     /**
-     * Constructor for Deer for test.
+     * Constructor for Deer.
      *
      * @param herd the herd to which the deer belongs
      */
@@ -26,24 +25,6 @@ public class Deer extends Herbivore {
         super(300);
         this.herd = herd;
         this.isFleeing = false;
-
-        if (herd != null) {
-            herd.addMember(this);
-        }
-    }
-
-    /**
-     * Constructor for Deer with specified territory center.
-     *
-     * @param herd the herd to which the deer belongs
-     * @param territoryCenter the center location of the deer's territory
-     */
-    public Deer(Herd herd, Location territoryCenter) {
-        super(300);
-        this.herd = herd;
-        this.isFleeing = false;
-        this.territoryCenter = territoryCenter;
-        this.shelter = territoryCenter;
 
         if (herd != null) {
             herd.addMember(this);

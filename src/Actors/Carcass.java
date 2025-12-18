@@ -21,7 +21,6 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private int rotTimer;
     private boolean hasFungi;
     private Random random;
-    private Fungi fungi;
 
     /**
      * Main constructor allowing control over all parameters.

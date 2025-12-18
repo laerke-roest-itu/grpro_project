@@ -200,6 +200,7 @@ public class Rabbit extends Herbivore {
      *
      * @return the meat value
      */
+    @Override
     protected int getMeatValue() {
         return 30;
     }
@@ -336,17 +337,6 @@ public class Rabbit extends Herbivore {
         if (burrow != null) {
             burrow.addRabbit(this);
         }
-    }
-
-    /**
-     * Checks if the rabbit is the leader of its burrow.
-     * The leader is the first rabbit in the burrow's list.
-     *
-     * @return true if the rabbit is the leader, false otherwise
-     */
-    private boolean isLeaderInBurrow() {
-        return burrow != null && !burrow.getRabbits().isEmpty()
-                && burrow.getRabbits().get(0) == this;
     }
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------

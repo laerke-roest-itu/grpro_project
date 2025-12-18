@@ -147,7 +147,7 @@ public class BushTest {
 
 
         Herd herd = new Herd();
-        Deer deer = new Deer(herd, bearLoc);
+        Deer deer = new Deer(herd);
 
         Field energyField = null;
         Class<?> cls = deer.getClass();
