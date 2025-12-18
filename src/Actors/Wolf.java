@@ -272,29 +272,6 @@ public class Wolf extends Predator {
     // ----------- PACK/DEN -----------
 
     /**
-     * Wolf behaviour to seek its pack based on its leader's location.
-     *
-     * @param world the world in which the wolf exists
-     */
-    private void seekPack(World world) {
-        if (pack == null) return;
-
-        Wolf leader = pack.getLeader();
-        if (leader == null || leader == this) return;
-
-        Location leaderLoc;
-        try {
-            leaderLoc = world.getLocation(leader);
-        } catch (IllegalArgumentException e) {
-            return; // the leader does not exist in the World right now
-        }
-
-        if (leaderLoc == null) return;
-
-        moveOneStepTowards(world, leaderLoc);
-    }
-
-    /**
      * Simple getter for retrieving the pack.
      * @return the wolf's pack
      */
@@ -349,7 +326,7 @@ public class Wolf extends Predator {
         this.shelter = den;
     }
 
-
+    public Den getDen() { return den; }
 
     /**
      * Determines the hunting area for the wolf.
@@ -409,8 +386,6 @@ public class Wolf extends Predator {
     }
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
-
-    public Den getDen() { return den; }
 
 
     /**
