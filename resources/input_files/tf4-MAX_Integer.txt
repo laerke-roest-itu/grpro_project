@@ -1,7 +1,7 @@
 12
 bear 3
 grass 10-15
-rabbit 5-7
+rabbit 5-10
 wolf 3
 deer 3
 bush 2
