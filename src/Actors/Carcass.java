@@ -21,7 +21,7 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
     private int rotTimer;
     private boolean hasFungi;
     private Random random;
-    private Fungi fungi; // til test
+    private Fungi fungi;
 
     /**
      * Main constructor allowing control over all parameters.
@@ -39,7 +39,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         this.random = random;
     }
 
-    /**  * Constructor for normal use without fungi.
+    /**
+     * Constructor for normal use without fungi.
      *
      * @param meatLeft the amount of meat left on the carcass
      * @param rotTimer the time until the carcass rots completely
@@ -48,7 +49,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         this(meatLeft, rotTimer, false, new Random());
     }
 
-    /**  * Constructor for normal use with option for fungi.
+    /**
+     * Constructor for normal use with option for fungi.
      *
      * @param meatLeft the amount of meat left on the carcass
      * @param rotTimer the time until the carcass rots completely
@@ -58,17 +60,17 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         this(meatLeft, rotTimer, hasFungi, new Random());
     }
 
-    /**  * Constructor for test use, allowing control over randomness.
-     *
-     * @param random
+    /**
+     * Constructor for test use, allowing control over randomness.
+     * @param random the Random instance to use for randomness
      */
     public Carcass(Random random) {
-        this(10, 10, false, random); // testværdier
+        this(10, 10, false, random);
     }
 
     /**
-     * The act method is called each tick to update the state of the carcass.
-     * It decreases the rot timer, attempts to spawn fungi, and handles decay.
+     * Updates the state of the carcass each simulation step.
+     * Decreases the rot timer, attempts to spawn fungi, and removes the carcass if it has rotted away.
      *
      * @param world the world in which the carcass exists
      */
@@ -87,7 +89,7 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
 
             world.delete(this);
 
-            if (!spawnFungi /*|| myLoc == null*/) {
+            if (!spawnFungi) {
                 return;
             }
 
@@ -100,13 +102,12 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
                 world.delete(nb);
                 world.setTile(myLoc, new Fungi(calculateFungiLifespan()));
 
-            } else {
-                // cannot spawn fungi on Bush, Burrow or Den
             }
         }
     }
 
-    /**  * Attempts to spawn fungi on the carcass with a certain probability.
+    /**
+     * Attempts to spawn fungi on the carcass with a certain probability.
      */
     public void trySpawnFungi() {
         if (hasFungi) return;
@@ -118,7 +119,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
-    /**  * Infects the carcass with fungi if it is not already infected.
+    /**
+     * Infects the carcass with fungi if it is not already infected.
      */
     public void infectWithFungi() {
         if (hasFungi) {
@@ -127,7 +129,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         hasFungi = true;
     }
 
-    /**  * Reduces the amount of meat left on the carcass by the specified amount.
+    /**
+     * Reduces the amount of meat left on the carcass by the specified amount.
      *
      * @param amount the amount of meat to be eaten
      */
@@ -138,7 +141,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         }
     }
 
-    /**  * Gets the amount of meat left on the carcass.
+    /**
+     * Gets the amount of meat left on the carcass.
      *
      * @return the amount of meat left
      */
@@ -146,7 +150,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         return meatLeft;
     }
 
-    /**  * Calculates the lifespan of fungi spawned from this carcass.
+    /**
+     * Calculates the lifespan of fungi spawned from this carcass.
      *
      * @return the lifespan of the fungi
      */
@@ -154,7 +159,8 @@ public class Carcass implements Actor, DynamicDisplayInformationProvider {
         return maxMeat * 2;
     }
 
-    /**  * Provides display information for the carcass based on the amount of meat left.
+    /**
+     * Provides display information for the carcass based on the amount of meat left.
      *
      * @return the display information for the carcass
      */

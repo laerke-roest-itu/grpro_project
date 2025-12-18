@@ -6,6 +6,7 @@ import itumulator.simulator.Actor;
 import itumulator.world.Location;
 import itumulator.world.World;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,6 +25,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     protected int amountOfKids;
     protected Object shelter;
     protected Random random;
+    protected Group<? extends Animal> group;
 
     /**
      * Constructor for Animal class.
@@ -79,7 +81,20 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         }
     }
 
+    /**
+     * Determines the night behavior of the animal.
+     * Called during the act method if it is currently night in the world.
+     *
+     * @param world The world in which the animal acts.
+     */
     public abstract void nightBehaviour(World world);
+
+    /**
+     * Determines the day behavior of the animal.
+     * Called during the act method if it is currently day in the world.
+     *
+     * @param world The world in which the animal acts.
+     */
     public abstract void dayBehaviour(World world);
 
     /**
@@ -182,6 +197,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     public void die(World world) {
         isAlive = false;
 
+        if (group != null) {
+            ((Group) group).removeMember(this);
+        }
+
         Location loc = world.getLocation(this);
         if (loc != null) {
             int meat = getMeatValue();
@@ -204,8 +223,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
         energy += getSleepEnergy();
     }
 
-    /** Handles the specific sleep location logic for the animal. Each animal type handles its own sleep location.
-     *  Hence, the method is empty as each animal overrides.
+    /**
+     * Handles the specific sleep location logic for the animal.
+     * Each animal type handles its own sleep location (e.g., in a burrow or den).
+     *
      * @param world The world in which the animal handles its sleep location.
      */
     protected abstract void handleSleepLocation(World world);
@@ -240,7 +261,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Checks if the animal can eat the given object.
-     * The method is empty as each animal overrides.
+     *
      * @param object The object to check.
      * @return True if the animal can eat the object, false otherwise.
      */
@@ -248,7 +269,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Gets the amount of energy gained from eating the given object.
-     * The method is empty as each animal overrides.
+     *
      * @param object The object being eaten.
      * @return The energy gained from the food.
      */
@@ -256,7 +277,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Gets the meat value of the animal when it dies.
-     * The method is empty as each animal overrides.
+     *
      * @return The meat value.
      */
     protected abstract int getMeatValue();
@@ -281,8 +302,8 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
     public void reproduce(World world) {
         if (energy < 30 || (isChild()) || getAmountOfKids()>2) return;
         Location loc = getReproductionLocation(world);
-        Animal child = createChild(world, loc);
         if (loc != null) {
+            Animal child = createChild(world, loc);
             world.setTile(loc, child);
             amountOfKids++;
             energy -= 15;
@@ -291,7 +312,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Creates a child animal at the specified location.
-     * The method is empty as each animal overrides.
+     *
      * @param world    The world in which the child is created.
      * @param childLoc The location for the child animal.
      * @return The newly created child animal.
@@ -300,9 +321,9 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Gets a suitable location for reproduction.
-     * The method is empty as each animal overrides.
+     *
      * @param world The world in which to find the reproduction location.
-     * @return The location for reproduction.
+     * @return The location for reproduction, or null if no suitable location is found.
      */
     protected abstract Location getReproductionLocation(World world);
 
@@ -322,7 +343,7 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
      *
      * @return True if the animal is alive, false otherwise.
      */
-    public boolean isAlive() { return isAlive;}
+    public boolean isAlive() { return isAlive; }
 
     /**
      * Calculates the Manhattan distance between two locations.
@@ -374,9 +395,10 @@ public abstract class Animal implements Actor, DynamicDisplayInformationProvider
 
     /**
      * Sets the group for the animal.
-     * @param group
+     * @param group The group to assign the animal to.
      */
     public void setGroup(Group<? extends Animal> group) {
+        this.group = group;
     }
 
 }

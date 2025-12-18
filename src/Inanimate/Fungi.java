@@ -14,14 +14,19 @@ import java.util.Set;
 public class Fungi extends Landscape {
     private int lifespan;
 
+    /**
+     * Constructor for Fungi with a specified lifespan.
+     * @param lifespan the duration the fungi will remain in the world
+     */
     public Fungi(int lifespan) {
         this.lifespan = lifespan;
     }
 
     /**
-     * Each act cycle decreases the lifespan of the fungi.
-     * If the lifespan reaches zero, the fungi is removed from the world.
-     * The fungi attempt to infect nearby carcasses within its infection radius.
+     * Updates the fungi's state each simulation step.
+     * Decreases lifespan and attempts to infect nearby carcasses.
+     *
+     * @param world the world in which the fungi exists
      */
     @Override
     public void act(World world) {

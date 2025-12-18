@@ -33,13 +33,13 @@ public class Burrow extends Landscape {
     }
 
     /**
-     * Burrows do not perform any actions themselves.
-     * Rabbits may interact with them, but the burrow is passive.
+     * Updates the burrow's state each simulation step.
+     * Burrows are passive and do not perform any actions.
+     *
+     * @param world the world in which the burrow exists
      */
     @Override
     public void act(World world) {
-        // Burrows do not perform any actions themselves.
-        // Rabbits may interact with them, but the burrow is passive.
     }
 
     /**

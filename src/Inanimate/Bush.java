@@ -30,6 +30,12 @@ public class Bush extends Landscape {
         this.random = random;
     }
 
+    /**
+     * Updates the bush's state each simulation step.
+     * The bush grows berries and potentially spreads to adjacent tiles.
+     *
+     * @param world the world in which the bush exists
+     */
     @Override
     public void act(World world) {
         super.act(world);
@@ -42,7 +48,7 @@ public class Bush extends Landscape {
      * @return the spread chance as an integer
      */
     @Override
-    protected int spreadChance() { //spreadChance fra superklassen gives en værdi
+    protected int spreadChance() {
         return 2;
     }
 
@@ -52,12 +58,12 @@ public class Bush extends Landscape {
      * @return a new Bush instance
      */
     @Override
-    protected Landscape createNewInstance() { // createNewInstance fra superklassen gives en instans af Bush
+    protected Landscape createNewInstance() {
         return new Bush();
     }
 
     /**
-     * Increases the number of berries on the bush by one, up to the maximum limit.
+     * Increases the number of berries on the bush by five, up to the maximum limit.
      */
     public void produceBerries(){
         if (berry < maxBerries) {
@@ -71,11 +77,7 @@ public class Bush extends Landscape {
      * @return true if the bush has one or more berries, false otherwise
      */
     public boolean hasBerries() {
-        if (berry > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return berry > 0;
     }
 
     /**

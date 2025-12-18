@@ -13,10 +13,9 @@ import java.util.List;
  * Wolf represents a predatory animal that lives in packs.
  * It has behaviors for hunting, building dens, and reproducing.
  */
-
 public class Wolf extends Predator {
-    private Pack pack;       // reference to the wolf's pack
-    private Den den;        // the Wolf's den
+    private Pack pack;
+    private Den den;
 
     public Wolf(Pack pack) {
         super(240);
@@ -35,34 +34,68 @@ public class Wolf extends Predator {
      *
      * @param world the world in which the wolf exists
      */
-
     @Override
     public void act(World world) {
         if (!isAlive) return;
         super.act(world);
     }
 
+    /**
+     * Determines the wolf's behavior at night.
+     * The wolf will attempt to sleep and then reproduce if a mate is present in its pack.
+     *
+     * @param world the world in which the wolf exists
+     */
     @Override
     public void nightBehaviour(World world) {
         if (den != null) {
+            sleep(world);
             List<Wolf> loveWolves = pack.getMembers();
             if ((loveWolves.size() >= 2)) {
                 reproduce(world);
             }
-            sleep(world);
         } else {
-            energy -= 5; // lose energy from exposure if no Den
+            energy -= 5;
         }
     }
 
+    /**
+     * Determines the wolf's behavior during the day.
+     * The wolf will hunt if hungry, follow its pack leader, or move randomly.
+     * If it is the leader, it may also build a den.
+     *
+     * @param world the world in which the wolf exists
+     */
     @Override
     public void dayBehaviour(World world) {
         if (isHungry()) {
             hunt(world);
-        } else if (pack.getLeader() == this) {
-            moveRandomly(world);
+        } else if (pack != null) {
+            Wolf leader = pack.getLeader();
+            if (leader == this) {
+                moveRandomly(world);
+            } else {
+                Location myLoc = world.getLocation(this);
+                Location leaderLoc = null;
+                if (leader != null) {
+                    try {
+                        leaderLoc = world.getLocation(leader);
+                    } catch (IllegalArgumentException e) {}
+                }
+
+                if (myLoc != null && leaderLoc != null) {
+                    int dist = distance(myLoc, leaderLoc);
+                    if (dist > 1) {
+                        moveOneStepTowards(world, leaderLoc);
+                    } else {
+                        moveRandomly(world);
+                    }
+                } else {
+                    moveRandomly(world);
+                }
+            }
         } else {
-            seekPack(world);
+            moveRandomly(world);
         }
 
         if (den == null && pack != null && pack.getLeader() == this) {
@@ -77,11 +110,10 @@ public class Wolf extends Predator {
      *
      * @param world the world in which the wolf exists
      */
-
     @Override
     protected void handleSleepLocation(World world) {
         if (den != null) {
-            world.remove(this); // the wolf sleeps in its den
+            world.remove(this);
         }
     }
 
@@ -90,10 +122,8 @@ public class Wolf extends Predator {
      *
      * @param world the world in which the wolf exists
      */
-
     @Override
     public void wakeUp(World world) {
-        // If there is no Den, Wolf cannot wake up there
         if (den == null) {
             isSleeping = false;
             return;
@@ -103,19 +133,16 @@ public class Wolf extends Predator {
         try {
             denLoc = world.getLocation(den);
         } catch (IllegalArgumentException e) {
-            // den findes ikke på kortet længere
             return;
         }
         if (denLoc == null) return;
 
-        // 1) try and stand on the den tile if it's empty
         if (world.isTileEmpty(denLoc)) {
             world.setTile(denLoc, this);
             isSleeping = false;
             return;
         }
 
-        // 2) if not try an empty neighbour tile
         Set<Location> empty = world.getEmptySurroundingTiles(denLoc);
         if (!empty.isEmpty()) {
             world.setTile(empty.iterator().next(), this);
@@ -128,7 +155,6 @@ public class Wolf extends Predator {
      *
      * @return true if the wolf is a child, false otherwise
      */
-
     @Override
     public boolean isChild() {
         return getAge() < 30;
@@ -142,7 +168,6 @@ public class Wolf extends Predator {
      * @param world     the world in which the wolf exists
      * @param targetLoc the location of the carcass to eat from
      */
-
     @Override
     public void eat(World world, Location targetLoc) {
         Object o = world.getTile(targetLoc);
@@ -152,7 +177,6 @@ public class Wolf extends Predator {
             carcass.eaten(amount);
             energy += amount;
         }
-        // hvis det ikke er Carcass → gør ingenting
     }
 
     /**
@@ -161,7 +185,6 @@ public class Wolf extends Predator {
      * @param object the object to check
      * @return true if the wolf can eat the object, false otherwise
      */
-
     @Override
     public boolean canEat(Object object) {
         return object instanceof Carcass;
@@ -173,7 +196,6 @@ public class Wolf extends Predator {
      * @param object the object to get food energy from
      * @return the food energy value
      */
-
     @Override
     protected int getFoodEnergy(Object object) {
         if (object instanceof Rabbit) return 40;
@@ -185,19 +207,19 @@ public class Wolf extends Predator {
      *
      * @return the meat value
      */
-
     @Override
     protected int getMeatValue() {
         return 50;
     }
 
-   /* @Override
-    protected boolean isHungry() {
-        return getEnergy() < 75;
-    }
-*/
     // ----------- REPRODUCTION -----------
 
+    /**
+     * Determines the reproduction behavior for wolves.
+     * Wolves only reproduce if they have a den and the pack size is not exceeded.
+     *
+     * @param world the world in which the wolf exists
+     */
     @Override
     public void reproduce(World world) {
         if (den == null) return;
@@ -205,13 +227,13 @@ public class Wolf extends Predator {
         super.reproduce(world);
     }
 
-    /** Create a child wolf in the specified location.
+    /**
+     * Create a child wolf in the specified location.
      *
-     * @param world the world in which the wolf exists
+     * @param world    the world in which the wolf exists
      * @param childLoc the location where the child wolf will be created
      * @return the newly created child wolf
      */
-
     @Override
     protected Animal createChild(World world, Location childLoc) {
         Wolf child = new Wolf(pack);
@@ -219,13 +241,12 @@ public class Wolf extends Predator {
         return child;
     }
 
-    /** Get the reproduction location for the wolf, prioritizing its den.
+    /**
+     * Get the reproduction location for the wolf, prioritizing its den.
      *
      * @param world the world in which the wolf exists
      * @return the location for reproduction, or null if none found
      */
-
-
     @Override
     protected Location getReproductionLocation(World world) {
         if (den == null) return null;
@@ -251,9 +272,9 @@ public class Wolf extends Predator {
     // ----------- PACK/DEN -----------
 
     /**
-     * Wolf behaviour to seek it's pack on account of its leader and what to do if there is none in the moment
-     * the wolf checks for a leader.
-     * @param world
+     * Wolf behaviour to seek its pack based on its leader's location.
+     *
+     * @param world the world in which the wolf exists
      */
     private void seekPack(World world) {
         if (pack == null) return;
@@ -270,24 +291,21 @@ public class Wolf extends Predator {
 
         if (leaderLoc == null) return;
 
-        moveOneStepTowards(world, leaderLoc); // choose energy price
+        moveOneStepTowards(world, leaderLoc);
     }
 
     /**
-     * Simple getter for retrieving the pack - used in later logic  @isEnemyPredator.
-     * @return
+     * Simple getter for retrieving the pack.
+     * @return the wolf's pack
      */
-
     public Pack getPack() {
         return pack;
     }
 
     /**
-     * Den building method, the wolf finds a location based upon its own location and creates a Den on location
-     * depending if the location is void of a used tile.
-     * @param world
+     * Builds a den for the wolf pack if the wolf is the leader.
+     * @param world the world in which to build the den
      */
-
     public void buildDen(World world) {
         Location wolfLoc;
         try {
@@ -299,13 +317,11 @@ public class Wolf extends Predator {
 
         if (den != null) return;
 
-        // find en nabo-tile der er tom og uden non-blocking
         var empty = world.getEmptySurroundingTiles(wolfLoc);
         if (empty.isEmpty()) return;
 
         Location denLoc = null;
         for (Location loc : empty) {
-            // tjek om der er non-blocking på tile
             Object nb = world.getNonBlocking(loc);
             if (nb == null) {
                 denLoc = loc;
@@ -313,7 +329,7 @@ public class Wolf extends Predator {
             }
         }
 
-        if (denLoc == null) return; // ingen egnet tile fundet
+        if (denLoc == null) return;
 
         den = new Den();
         world.setTile(denLoc, den);
@@ -325,10 +341,9 @@ public class Wolf extends Predator {
     }
 
     /**
-     * Set den for use in Pack-class.
-     * @param den
+     * Sets the den for the wolf.
+     * @param den the den to set
      */
-
     public void setDen(Den den) {
         this.den = den;
         this.shelter = den;
@@ -336,36 +351,44 @@ public class Wolf extends Predator {
 
 
 
+    /**
+     * Determines the hunting area for the wolf.
+     * The hunting area is a small radius around the wolf's current location.
+     *
+     * @param world the world in which the wolf exists
+     * @return a set of locations defining the hunting area
+     */
     @Override
     protected Set<Location> getHuntingArea(World world) {
         Location wolfLoc = world.getLocation(this);
-        // fx radius 2 som før
         return world.getSurroundingTiles(wolfLoc, 2);
     }
 
+    /**
+     * Gets the energy cost for the wolf's movement during hunting.
+     *
+     * @return the energy cost as an integer
+     */
     @Override
     protected int getHuntMoveCost() {
-        return 8;   // same as before
+        return 8;
     }
 
     /**
-     * Method to check if there is an enemy predator, if it's part of Wolf's own Pack, do not consider Wolf an enemy
-     * otherwise, consider enemy. If a bear, always consider an enemy.
+     * Checks if the other animal is an enemy predator.
+     * Wolves consider other wolves not in their pack and bears as enemies.
+     *
      * @param other the other animal to check
-     * @return
+     * @return true if the other animal is an enemy predator, false otherwise
      */
-
     @Override
     public boolean isEnemyPredator(Animal other) {
         if (!(other instanceof Predator)) return false;
 
-        // If there's a wolf
         if (other instanceof Wolf otherWolf) {
-            // same pack → not an enemy
             if (this.pack != null && this.pack == otherWolf.getPack()) {
                 return false;
             }
-            // otherwise → enemy
             return true;
 
         } else if (other instanceof Bear) {
@@ -376,10 +399,10 @@ public class Wolf extends Predator {
     }
 
     /**
-     * Method of taking damage from an attack.
-     * @return int value of damage to energy.
+     * Gets the damage dealt by the wolf's attack.
+     *
+     * @return the attack damage value
      */
-
     @Override
     public int getAttackDamage() {
         return 10;
@@ -391,10 +414,10 @@ public class Wolf extends Predator {
 
 
     /**
-     * Display information method for Wolf with colour and label (imageKey .png file).
-     * @return dependant states of imagefile depending on state of Wolf regarding age and state.
+     * Provides display information for the wolf based on its age and sleeping state.
+     *
+     * @return DisplayInformation object representing the wolf's appearance
      */
-
     @Override
     public DisplayInformation getInformation() {
         if (isChild()) {

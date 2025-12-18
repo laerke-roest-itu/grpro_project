@@ -9,29 +9,44 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The RabbitTest class verifies the core behavioral logic of the {@link Rabbit} actor
+ * within a simulated {@link World}.
+ * The tests ensure that a Rabbit interacts correctly with its environment,
+ * including digging burrows, eating grass to gain energy, sleeping in its burrow
+ * at night, and reproducing under the correct conditions.
+ */
 class RabbitTest {
 
     private World world;
     private Rabbit rabbit;
     private Location rabbitLoc;
 
-    // Random der altid returnerer samme double (kun til burrow-chancen i Rabbit)
+    /**
+     * Helper class to provide a fixed random value.
+     */
     static class FixedRandom extends Random {
         private final double value;
         FixedRandom(double value) { this.value = value; }
         @Override public double nextDouble() { return value; }
     }
 
+    /**
+     * Sets up the world and test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         world = new World(10);
         world.setDay();
 
         rabbitLoc = new Location(5, 5);
-        rabbit = new Rabbit(new FixedRandom(0.90)); // > 0.50 => dig/claim sker ikke automatisk
+        rabbit = new Rabbit(new FixedRandom(0.90));
         world.setTile(rabbitLoc, rabbit);
     }
 
+    /**
+     * Cleans up the test environment after each test.
+     */
     @AfterEach
     void tearDown() {
         world = null;
@@ -41,6 +56,12 @@ class RabbitTest {
 
     // --- små helpers (ingen simulateTicks/Program) ---
 
+    /**
+     * Helper method to force day time and act for a specific number of times.
+     *
+     * @param actor the actor to act
+     * @param times the number of times to act
+     */
     private void forceDayAndAct(Object actor, int times) {
         for (int i = 0; i < times; i++) {
             world.setDay();
@@ -48,6 +69,12 @@ class RabbitTest {
         }
     }
 
+    /**
+     * Helper method to force night time and act for a specific number of times.
+     *
+     * @param actor the actor to act
+     * @param times the number of times to act
+     */
     private void forceNightAndAct(Object actor, int times) {
         for (int i = 0; i < times; i++) {
             world.setNight();
@@ -55,6 +82,11 @@ class RabbitTest {
         }
     }
 
+    /**
+     * Helper method to age a rabbit into an adult.
+     *
+     * @param r the rabbit to age
+     */
     private void makeAdult(Rabbit r) {
         // Rabbit.isChild() => age < 10, age++ sker kun når world.isDay()
         forceDayAndAct(r, 17);
@@ -63,6 +95,9 @@ class RabbitTest {
 
     // ------------------- TESTS -------------------
 
+    /**
+     * Test that a rabbit digs a burrow during the day if it doesn't have one.
+     */
     @Test
     void rabbitDigsBurrowDuringDay_whenNoBurrow() {
         // Erstat kanin med en der ALTID digger (nextDouble = 0.10 < 0.25)
@@ -79,6 +114,9 @@ class RabbitTest {
         assertTrue(world.isOnTile(rabbit.getBurrow()), "Burrow should be placed on the map");
     }
 
+    /**
+     * Test that a rabbit eats grass and gains energy.
+     */
     @Test
     void rabbitEatsGrassAndGainsEnergy() {
         rabbit.setEnergy(10); // sulten
@@ -103,6 +141,9 @@ class RabbitTest {
         assertTrue(rabbit.getEnergy() > before, "Rabbit should gain energy from eating grass");
     }
 
+    /**
+     * Test that a rabbit sleeps in its burrow at night.
+     */
     @Test
     void rabbitSleepsAtNight_whenHasBurrow() {
         Burrow burrow = new Burrow();
@@ -118,6 +159,9 @@ class RabbitTest {
         assertFalse(world.isOnTile(rabbit), "Sleeping rabbit should be removed from the map (in burrow)");
     }
 
+    /**
+     * Test that rabbits reproduce in a burrow at night.
+     */
     @Test
     void rabbitsReproduceAtNight_whenTwoInSameBurrow_andLeaderAdult() {
         Burrow burrow = new Burrow();

@@ -21,27 +21,32 @@ public abstract class Predator extends Animal {
         super(maxAge);
     }
 
-    /** Returns the hunting area of the predator.
+    /**
+     * Returns the hunting area of the predator.
      *
-     * @param world hswo
+     * @param world the world in which the predator hunts
      * @return the set of locations defining the hunting area
      */
     protected abstract Set<Location> getHuntingArea(World world);
 
-    /** Returns the movement cost for hunting.
+    /**
+     * Returns the movement cost for hunting.
      *
      * @return the movement cost as an integer
      */
     protected abstract int getHuntMoveCost();
 
-    /** Determines if another animal is an enemy predator.
+    /**
+     * Determines if another animal is an enemy predator.
      *
      * @param other the other animal to check
      * @return true if the other animal is an enemy predator, false otherwise
      */
     protected abstract boolean isEnemyPredator(Animal other);
 
-    /** The hunting behavior of the predator.
+    /**
+     * The hunting behavior of the predator.
+     * It checks for nearby herbivore to kill, otherwise it looks for enemy predators, carcasses, or prey in its hunting area.
      *
      * @param world the world in which the predator exists
      */
@@ -78,12 +83,17 @@ public abstract class Predator extends Animal {
         }
     }
 
+    /**
+     * Engages the target at the specified location. If adjacent, it interacts (kills or eats).
+     * Otherwise, it moves one step closer.
+     * @param world the world in which the predator acts
+     * @param targetLoc the location of the target to engage
+     */
     protected void engageTarget(World world, Location targetLoc) {
         Location myLoc = world.getLocation(this);
         Set<Location> neighbors = world.getSurroundingTiles(myLoc);
 
         if (neighbors.contains(targetLoc)) {
-            // we're next to target -> interact
             Object o = world.getTile(targetLoc);
 
             if (o instanceof Herbivore prey) {
@@ -91,14 +101,11 @@ public abstract class Predator extends Animal {
             }
             if (o instanceof Predator predator && isEnemyPredator(predator)) {
                 fight(predator, world);
-                // if enemy died during fight, we can possibly eat the Carcass during a later tick
                 return;
             }
 
-            // 2) or: there's something we can eat (Carcass, Rabbit, osv.)
             eat(world, targetLoc);
         } else {
-            // or: move one step closer to target
             moveOneStepTowards(world, targetLoc, getHuntMoveCost());
         }
     }
@@ -106,12 +113,11 @@ public abstract class Predator extends Animal {
 
     /**
      * Find the closest enemy predator within a specified area.
-     * @param world
-     * @param area
-     * @param from
-     * @return
+     * @param world the world in which the predator exists
+     * @param area the set of locations to search in
+     * @param from the starting location for distance calculation
+     * @return the location of the closest enemy predator, or null if none found
      */
-
     protected Location findClosestEnemyPredator(World world, Set<Location> area, Location from) {
         Location closest = null;
         int bestDistance = Integer.MAX_VALUE;
@@ -133,12 +139,11 @@ public abstract class Predator extends Animal {
 
     /**
      * Find the closest carcass within a specified area.
-     * @param world
-     * @param area
-     * @param from
-     * @return
+     * @param world the world in which the predator exists
+     * @param area the set of locations to search in
+     * @param from the starting location for distance calculation
+     * @return the location of the closest carcass, or null if none found
      */
-
     protected Location findClosestCarcass(World world, Set<Location> area, Location from) {
         Location closest = null;
         int bestDistance = Integer.MAX_VALUE;
@@ -158,10 +163,10 @@ public abstract class Predator extends Animal {
 
     /**
      * Find the closest prey within a specified area.
-     * @param world
-     * @param area
-     * @param from
-     * @return
+     * @param world the world in which the predator exists
+     * @param area the set of locations to search in
+     * @param from the starting location for distance calculation
+     * @return the location of the closest prey, or null if none found
      */
     protected Location findClosestPrey(World world, Set<Location> area, Location from) {
         Location closest = null;
@@ -186,7 +191,6 @@ public abstract class Predator extends Animal {
      * @param opponent the opposing predator.
      * @param world the world in which the fight takes place.
      */
-
     protected void fight(Predator opponent, World world) {
         int myDamage      = this.getAttackDamageAgainst(opponent);
         int theirDamage   = opponent.getAttackDamageAgainst(this);
@@ -204,36 +208,26 @@ public abstract class Predator extends Animal {
 
     /**
      * Get the base attack damage of the predator.
-     * @return
+     * @return the attack damage value
      */
-
-    protected abstract int getAttackDamage();         // base-damage
+    protected abstract int getAttackDamage();
 
     /**
      * Get the attack damage against a specific target.
-     * @param target
-     * @return
+     * @param target the animal being attacked
+     * @return the amount of damage to deal
      */
-
     public int getAttackDamageAgainst(Animal target) {
-        // standard: same damage to all targets
         return getAttackDamage();
     }
 
+    
     /**
-     *  Kill the specified prey animal in the world. And insure if it dies and creates a Carcass,
-     *  the Predator can eat it afterwards.
-     * @param world
-     * @param prey
-     */
-
-    /** The predator kills its prey
-     *
-     * @param world is the world in which the prey dies
-     * @param prey is the animal that gets killed
+     * Kills the specified prey in the world.
+     * @param world the world in which the kill occurs.
+     * @param prey the animal to be killed.
      */
     protected void kill(World world, Animal prey) {
         prey.die(world);
     }
-
 }

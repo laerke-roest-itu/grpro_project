@@ -19,16 +19,16 @@ import java.util.Set;
  */
 public class Rabbit extends Herbivore {
     private Burrow burrow;
-    private final Random random;
 
-    /** Constructor for Rabbit.
+    /**
+     * Constructor for Rabbit.
      */
     public Rabbit() {
         super(180);
-        this.random = new Random();
     }
 
-    /** Constructor for Rabbit with specified Random instance. Used for testing.
+    /**
+     * Constructor for Rabbit with specified Random instance. Used for testing.
      *
      * @param random the Random instance to use for randomness
      */
@@ -63,23 +63,26 @@ public class Rabbit extends Herbivore {
     }
 
     /**
-     * Rabbit's night behavior, including reproduction if in a burrow with others.
+     * Determines the rabbit's behavior at night.
+     * The rabbit will sleep if it has a burrow and attempt to reproduce if other rabbits are present.
+     *
      * @param world the world in which the rabbit exists
      */
     @Override
     public void nightBehaviour(World world) {
         if (burrow != null) {
+            sleep(world);
             List<Rabbit> loveRabbits = burrow.getRabbits();
             if (loveRabbits.size() >= 2) {
                 reproduce(world);
             }
-            sleep(world);
         } else {
             energy -= 5; // no shelter - lose energy from exposure
         }
     }
 
-    /** Rabbit seeks shelter in its burrow.
+    /**
+     * Rabbit seeks shelter in its burrow.
      *
      * @param world the world in which the rabbit exists
      */
@@ -100,9 +103,11 @@ public class Rabbit extends Herbivore {
 
     // ----------- LIFE -----------
 
-    /** Wakes up rabbit and tries placing it on top of the burrow.
-     * If that is not possible, place the rabbit on an adjacent tile.
-     * @param world The world in which the animal wakes up.
+    /**
+     * Wakes up the rabbit and tries placing it on top of its burrow.
+     * If that is not possible, places the rabbit on an adjacent empty tile.
+     *
+     * @param world the world in which the rabbit wakes up
      */
     @Override
     public void wakeUp(World world) {
@@ -129,9 +134,11 @@ public class Rabbit extends Herbivore {
         }
     }
 
-    /** Handles rabbits sleeplocation. If rabbit has a burrow it sleeps int burrow
-     * and is removed from the world
-     * @param world the world in which the herbivore exists
+    /**
+     * Handles the rabbit's sleep location. If the rabbit has a burrow, it sleeps in it
+     * and is removed from the world map.
+     *
+     * @param world the world in which the rabbit exists
      */
     @Override
     protected void handleSleepLocation(World world) {
@@ -140,9 +147,10 @@ public class Rabbit extends Herbivore {
         }
     }
 
-    /** Energy cost for sleeping for rabbits.
+    /**
+     * Gets the amount of energy restored when the rabbit sleeps.
      *
-     * @return energy cost for sleeping
+     * @return the energy restored from sleeping
      */
     @Override
     protected int getSleepEnergy() { return 25; }
@@ -198,6 +206,12 @@ public class Rabbit extends Herbivore {
 
     // ----------- REPRODUCTION -----------
 
+    /**
+     * Determines the reproduction behavior for rabbits.
+     * Rabbits reproduce if they are in a burrow and the burrow's capacity is not exceeded.
+     *
+     * @param world the world in which the rabbit exists
+     */
     @Override
     public void reproduce(World world) {
         if (burrow == null) return;
@@ -253,7 +267,8 @@ public class Rabbit extends Herbivore {
 
     // ----------- BURROW -----------
 
-    /** Rabbit attempts to dig a burrow at its current location in the world.
+    /**
+     * Rabbit attempts to dig a burrow at its current location in the world.
      * If the location is occupied by grass or fungi, it removes them first.
      * If the location is already occupied by a burrow, it claims that burrow.
      *
@@ -283,6 +298,10 @@ public class Rabbit extends Herbivore {
     }
 
 
+    /**
+     * Claims an existing burrow at or near the rabbit's current location.
+     * @param world the world in which the rabbit exists
+     */
     public void claimBurrow(World world) {
         Location rabbitLocation = world.getLocation(this);
         Object obj = world.getNonBlocking(rabbitLocation);
@@ -301,16 +320,30 @@ public class Rabbit extends Herbivore {
         }
     }
 
+    /**
+     * Returns the burrow assigned to the rabbit.
+     * @return the rabbit's burrow
+     */
     public Burrow getBurrow() {return burrow;}
 
+    /**
+     * Sets the burrow for the rabbit and adds the rabbit to the burrow's list.
+     * @param burrow the burrow to assign
+     */
     public void setBurrow(Burrow burrow) {
         this.burrow = burrow;
-        this.shelter = burrow;          // <-- important to set shelter as well
+        this.shelter = burrow;
         if (burrow != null) {
             burrow.addRabbit(this);
         }
     }
 
+    /**
+     * Checks if the rabbit is the leader of its burrow.
+     * The leader is the first rabbit in the burrow's list.
+     *
+     * @return true if the rabbit is the leader, false otherwise
+     */
     private boolean isLeaderInBurrow() {
         return burrow != null && !burrow.getRabbits().isEmpty()
                 && burrow.getRabbits().get(0) == this;
@@ -318,24 +351,34 @@ public class Rabbit extends Herbivore {
 
     // ----------- EXTRA/SETTERS/GETTERS/HELPERS/VISUAL -----------
 
+    /**
+     * Checks if the rabbit is a child (age < 15).
+     *
+     * @return true if the rabbit is a child, false otherwise
+     */
     @Override
     public boolean isChild() {
         return getAge() < 15;
     }
 
+    /**
+     * Provides display information for the rabbit based on its age and sleeping state.
+     *
+     * @return DisplayInformation object representing the rabbit's appearance
+     */
     @Override
     public DisplayInformation getInformation() {
-        if (isChild()) { //
+        if (isChild()) {
             if (isSleeping) {
                 return new DisplayInformation(Color.WHITE, "rabbit-small-sleeping");
             } else {
-                return new DisplayInformation(Color.WHITE, "rabbit-small"); // billede af kaninunge
+                return new DisplayInformation(Color.WHITE, "rabbit-small");
             }
         } else {
             if (isSleeping) {
                 return new DisplayInformation(Color.LIGHT_GRAY, "rabbit-sleeping");
             } else {
-                return new DisplayInformation(Color.LIGHT_GRAY, "rabbit-large"); // billede af voksen kanin
+                return new DisplayInformation(Color.LIGHT_GRAY, "rabbit-large");
             }
         }
     }
